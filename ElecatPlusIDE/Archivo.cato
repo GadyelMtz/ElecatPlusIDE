@@ -1,0 +1,65 @@
+MOTOR #motor1#;
+LED #Verde#, #Amarillo#, #Rojo#;
+SENSOR_ULTRASONICO #sensor1#;
+BUZZER #claxon#, #estacionado#;
+DISPLAY_LCD #pantalla_informativa#;
+SIETE_SEGMENTOS #cambios#;
+BOTON #cambioAbajo#, #cambioArriba#, #intermitenteIzq#, #intermitenteDerecha#;
+
+// Variables globales
+ENTERO #cambio# = 0;
+ENTERO #distancia# = 0;
+
+FUNCION PRINCIPAL{
+	#motor1# = 5 VOLTIOS;
+	
+	// En caso de que se presione un boton
+	SI (ACCION(#cambioArriba#, PRESIONA) AND #cambio# ES MENOR QUE 3){
+	    #cambio#++;
+	} SINO
+	SI (ACCION(#cambioAbajo#, PRESIONA) AND #cambio# ES MAYOR IGUAL QUE 0){
+	    #cambio#--;
+	}
+
+	// Evaluar la cantidad de veces que se presiona el boton
+	SI(#cambio# ES MAYOR QUE 0 AND MENOR QUE 2){
+		ACCION(#sensor1#, APAGADO);
+		SI(#cambio# ES IGUAL A 0){
+			ACCION(#motor1#, APAGADO);
+			ACCION(#cambios#, ESCRIBE(N));
+			ACCION(#Amarillo#, ENCENDIDO);
+		}SINO
+		SI(#cambio# ES IGUAL A 1){
+			ACCION(#motor1#, ENCENDIDO);
+			ACCION(#cambios#, ESCRIBE(D));
+			ACCION(#Verde#, ENCENDIDO);
+		}
+	}
+	SINO{   // El carrito está de reversa
+		ACCION(#sensor1#, ENCENDIDO);
+		ACCION(#motor1#, REVERSA);
+		ACCION(#cambios#, ESCRIBE(R));
+		ACCION(#Rojo#, ENCENDIDO);
+		#distancia# = ACCION(#sensor1#, LEER);
+		
+		// PITAR ESTACIONADO
+		SI(#distancia# MENOR QUE 1){
+			ACCION(#estacionado#, ENCENDIDO);
+			ESPERAR(5, MILISEGUNDO);
+			ACCION(#estacionado#, APAGADO);
+		}
+
+		SI(#distancia# MAYOR QUE 1 AND #distancia# MENOR QUE 3){
+			ACCION(#estacionado#, ENCENDIDO);
+			ESPERAR(15, MILISEGUNDO);
+			ACCION(#estacionado#, APAGADO);
+		}	
+		
+		SI(#distancia# MAYOR IGUAL QUE 3){
+			ACCION(#estacionado#, ENCENDIDO);
+			ESPERAR(1, SEGUNDO);
+			ACCION(#estacionado#, APAGADO);
+		}	
+
+	}
+}
