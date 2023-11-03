@@ -1,13 +1,40 @@
-programa #yEHS5# {
-
- //booleano #ogewCR#;
- /*booleano #ogewCR#;*/
- booleano #LpZ2NY7w_mX#;
- booleano #ogewCR# = ( ( #LpZ2NY7w_mX# or falso ) or .9 ) and f * 3.24 + (43-2) + 1;
-
- si ( 08272  ) { 
-
- } sino {
-
- }  
+programa #fCp# {
+    decimal #WIT2r3dPgyA6pt# = 323.31;
+    // entero #WIT2r3dPgyA6pt#;
+    siete_segmentos #WIT2r3dPgyA6pt#;
 }
+
+
+// programa #Velocidades# {
+//     siete_segmentos #Velocidad#;
+// 2 Pines
+//     sensor_ultrasonico #cd#;
+ // 2 Pines
+//     buzzer #JX#;
+// 1 Pin
+//     display_lcd #dc#;
+// 2 Pines
+
+    
+    
+    
+    
+//     repetir mientras ( v ) {
+//         accion (#Velocidad#,escribir(0));
+
+//         esperar(1000,milisegundo);
+
+//         accion (#Velocidad#,escribir(1));
+
+//         esperar(1000,milisegundo);
+
+//         accion (#Velocidad#,escribir(2));
+
+//         esperar(1000,milisegundo);
+
+//         accion (#Velocidad#,escribir(3));
+
+//         esperar(1000,milisegundo);
+
+//     }
+// }

@@ -16,66 +16,90 @@ import java.util.Stack;
     Stack<Token> pilaOperadores = new Stack<>();
     boolean isDeclaration = false;
     Token t;
-    final Set<String> booleanos = new HashSet<>(Arrays.asList("v","f","verdadero","falso","booleano","and","or"));
-    final Set<String> algebraicos = new HashSet<>(Arrays.asList("decimal","entero"));
+    final Set<Integer> booleanos = new HashSet<Integer>(Arrays.asList(TD_BOOLEANO, BOOLEANO));
+    final Set<Integer> enteros = new HashSet<>(Arrays.asList(TD_ENTERO, ENTERO));
+    final Set<Integer> decimales = new HashSet<>(Arrays.asList(DECIMAL, TD_DECIMAL));
+    final Set<Integer> operadores = new HashSet<>(Arrays.asList(OP_ARITMETICO, OP_COMPARADOR, OP_LOGICO));
 
-    //#region CódigoSemántico
-    void imprimirPila(){
-        Stack<Token> x = (Stack<Token>) salida.clone();
+    // #region CódigoSemántico
+    void imprimirPila(Stack<Token> xdd) {
+        Stack<Token> x = (Stack<Token>) xdd.clone();
         String xd = "";
         while (!x.empty()) {
-            xd+=x.pop().getText()+" ";
+            xd += x.pop().getText() + " ";
         }
         System.out.println(xd);
     }
 
-    boolean resolverPila(String tipo){
-        while (!pilaOperadores.empty()) {
-            salida.push(pilaOperadores.pop());
-        }
-        // Sacar el resto de operadores de la pila
-        invertirSalida(); 
-        //Para leer de izquierda a derecha y no de derecha a izquierda (como llega)
-        if (salida.size()==1){
+    boolean resolverPila(HashSet<Integer> tipos) {
+        invertirSalida();
+        imprimirPila(salida);
+        // Para leer de izquierda a derecha y no de derecha a izquierda (como llega)
+        if (salida.size() == 1) {
             Token t = salida.pop();
-            String tipoP;
-            if (booleanos.contains(t.getText())){
-                tipoP="booleano";
-            } else {
-                tipoP = t.getType() == NUMERO ? t.getText().contains(".") ? "decimal" : "entero" : t.getText();
-            }
-            return tipo.equals(tipoP);
+            return tipos.contains(t.getType());
         }
         Stack<Token> t = new Stack<>();
         while (!salida.empty()) {
-            if (salida.peek().getType()!=OP_BIN){
+            if (salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <= OP_ARITMETICO) {
                 t.push(salida.pop());
             } else {
                 try {
-                    t.push(validarOperacion(t.pop(),t.pop(),salida.pop()));
+                    t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
                 } catch (Exception e) {
                     return false;
                 }
             }
         }
-        return t.pop().equals(tipo);
+        return tipos.contains(t.pop().getType());
     }
 
-    private Token validarOperacion(Token operando1,Token operando2 , Token operador) throws Exception {
-        if (booleanos.contains(operador.getText())){
-            if(!booleanos.contains(operando1.getText()) || !booleanos.contains(operando2.getText()))
-                throw new Exception();
-            return new CommonToken(TIPO_DATO,"booleano");
-        } else {
-            String t1 = operando1.getType()==NUMERO ? operando1.getText().contains(".") ? "decimal" : "entero" : operando1.getText();
-            String t2 = operando2.getType()==NUMERO ? operando2.getText().contains(".") ? "decimal" : "entero" : operando2.getText();
-            if(!algebraicos.contains(t1) || !algebraicos.contains(t2))
-                throw new Exception();
-            return (t1.equals("decimal") || t2.equals("decimal")) ? new CommonToken(TIPO_DATO,"decimal") : new CommonToken(TIPO_DATO,"entero"); 
+    private Token validarOperacion(Token operando1, Token operando2, Token operador) throws Exception {
+        try {
+            if (operador.getType() == OP_LOGICO) {
+                if (!booleanos.contains(operando1.getType()) || !booleanos.contains(operando2.getType())) {
+                    throw new Exception();
+                }
+                return new CommonToken(BOOLEANO, "booleano");
+            } else if (operador.getType() == OP_ARITMETICO || operador.getType() == OP_COMPARADOR) {
+                byte d = 0;
+                d += decimales.contains(operando1.getType()) ? 1 : 0;
+                d += decimales.contains(operando2.getType()) ? 2 : 0;
+                switch (d) {
+                    case 0:
+                        if (!enteros.contains(operando1.getType()) && !enteros.contains(operando2.getType()))
+                            throw new Exception();
+                        return new CommonToken(operador.getType() == OP_ARITMETICO ? (operador.getText().equals("/"))? DECIMAL : ENTERO : BOOLEANO, "valor");
+                    case 1:
+                        if (!enteros.contains(operando2.getType()))
+                            throw new Exception();
+                        break;
+                    case 2:
+                        if (!enteros.contains(operando1.getType()))
+                            throw new Exception();
+                        break;
+                    default:
+                        break;
+                }
+                return new CommonToken(operador.getType() == OP_ARITMETICO ? DECIMAL : BOOLEANO, "valor");
+            }
+        } catch (Exception e) {
+            String err = "Operación inválida: '" + operando1.getText() + " " + operador.getText() + " "
+                    + operando2.getText() + "'";
+            err += "\nTipos de dato incompatibles: '" + operando1.getType() + " " + operador.getText() + " "
+                    + operando2.getType() + "'";
+            err += "\nLínea: " + operador.getLine() + ", " + operador.getCharPositionInLine();
+            System.out.println(err);
+            throw e;
         }
+        return null;
     }
 
     private void invertirSalida() {
+        while (!pilaOperadores.empty()) {
+            salida.push(pilaOperadores.pop());
+        }
+        // Sacar el resto de operadores de la pila
         Stack<Token> invertido = new Stack<>();
         while (!salida.empty()) {
             invertido.push(salida.pop());
@@ -83,27 +107,32 @@ import java.util.Stack;
         salida = invertido;
     }
 
+    boolean operando(int tipo){
+        return booleanos.contains(tipo) || enteros.contains(tipo) || decimales.contains(tipo);
+    }
+
     // Funcion para añadir a la pila semántica
     void añadirAPila(Token t) {
         if (t == null)
             return;
         int type = t.getType();
-        if (type == ID){
-                salida.push(variablesDeclaradas.get(t.getText()));
-        } else if (type == NUMERO || type == BOOLEANO){
+        if (type == ID) {
+            salida.push(variablesDeclaradas.get(t.getText()));
+        } else if (operando(type)) {
             salida.push(t);
-        } else if (type == OP_BIN){
-            while (!pilaOperadores.empty() && precedencia(pilaOperadores.peek().getText()) >= precedencia(t.getText())) {
+        } else if (operadores.contains(type)) {
+            while (!pilaOperadores.empty()
+                    && precedencia(pilaOperadores.peek().getText()) >= precedencia(t.getText())) {
                 salida.push(pilaOperadores.pop());
             }
             pilaOperadores.push(t);
-        } else if (type == PAR_ABRIR){
+        } else if (type == PAR_ABRIR) {
             pilaOperadores.push(t);
-        } else if (type == PAR_CERRAR){
-            while (!pilaOperadores.empty() && pilaOperadores.peek().getType()!=PAR_ABRIR) {
-                salida.push(pilaOperadores.pop());                
+        } else if (type == PAR_CERRAR) {
+            while (!pilaOperadores.empty() && pilaOperadores.peek().getType() != PAR_ABRIR) {
+                salida.push(pilaOperadores.pop());
             }
-            if (!pilaOperadores.empty() && pilaOperadores.peek().getType()==PAR_ABRIR)
+            if (!pilaOperadores.empty() && pilaOperadores.peek().getType() == PAR_ABRIR)
                 pilaOperadores.pop();
         }
     }
@@ -113,6 +142,12 @@ import java.util.Stack;
             case "+":
             case "-":
             case "or":
+            case "==":
+            case "!=":
+            case "<":
+            case "<=":
+            case ">":
+            case ">=":
                 return 1;
             case "*":
             case "/":
@@ -126,21 +161,21 @@ import java.util.Stack;
     // Predicado semántico para verificar si una variable se ha declarado al
     // intentar declararla
     boolean variableDeclarada(Token variable, Token tipoVariable) {
-		if (!isDeclaration)
-			return false;
-		String nombreVariable = variable.getText();
+        if (!isDeclaration)
+            return false;
+        String nombreVariable = variable.getText();
         if (variablesDeclaradas.containsKey(nombreVariable))
-			return true;
-		variablesDeclaradas.put(nombreVariable,tipoVariable);
-		return false;
-	}
+            return true;
+        variablesDeclaradas.put(nombreVariable, tipoVariable);
+        return false;
+    }
 
     // Predicado semántico para verificar si una variable se ha declarado al
     // intentar declararla
     boolean usarVariable(Token variable) {
         return variablesDeclaradas.containsKey(variable.getText());
     }
-    //#endregion
+    // #endregion
 }
 
 // // Excepción personalizada para errores semánticos class SemanticErrorException extends
@@ -150,7 +185,8 @@ import java.util.Stack;
 // Object>(); }
 
 // ESTRUCTURAS DEL PROGRAMA.
-programa: PROGRAMA ID BRACKET_ABRIR sentencia+ BRACKET_CERRAR;
+programa:
+	PROGRAMA ID BRACKET_ABRIR sentencia+ sentencia+ BRACKET_CERRAR;
 
 sentencia:
 	declaracion
@@ -166,18 +202,21 @@ declaracion:
 	) { isDeclaration = false;};
 
 asignacion:
-	ID { !variableDeclarada($ID,t) }? { usarVariable($ID) }? SIGNO_IGUAL expresion { 
-            invertirSalida();
-            imprimirPila();
-		} {resolverPila(variablesDeclaradas.get($ID.text).getText())}? FIN_LINEA;
+	ID { !variableDeclarada($ID,t) }? { usarVariable($ID) }? SIGNO_IGUAL expresion {resolverPila(new HashSet<>(Arrays.asList(variablesDeclaradas.get($ID.text).getType())))
+		}? FIN_LINEA;
 
 condicionalif:
-	SI PAR_ABRIR expresion PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR (
-		SI_NO BRACKET_ABRIR sentencia* BRACKET_CERRAR
+	SI PAR_ABRIR expresion {resolverPila(new HashSet<>(Arrays.asList(BOOLEANO,TD_BOOLEANO)))}?
+		PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR (
+		SI_NO (
+			SI PAR_ABRIR expresion {resolverPila(new HashSet<>(Arrays.asList(BOOLEANO,TD_BOOLEANO)))
+				}? PAR_CERRAR
+		)? BRACKET_ABRIR sentencia* BRACKET_CERRAR
 	)?;
 
 cicloWhile:
-	REPETIR MIENTRAS PAR_ABRIR expresion PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR;
+	REPETIR MIENTRAS PAR_ABRIR expresion {resolverPila(new HashSet<>(Arrays.asList(BOOLEANO,TD_BOOLEANO)))
+		}? PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR;
 
 accion:
 	esperar
@@ -191,19 +230,20 @@ accion:
 // ENCENDER); ACCION (#idServo#, GIRA(180, antihorario)); ACCION (#LCD#, ESCRIBIR(Hola Angel));
 // ESPERAR(13, SEGUNDOS);
 esperar:
-	ESPERAR PAR_ABRIR NUMERO COMA TIEMPO PAR_CERRAR FIN_LINEA;
+	ESPERAR PAR_ABRIR numero (COMA TIEMPO)? PAR_CERRAR FIN_LINEA;
 // ESPERAR(213, SEGUNDOS);
-girar: GIRAR PAR_ABRIR NUMERO COMA DIRECCION PAR_CERRAR;
+girar: GIRAR PAR_ABRIR numero COMA DIRECCION PAR_CERRAR;
 // GIRA(grados, direccion)
-escribir: ESCRIBIR PAR_ABRIR (ID | CADENA | NUMERO) PAR_CERRAR;
+escribir: ESCRIBIR PAR_ABRIR (ID | CADENA | numero) PAR_CERRAR;
 // ESCRIBIR(ID|Cadena) ACCION(#sieteseg#, ESCRIBIR(#micadena#));
 
 termino:
-	(t = BOOLEANO | t = NUMERO | t = ID { usarVariable($t) }?) { añadirAPila($t); }
+	(t = BOOLEANO | t = ID { usarVariable($t) }?) { añadirAPila($t); }
+	| numero {añadirAPila(t);}
 	| t = PAR_ABRIR { añadirAPila($t); } expresion t = PAR_CERRAR { añadirAPila($t); };
 
 expresion: termino operacionBinaria*;
-operacionBinaria: (OP_BIN { añadirAPila($OP_BIN); } termino);
+operacionBinaria: (op_bin { añadirAPila(t); } termino);
 
 // Regla léxica para comentarios de línea
 COMENTARIO_LINEA: '//' ~[\r\n]* -> skip;
@@ -217,49 +257,52 @@ COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
 // #[a-zA-Z](([a-zA-Z]|[0-9])*(_([a-zA-Z]|[0-9]))?)*([a-zA-Z]|[0-9])*#
 ID:
 	'#' [a-zA-Z] ([a-zA-Z0-9]* ('_' [a-zA-Z0-9]+)?)? [a-zA-Z0-9]* '#';
-NUMERO: ([0-9]+ | [0-9]+ '.' [0-9]+ | '.' [0-9]+);
+numero: (t = DECIMAL | t = ENTERO) {t=$t;};
+DECIMAL: ([0-9]+ '.' [0-9]+ | '.' [0-9]+);
+ENTERO: [0-9]+;
 CADENA: '"' [a-zA-Z0-9]+ '"';
 
 ESCRIBIR: 'escribir';
 GIRAR: 'gira';
-//PENDIENTE
-ACCIONES: 'sonar' | 'encender' | 'apagar';
-LEE: 'leer';
 PROGRAMA: 'programa';
 ACCION: 'accion';
-ESTADO: 'encendido' | 'apagado' | 'reversa';
 COMPONENTE:
-	'led'
-	| 'display_lcd'
+	'display_lcd'
 	| 'servo'
 	| 'sensor_ultrasonico'
 	| 'motor'
 	| 'foto_resistencia'
 	| 'buzzer'
-	| 'siete_segmentos' 'boton'
-	| 'fuente';
-
+	| 'siete_segmentos'
+	| 'boton'
+	| 'fuente'
+	| 'registro'
+	| 'pin';
 DIRECCION: 'horario' | 'antihorario';
 
 // Operadores binarios
-OP_BIN: 'and' | 'or' | '+' | '-' | '*' | '/';
+op_bin: (t = OP_LOGICO | t = OP_COMPARADOR | t = OP_ARITMETICO) {t=$t;};
+OP_LOGICO: 'and' | 'or';
+OP_COMPARADOR: '==' | '!=' | '<' | '<=' | '>' | '>=';
+OP_ARITMETICO: '+' | '-' | '*' | '/';
 NOT: 'not';
 TIEMPO: 'milisegundo' | 'segundo' | 'minuto';
-UNIDAD: 'voltio' | 'amperio' | 'ohm' | 'watt';
 SI: 'si';
-SI_NO: 'sino';
-CONDICION: 'elegir' | 'opcion' | 'por defecto';
+SI_NO: 'si_no';
 REPETIR: 'repetir';
 MIENTRAS: 'mientras';
-CICLO: 'hasta' | 'por' | 'para';
-VAR: 'var';
 TIPO_DATO:
-	'decimal'
-	| 'entero'
-	| 'caracter'
-	| 'cadena'
-	| 'booleano'
-	| 'tabla';
+	TD_DECIMAL
+	| TD_ENTERO
+	| TD_CARACTER
+	| TD_CADENA
+	| TD_BOOLEANO;
+
+TD_DECIMAL: 'decimal';
+TD_ENTERO: 'entero';
+TD_CARACTER: 'caracter';
+TD_CADENA: 'cadena';
+TD_BOOLEANO: 'booleano';
 FIN_LINEA: ';';
 SIGNO_IGUAL: '=';
 BOOLEANO: 'v' | 'f' | 'verdadero' | 'falso';
@@ -267,12 +310,6 @@ BRACKET_ABRIR: '{';
 BRACKET_CERRAR: '}';
 PAR_ABRIR: '(';
 PAR_CERRAR: ')';
-ES: 'es';
-MAYOR: 'mayor';
-MENOR: 'menor';
-IGUAL: 'igual';
-QUE: 'que';
-DIFERENTE: 'diferente';
 ESPERAR: 'esperar';
 COMA: ',';
 
