@@ -28,9 +28,9 @@ public class Main {
     private static final int PAR_CERRAR = 0;
     private static final int TD_BOOLEANO = 0;
     private static final int TD_ENTERO = 0;
-    private static final int ENTERO = 0;
+    private static final int ENTERO = 2;
     private static final int TD_DECIMAL = 0;
-    private static final int DECIMAL = 0;
+    private static final int DECIMAL = 1;
     private static final int OP_ARITMETICO = 0;
     private static final int OP_LOGICO = 0;
     private static final int OP_COMPARADOR = 0;
@@ -51,6 +51,7 @@ public class Main {
         String xd = "";
         while (!x.empty()) {
             xd += x.pop().getText() + " ";
+            
         }
         System.out.println(xd);
     }
@@ -65,15 +66,28 @@ public class Main {
         }
         Stack<Token> t = new Stack<>();
         while (!salida.empty()) {
-            if (salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <= OP_ARITMETICO) {
+            if (!(salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <= OP_ARITMETICO)) {
                 t.push(salida.pop());
+                imprimirPila(t);
             } else {
                 try {
                     t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
+                    imprimirPila(t);
                 } catch (Exception e) {
                     return false;
                 }
             }
+        }
+        if (tipos.size()==1)
+        switch (t.pop().getType()) {
+            case DECIMAL:
+                return decimales.contains(tipos.toArray()[0]);
+            case ENTERO:
+                return enteros.contains(tipos.toArray()[0]);
+            case BOOLEANO:
+                return booleanos.contains(tipos.toArray()[0]);
+            default:
+                break;
         }
         return tipos.contains(t.pop().getType());
     }
@@ -93,7 +107,8 @@ public class Main {
                     case 0:
                         if (!enteros.contains(operando1.getType()) && !enteros.contains(operando2.getType()))
                             throw new Exception();
-                        return new CommonToken(operador.getType() == OP_ARITMETICO ? (operador.getText().equals("/"))? DECIMAL : ENTERO : BOOLEANO, "valor");
+                        int xddd;
+                        return new CommonToken(xddd = (operador.getType() == OP_ARITMETICO ? (operador.getText().equals("/"))? DECIMAL : ENTERO : BOOLEANO), xddd == DECIMAL ? "decimal" : xddd == ENTERO ? "entero" : "booleano");
                     case 1:
                         if (!enteros.contains(operando2.getType()))
                             throw new Exception();
@@ -105,7 +120,8 @@ public class Main {
                     default:
                         break;
                 }
-                return new CommonToken(operador.getType() == OP_ARITMETICO ? DECIMAL : BOOLEANO, "valor");
+                int xddd;
+                return new CommonToken(xddd = (operador.getType() == OP_ARITMETICO ? DECIMAL : BOOLEANO), xddd == DECIMAL ? "decimal" : "booleano");
             }
         } catch (Exception e) {
             String err = "Operación inválida: '" + operando1.getText() + " " + operador.getText() + " "
@@ -225,26 +241,7 @@ public class Main {
             System.out.println("");
             ParseTree tree = parser.programa(); // Comienza el análisis desde la regla expr
 
-            // Prueba de PINES
-            try {
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-                solicitarPin();
-            } catch (Exception e) {
-                System.out.println(e);
-            }
+            // Prueba de PINES = FUNCIONÓ
         } catch (Exception e) {
             if (e instanceof IOException)
                 System.out.println("El archivo no fué encontrado" + e);

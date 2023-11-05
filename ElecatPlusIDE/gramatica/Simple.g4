@@ -41,15 +41,28 @@ import java.util.Stack;
         }
         Stack<Token> t = new Stack<>();
         while (!salida.empty()) {
-            if (salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <= OP_ARITMETICO) {
+            if (!(salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <= OP_ARITMETICO)) {
                 t.push(salida.pop());
+                imprimirPila(t);
             } else {
                 try {
                     t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
+                    imprimirPila(t);
                 } catch (Exception e) {
                     return false;
                 }
             }
+        }
+        if (tipos.size()==1)
+        switch (t.pop().getType()) {
+            case DECIMAL:
+                return decimales.contains(tipos.toArray()[0]);
+            case ENTERO:
+                return enteros.contains(tipos.toArray()[0]);
+            case BOOLEANO:
+                return booleanos.contains(tipos.toArray()[0]);
+            default:
+                break;
         }
         return tipos.contains(t.pop().getType());
     }
@@ -196,8 +209,8 @@ sentencia:
 	| accion;
 
 declaracion:
-	{ isDeclaration = true; } (t = TIPO_DATO | t = COMPONENTE) {t = $t;} (
-		(ID { !variableDeclarada($ID,$t) }? FIN_LINEA)
+	{ isDeclaration = true; } (tipo_dato | t = COMPONENTE {t = $t;}) (
+		(ID { !variableDeclarada($ID,t) }? FIN_LINEA)
 		| asignacion
 	) { isDeclaration = false;};
 
@@ -291,12 +304,12 @@ SI: 'si';
 SI_NO: 'si_no';
 REPETIR: 'repetir';
 MIENTRAS: 'mientras';
-TIPO_DATO:
-	TD_DECIMAL
-	| TD_ENTERO
-	| TD_CARACTER
-	| TD_CADENA
-	| TD_BOOLEANO;
+tipo_dato:
+	(t = TD_DECIMAL
+	| t = TD_ENTERO
+	| t = TD_CARACTER
+	| t = TD_CADENA
+	| t = TD_BOOLEANO) {t=$t;};
 
 TD_DECIMAL: 'decimal';
 TD_ENTERO: 'entero';
