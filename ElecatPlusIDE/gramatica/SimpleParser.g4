@@ -29,7 +29,6 @@ import java.util.Stack;
     }
     boolean resolverPila(HashSet<Integer> tipos) {
         invertirSalida();
-        imprimirPila(salida);
         
         if (salida.size() == 1) {
             Token t = salida.pop();
@@ -39,11 +38,9 @@ import java.util.Stack;
         while (!salida.empty()) {
             if (!(salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <= OP_ARITMETICO)) {
                 t.push(salida.pop());
-                imprimirPila(t);
             } else {
                 try {
                     t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
-                    imprimirPila(t);
                 } catch (Exception e) {
                     return false;
                 }
@@ -180,7 +177,7 @@ import java.util.Stack;
     
 }
 programa:
-	PROGRAMA ID BRACKET_ABRIR sentencia+ sentencia+ BRACKET_CERRAR EOF;
+	PROGRAMA ID BRACKET_ABRIR sentencia+ BRACKET_CERRAR EOF;
 sentencia:
 	declaracion
 	| asignacion

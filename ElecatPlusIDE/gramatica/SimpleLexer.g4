@@ -50,7 +50,7 @@ COMA: ',';
 WS: [ \t\r\n]+ -> skip;
 // ERROR: ~([0-9]|'/'|'#'|'"'|'e'|'g'|'p'|'a'|'d'|'f'|'b'|'s'|'r'|'h'|'o'|'n'|'m'|'c'|'v').+?WS;
 
-IDENTIFIER: Letter LetterOrDigit* { System.err.printl("No se reconoce el identificador "); };
+IDENTIFIER: Letter LetterOrDigit* { System.err.println("No se reconoce el identificador "); };
 fragment LetterOrDigit: Letter | [0-9];
 
 fragment Letter:
