@@ -145,6 +145,7 @@ public class IDE extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 0, 0));
         setForeground(new java.awt.Color(0, 0, 0));
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -582,10 +583,11 @@ public class IDE extends javax.swing.JFrame {
 
     private void guardar(File file) {
         try (PrintWriter escritor = new PrintWriter(rutaDocumento)) {
-            escritor.println(txtPaneIDE.getText());
+            escritor.print(txtPaneIDE.getText());
             // Puedes escribir más contenido si lo deseas
             escritor.flush(); // Asegúrate de guardar los cambios
             this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
+            escritor.close();
         } catch (IOException e) {
             e.printStackTrace(); // Manejo de errores
         }
@@ -627,7 +629,7 @@ public class IDE extends javax.swing.JFrame {
 
     private void escribir(File file) {
             if(compilado == false)
-                mensajeCompilado();
+                txtOutput.setText("El código aún no ha sido compilado");
             
             // Obtener la posición del caret
             int caretPosition = txtPaneIDE.getCaretPosition();
@@ -643,7 +645,6 @@ public class IDE extends javax.swing.JFrame {
                 this.setTitle(file.getName().replace(".cato", "") + "* - ElecatPlus IDE 1.0");
             }
             compilado = false;
-        
     }
 
     //METODO PARA ENCONTRAR LAS ULTIMAS CADENAS
