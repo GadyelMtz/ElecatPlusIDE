@@ -1,0 +1,62 @@
+programa #sdp# {
+    zzzzzzzzzzzzzzzzzzzzzz
+    booleano #WIT2r3dPgyA6pt# = (3+4*5 <= 5/3*(3-2)) or (1 == 1) and (1!=0);
+    entero #xdd# = (3+4*5 <= 5/3*(3-2)) or (1 == 1) and (1!=0);
+    #xdd# = 4+3*(3-2)+1;
+    decimal #xddd# = (3+4*5 <= 5/3*(3-2)) or (1 == 1) and (1!=0);
+    #xddd# = 3.2*4.4;
+
+    si ( #WIT2r3dPgyA6pt# or v + 2 ) { 
+        booleano #AJvSmS5qQ24# = #xddd#  <=  ( 1411868526    )    ;
+    } si_no si ( verdadero   ) { 
+        repetir mientras ( v )
+        { 
+            accion ( #xdd# , escribir ( 1486.792537180  )  ) ;
+        }   
+    }
+
+    // si ( 0202485062.5377242894    ) { 
+    //     #AJvSmS5qQ24# = #x1JUiBdhw#  <=  ( 1411868526    )    ;
+    // } si_no si ( verdadero   ) { 
+    //     repetir mientras ( ( 294025   or  ( v   )    )   ) 
+    //     { 
+    //         accion ( #f_ARbLyVG8pZG# , escribir ( 1486.792537180  )  ) ;
+    //     }   
+    // }
+    // entero #WIT2r3dPgyA6pt#;
+}
+
+
+// programa #Velocidades# {
+//     siete_segmentos #Velocidad#;
+// 2 Pines
+//     sensor_ultrasonico #cd#;
+// 2 Pines
+//     buzzer #JX#;
+// 1 Pin
+//     display_lcd #dc#;
+// 2 Pines
+
+    
+    
+    
+    
+//     repetir mientras ( v ) {
+//         accion (#Velocidad#,escribir(0));
+
+//         esperar(1000,milisegundo);
+
+//         accion (#Velocidad#,escribir(1));
+
+//         esperar(1000,milisegundo);
+
+//         accion (#Velocidad#,escribir(2));
+
+//         esperar(1000,milisegundo);
+
+//         accion (#Velocidad#,escribir(3));
+
+//         esperar(1000,milisegundo);
+
+//     }
+// }
