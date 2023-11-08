@@ -5,101 +5,21 @@
  */
 package elecatpluside;
 
-import Analizadores.SimpleLexer;
-import Analizadores.SimpleParser;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Font;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import javax.swing.JTextPane;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Element;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
-
+import static  elecatpluside.IDE.modelo;
 /**
  *
  * @author zapat
  */
-public class IDE extends javax.swing.JFrame {
-
-    String rutaDocumento = System.getProperty("user.dir") + "\\" + "Archivo.cato";
-    private boolean guardado = false;
-    File f;
-    int tamañoFuente = 18;
-    PonerNumeroDeLinea p;
-    boolean compilado = false;
-    public static DefaultTableModel modelo;
-
-    public IDE() {
+public class TablaTokens extends javax.swing.JFrame {
+    DefaultTableModel m;
+    /**
+     * Creates new form TablaTokens
+     */
+    public TablaTokens() {
         initComponents();
-        inicializar();
-        colors();
-        if ((f = new File(rutaDocumento)).exists()) {
-            cargarDocumento(f);
-        } else {
-            this.setTitle("Archivo nuevo(*) - ElecatPlus IDE 1.0");
-        }
-
-        // Crear un DocumentListener para el JTextPane
-        txtPaneIDE.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                escribir(f);
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                escribir(f);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-            }
-        });
-
-        // Agregar un KeyListener para detectar la tecla "Enter"
-        txtPaneIDE.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    escribir(f);
-                    guardado = false;
-                    compilado = false;
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                escribir(f);
-                guardado = false;
-                compilado = false;
-            }
-        });
+        tablaTokens.setModel(modelo);
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -119,7 +39,7 @@ public class IDE extends javax.swing.JFrame {
         txtOutput = new javax.swing.JTextPane();
         lblSalida = new javax.swing.JLabel();
         lblCaretPosition = new javax.swing.JLabel();
-        lblCompilar = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         lblGuardar = new javax.swing.JLabel();
         lblGuardarComo = new javax.swing.JLabel();
         lblAbrir = new javax.swing.JLabel();
@@ -139,12 +59,11 @@ public class IDE extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        lblLogo1 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tablaTokens = new javax.swing.JTable();
         jLabel13 = new javax.swing.JLabel();
-        lblCodigoObjeto = new javax.swing.JLabel();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setBackground(new java.awt.Color(0, 0, 0));
-        setForeground(new java.awt.Color(0, 0, 0));
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -158,14 +77,14 @@ public class IDE extends javax.swing.JFrame {
         txtPaneIDE.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         txtPaneIDE.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
-                actualizarLabel(evt);
+                txtPaneIDEactualizarLabel(evt);
             }
         });
         jScrollPane1.setViewportView(txtPaneIDE);
 
         txtOutput.setEditable(false);
         txtOutput.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
-        txtOutput.setText("El código no ha sido compilado, presione el botón 'Compilar'");
+        txtOutput.setText("En este espacio se mostrará la salida del compilador.");
         txtOutput.setToolTipText("");
         jScrollPane2.setViewportView(txtOutput);
 
@@ -177,14 +96,9 @@ public class IDE extends javax.swing.JFrame {
         lblCaretPosition.setForeground(new java.awt.Color(255, 255, 255));
         lblCaretPosition.setText("Posición del cursor 1:0");
 
-        lblCompilar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/compilar.png"))); // NOI18N
-        lblCompilar.setToolTipText("Compilar");
-        lblCompilar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        lblCompilar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblCompilarMouseClicked(evt);
-            }
-        });
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/compilar.png"))); // NOI18N
+        jLabel1.setToolTipText("Compilar");
+        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         lblGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/guardar.png"))); // NOI18N
         lblGuardar.setToolTipText("Guardar");
@@ -265,41 +179,21 @@ public class IDE extends javax.swing.JFrame {
             }
         });
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Abrir archivo");
 
-        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setText("Guardar como");
 
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Guardar");
 
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Compilar");
 
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("Ver automatas");
+        jLabel9.setText("Ver automata");
 
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setText("Ver arbol");
 
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
         jLabel11.setText("Ver tokens");
 
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setText("Ver pila");
-
-        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel13.setText("Código objeto");
-
-        lblCodigoObjeto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ensamblador.png"))); // NOI18N
-        lblCodigoObjeto.setToolTipText("Pila");
-        lblCodigoObjeto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        lblCodigoObjeto.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblCodigoObjetoMouseClicked(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -333,20 +227,17 @@ public class IDE extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(73, 73, 73)
-                                .addComponent(jLabel12))
+                                .addComponent(jLabel12)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel4))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(60, 60, 60)
-                                .addComponent(jLabel5)))
-                        .addGap(43, 43, 43)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel13)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(lblCodigoObjeto)))
-                        .addGap(0, 106, Short.MAX_VALUE))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel4))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(60, 60, 60)
+                                        .addComponent(jLabel5)))
+                                .addContainerGap(233, Short.MAX_VALUE))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(lblLogo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -372,7 +263,7 @@ public class IDE extends javax.swing.JFrame {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
                                 .addComponent(jLabel8))
-                            .addComponent(lblCompilar))
+                            .addComponent(jLabel1))
                         .addGap(80, 80, 80))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(50, 50, 50)
@@ -404,7 +295,7 @@ public class IDE extends javax.swing.JFrame {
                             .addComponent(lblGuardar)
                             .addComponent(lblGuardarComo)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(lblCompilar)
+                                .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel8)))
                         .addGap(12, 12, 12)))
@@ -429,13 +320,11 @@ public class IDE extends javax.swing.JFrame {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(jLabel12)
-                                        .addComponent(jLabel13)))
+                                        .addComponent(jLabel12)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lblToken)
-                                    .addComponent(jLabel5)
-                                    .addComponent(lblCodigoObjeto)))
+                                    .addComponent(jLabel5)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel9)
@@ -447,293 +336,111 @@ public class IDE extends javax.swing.JFrame {
                         .addGap(121, 121, 121))))
         );
 
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        jPanel2.setBackground(new java.awt.Color(0, 0, 0));
+
+        lblLogo1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ELECAT.png"))); // NOI18N
+
+        tablaTokens.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        tablaTokens.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Token", "Descripcion"
+            }
+        ));
+        jScrollPane3.setViewportView(tablaTokens);
+
+        jLabel13.setFont(new java.awt.Font("Arial", 1, 36)); // NOI18N
+        jLabel13.setText("Tabla de tokens");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addComponent(lblLogo1)
+                        .addGap(41, 41, 41)
+                        .addComponent(jLabel13))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(48, 48, 48)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 629, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(97, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addComponent(lblLogo1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jLabel13)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 628, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void lblAlejarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAlejarMouseClicked
-        Font f = new Font("Arial", Font.PLAIN, tamañoFuente--);
-        txtPaneIDE.setFont(f);
-        p.setFont(f);
-    }//GEN-LAST:event_lblAlejarMouseClicked
+    private void txtPaneIDEactualizarLabel(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_txtPaneIDEactualizarLabel
 
-    private void lblAcercarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAcercarMouseClicked
-        Font f = new Font("Arial", Font.PLAIN, tamañoFuente++);
-        txtPaneIDE.setFont(f);
-        p.setFont(f);
-    }//GEN-LAST:event_lblAcercarMouseClicked
-
-    private void lblAbrirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAbrirMouseClicked
-        abrir();
-    }//GEN-LAST:event_lblAbrirMouseClicked
-
-    private void lblGuardarComoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarComoMouseClicked
-        guardarComo();
-    }//GEN-LAST:event_lblGuardarComoMouseClicked
+    }//GEN-LAST:event_txtPaneIDEactualizarLabel
 
     private void lblGuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarMouseClicked
-        guardar(f);
+
     }//GEN-LAST:event_lblGuardarMouseClicked
 
-    private void actualizarLabel(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_actualizarLabel
-        escribir(f);
-    }//GEN-LAST:event_actualizarLabel
+    private void lblGuardarComoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarComoMouseClicked
+
+    }//GEN-LAST:event_lblGuardarComoMouseClicked
+
+    private void lblAbrirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAbrirMouseClicked
+
+    }//GEN-LAST:event_lblAbrirMouseClicked
+
+    private void lblAcercarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAcercarMouseClicked
+
+    }//GEN-LAST:event_lblAcercarMouseClicked
+
+    private void lblAlejarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAlejarMouseClicked
+
+    }//GEN-LAST:event_lblAlejarMouseClicked
+
+    private void lblTokenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTokenMouseClicked
+    }//GEN-LAST:event_lblTokenMouseClicked
 
     private void lblAutomataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAutomataMouseClicked
-        new Automata().setVisible(true);
+
     }//GEN-LAST:event_lblAutomataMouseClicked
 
     private void lblArbolMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblArbolMouseClicked
 
     }//GEN-LAST:event_lblArbolMouseClicked
 
-    private void lblTokenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTokenMouseClicked
-        if(compilado)
-            new TablaTokens().setVisible(true);
-        else
-            JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado");
-
-        
-    }//GEN-LAST:event_lblTokenMouseClicked
-
-    private void lblCompilarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCompilarMouseClicked
-        modelo = new DefaultTableModel(new String[]{"Token", "ID"}, 0);
-        guardar(f);
-        try {
-            CharStream input = CharStreams.fromFileName(rutaDocumento);
-            SimpleLexer lexer = new SimpleLexer(input);
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            SimpleParser parser = new SimpleParser(tokens);
-            parser.programa();
-            for (Token t : tokens.getTokens()) {
-                try {
-                    String arreglo[] = {t.getText(), lexer.getTokenNames()[t.getType()]};
-                    modelo.addRow(arreglo);
-                    compilado = true;
-                } catch (Exception e) {
-                    txtOutput.setText("Compilado exitosamente...");
-                }
-            }
-        } catch (IOException ex) {
-            System.out.println(ex);
-        }
-    }//GEN-LAST:event_lblCompilarMouseClicked
-
-    private void lblCodigoObjetoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCodigoObjetoMouseClicked
-        if (compilado) {
-            String ruta = System.getProperty("user.dir") + "\\" + "Intermitentes\\Intermitentes.ino";
-            System.out.println(ruta);
-            File file = new File(ruta);
-            Desktop d = Desktop.getDesktop();
-            try {
-                d.open(file);
-            } catch (IOException ex) {
-                Logger.getLogger(IDE.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado");
-        }
-    }//GEN-LAST:event_lblCodigoObjetoMouseClicked
-
-    private void guardarComo() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos Cato (*.cato)", "cato");
-        fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(new File(rutaDocumento));
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            if (!file.getAbsolutePath().endsWith(".cato")) {
-                file = new File(file.getAbsolutePath() + ".cato");
-            }
-            rutaDocumento = file.getAbsolutePath();
-            guardar(file);
-            f = file;
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
-        }
-    }
-
-    private void guardar(File file) {
-        try (PrintWriter escritor = new PrintWriter(rutaDocumento)) {
-            escritor.println(txtPaneIDE.getText());
-            // Puedes escribir más contenido si lo deseas
-            escritor.flush(); // Asegúrate de guardar los cambios
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
-        } catch (IOException e) {
-            e.printStackTrace(); // Manejo de errores
-        }
-        guardado = true;
-        txtOutput.setText("Guardado...");
-    }
-
-    private void abrir() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos Cato (*.cato)", "cato");
-        fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(new File(rutaDocumento));
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            cargarDocumento(file);
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
-            p = new PonerNumeroDeLinea(txtPaneIDE);
-            f = file;
-        }
-    }
-
-    private void cargarDocumento(File file) {
-        rutaDocumento = file.getAbsolutePath();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-            // Cargar el contenido en el JTextPane
-            txtPaneIDE.setText(content.toString());
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
-            System.out.println("Archivo cargado correctamente.");
-        } catch (IOException e) {
-            System.out.println("Error al cargar el archivo: " + e.getMessage());
-        }
-    }
-
-    private void escribir(File file) {
-            if(compilado == false)
-            {
-                txtOutput.setText("El código no ha sido compilado, presione el botón 'Compilar'");
-            }
-        
-            // Obtener la posición del caret
-            int caretPosition = txtPaneIDE.getCaretPosition();
-            // Obtener el elemento de texto donde se encuentra el caret
-            Element root = txtPaneIDE.getDocument().getDefaultRootElement();
-            int lineNumber = root.getElementIndex(caretPosition) + 1; // Sumar 1 para mostrar renglones basados en 1
-
-            // Calcular la columna
-            int columnNumber = caretPosition - root.getElement(lineNumber - 1).getStartOffset(); // Sumar 1 para mostrar columnas basadas en 1
-
-            lblCaretPosition.setText("Posición del cursor " + lineNumber + ":" + columnNumber);
-            if (guardado == false) {
-                this.setTitle(file.getName().replace(".cato", "") + "* - ElecatPlus IDE 1.0");
-            }
-            compilado = false;
-        
-    }
-
-    //METODO PARA ENCONTRAR LAS ULTIMAS CADENAS
-    private int findLastNonWordChar(String text, int index) {
-        while (--index >= 0) {
-            //  \\W = [A-Za-Z0-9]
-            if (String.valueOf(text.charAt(index)).matches("\\W")) {
-                break;
-            }
-        }
-        return index;
-    }
-
-    //METODO PARA ENCONTRAR LAS PRIMERAS CADENAS 
-    private int findFirstNonWordChar(String text, int index) {
-        while (index < text.length()) {
-            if (String.valueOf(text.charAt(index)).matches("(\\W)")) {
-                break;
-            }
-            index++;
-        }
-        return index;
-    }
-
-    //METODO PARA PINTAS LAS PALABRAS RESEVADAS
-    private void colors() {
-
-        final StyleContext cont = StyleContext.getDefaultStyleContext();
-
-        //COLORES 
-        final AttributeSet attred = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 77, 59));
-        final AttributeSet attgreen = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(157, 220, 158));
-        final AttributeSet attblue = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(41, 243, 226));
-        final AttributeSet attwhite = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 255, 255));
-        final AttributeSet attyellow = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 222, 89));
-        final AttributeSet attorange = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 165, 59));
-        final AttributeSet attmagenta = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.MAGENTA);
-
-        //STYLO 
-        DefaultStyledDocument doc = new DefaultStyledDocument() {
-            public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
-                super.insertString(offset, str, a);
-
-                String text = getText(0, getLength() + 1);
-                int before = findLastNonWordChar(text, offset);
-                if (before < 0) {
-                    before = 0;
-                }
-                int after = findFirstNonWordChar(text, offset + str.length());
-                int wordL = before;
-                int wordR = before;
-
-                while (wordR <= after) {
-                    if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
-                        //Componentes
-                        if (text.substring(wordL, wordR).matches("(\\W)*(led|display_lcd|servo|sensor_ultrasonico|motor|foto_resistencia|buzzer|"
-                                + "servo|siete_segmentos|boton|fuente|joystick)")) {
-                            setCharacterAttributes(wordL, wordR - wordL, attblue, false);
-                            //Estructuras de control
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(si|si_no|elegir|opcion|por defecto|"
-                                + "repetir|mientras|hasta|por)")) {
-                            setCharacterAttributes(wordL, wordR - wordL, attgreen, false);
-                            //Tipo de dato
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(decimal|entero|caracter|cadena|booleano|verdadero|falso|v|f)")) {
-                            setCharacterAttributes(wordL, wordR - wordL, attorange, false);
-                            //Acciones
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(presiona|varia|suena|enciende|apaga|escribir|gira|accion)")) {
-                            setCharacterAttributes(wordL, wordR - wordL, attred, false);
-                            //Variables
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*#([a-zA-Z](([a-zA-Z]|[0-9])*(_([a-zA-Z]|[0-9]))*)([a-zA-Z]|[0-9])*)")) {
-                            setCharacterAttributes(wordL, wordR - wordL, attyellow, false);
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*#")) {
-                            setCharacterAttributes(wordL, wordR - wordL, attyellow, false);
-                        } else {
-                            //Texto
-                            setCharacterAttributes(wordL, wordR - wordL, attwhite, false);
-                        }
-                        wordL = wordR;
-                    }
-                    wordR++;
-                }
-            }
-
-        };
-        JTextPane txt = new JTextPane(doc);
-        String temp = txtPaneIDE.getText();
-        txtPaneIDE.setStyledDocument(txt.getStyledDocument());
-        txtPaneIDE.setText(temp);
-    }
-
-    int caretPos;
-
-    private void inicializar() {
-        p = new PonerNumeroDeLinea(txtPaneIDE);
-        jScrollPane1.setRowHeaderView(p);
-        txtPaneIDE.setCaretColor(Color.WHITE);
-        this.setBackground(Color.BLACK);
-        caretPos = txtPaneIDE.getCaretPosition();
-        this.setLocationRelativeTo(null);
-    }
-
-    public static String[] tokensArray;
-
+    /**
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -748,25 +455,26 @@ public class IDE extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TablaTokens.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TablaTokens.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TablaTokens.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(TablaTokens.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new IDE().setVisible(true);
+                new TablaTokens().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -780,21 +488,23 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel lblAbrir;
     private javax.swing.JLabel lblAcercar;
     private javax.swing.JLabel lblAlejar;
     private javax.swing.JLabel lblArbol;
     private javax.swing.JLabel lblAutomata;
     private javax.swing.JLabel lblCaretPosition;
-    private javax.swing.JLabel lblCodigoObjeto;
-    private javax.swing.JLabel lblCompilar;
     private javax.swing.JLabel lblGuardar;
     private javax.swing.JLabel lblGuardarComo;
     private javax.swing.JLabel lblLogo;
+    private javax.swing.JLabel lblLogo1;
     private javax.swing.JLabel lblSalida;
     private javax.swing.JLabel lblToken;
+    private javax.swing.JTable tablaTokens;
     private javax.swing.JTextPane txtOutput;
     private javax.swing.JTextPane txtPaneIDE;
     // End of variables declaration//GEN-END:variables
