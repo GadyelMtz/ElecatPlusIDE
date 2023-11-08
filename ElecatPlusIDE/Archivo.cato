@@ -8,11 +8,21 @@ programa #programa1# {
     si ( #variableBol# or v + 2 ) { 
         booleano #bool# = #otraVariabe#  <=  ( 1411868526    )    ;
     } si_no si ( verdadero   ) { 
-        repetir mientras ( v )
+        repetir mientras ( verdadero )
         {
 	repetir
             accion ( #xdd# , escribir ( 1486.792537180  )  );
         }   
     }
 }
+
+
+
+
+
+
+
+
+
+
 

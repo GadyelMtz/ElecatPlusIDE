@@ -127,7 +127,7 @@ public class IDE extends javax.swing.JFrame {
         lblAlejar = new javax.swing.JLabel();
         lblToken = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        lblPila = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         lblAutomata = new javax.swing.JLabel();
         lblArbol = new javax.swing.JLabel();
@@ -244,9 +244,14 @@ public class IDE extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/stack.png"))); // NOI18N
-        jLabel5.setToolTipText("Pila");
-        jLabel5.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblPila.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/stack.png"))); // NOI18N
+        lblPila.setToolTipText("Pila");
+        lblPila.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblPila.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPilaMouseClicked(evt);
+            }
+        });
 
         lblAutomata.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/transicion.png"))); // NOI18N
         lblAutomata.setToolTipText("Diagrama de transicion");
@@ -339,7 +344,7 @@ public class IDE extends javax.swing.JFrame {
                                 .addComponent(jLabel4))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(60, 60, 60)
-                                .addComponent(jLabel5)))
+                                .addComponent(lblPila)))
                         .addGap(43, 43, 43)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel13)
@@ -434,7 +439,7 @@ public class IDE extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lblToken)
-                                    .addComponent(jLabel5)
+                                    .addComponent(lblPila)
                                     .addComponent(lblCodigoObjeto)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -492,11 +497,14 @@ public class IDE extends javax.swing.JFrame {
     }//GEN-LAST:event_actualizarLabel
 
     private void lblAutomataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAutomataMouseClicked
-        new Automata().setVisible(true);
+        if(compilado)
+            new Automata().setVisible(true);
+        else
+            mensajeCompilado();
     }//GEN-LAST:event_lblAutomataMouseClicked
 
     private void lblArbolMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblArbolMouseClicked
-
+        
     }//GEN-LAST:event_lblArbolMouseClicked
 
     private void lblTokenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTokenMouseClicked
@@ -546,6 +554,13 @@ public class IDE extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado");
         }
     }//GEN-LAST:event_lblCodigoObjetoMouseClicked
+
+    private void lblPilaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPilaMouseClicked
+        if(compilado)
+            new Pila().setVisible(true);
+        else
+            mensajeCompilado();
+    }//GEN-LAST:event_lblPilaMouseClicked
 
     private void guardarComo() {
         JFileChooser fileChooser = new JFileChooser();
@@ -612,10 +627,8 @@ public class IDE extends javax.swing.JFrame {
 
     private void escribir(File file) {
             if(compilado == false)
-            {
-                txtOutput.setText("El código no ha sido compilado, presione el botón 'Compilar'");
-            }
-        
+                mensajeCompilado();
+            
             // Obtener la posición del caret
             int caretPosition = txtPaneIDE.getCaretPosition();
             // Obtener el elemento de texto donde se encuentra el caret
@@ -732,7 +745,10 @@ public class IDE extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
     }
 
-    public static String[] tokensArray;
+    private void mensajeCompilado(){
+        JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado","Presione el botón 'Compilar' porfavor", JOptionPane.WARNING_MESSAGE);    
+    }
+
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -774,7 +790,6 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -793,6 +808,7 @@ public class IDE extends javax.swing.JFrame {
     private javax.swing.JLabel lblGuardar;
     private javax.swing.JLabel lblGuardarComo;
     private javax.swing.JLabel lblLogo;
+    private javax.swing.JLabel lblPila;
     private javax.swing.JLabel lblSalida;
     private javax.swing.JLabel lblToken;
     private javax.swing.JTextPane txtOutput;
