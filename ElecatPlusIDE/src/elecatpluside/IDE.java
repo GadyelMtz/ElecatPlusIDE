@@ -5,8 +5,11 @@
  */
 package elecatpluside;
 
+import Analizadores.SimpleLexer;
+import Analizadores.SimpleParser;
 import java.awt.Color;
-import java.awt.Toolkit;
+import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
@@ -15,18 +18,24 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.swing.JTextPane;
-import java.util.Timer;
-import javax.swing.ImageIcon;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Element;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
 
 /**
  *
@@ -37,18 +46,21 @@ public class IDE extends javax.swing.JFrame {
     String rutaDocumento = System.getProperty("user.dir") + "\\" + "Archivo.cato";
     private boolean guardado = false;
     File f;
+    int tamañoFuente = 18;
     PonerNumeroDeLinea p;
-    
+    boolean compilado = false;
+    public static DefaultTableModel modelo;
+
     public IDE() {
         initComponents();
         inicializar();
         colors();
-        if ((f = new File(rutaDocumento)).exists())
-        cargarDocumento(f);
-        else
+        if ((f = new File(rutaDocumento)).exists()) {
+            cargarDocumento(f);
+        } else {
             this.setTitle("Archivo nuevo(*) - ElecatPlus IDE 1.0");
-        
-        
+        }
+
         // Crear un DocumentListener para el JTextPane
         txtPaneIDE.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -63,10 +75,9 @@ public class IDE extends javax.swing.JFrame {
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                // No es relevante para un JTextPane simple de texto
             }
         });
-        
+
         // Agregar un KeyListener para detectar la tecla "Enter"
         txtPaneIDE.addKeyListener(new KeyListener() {
             @Override
@@ -77,14 +88,16 @@ public class IDE extends javax.swing.JFrame {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     escribir(f);
-                    guardado=false;
+                    guardado = false;
+                    compilado = false;
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 escribir(f);
-                guardado=false;
+                guardado = false;
+                compilado = false;
             }
         });
     }
@@ -106,14 +119,33 @@ public class IDE extends javax.swing.JFrame {
         txtOutput = new javax.swing.JTextPane();
         lblSalida = new javax.swing.JLabel();
         lblCaretPosition = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lblCompilar = new javax.swing.JLabel();
         lblGuardar = new javax.swing.JLabel();
         lblGuardarComo = new javax.swing.JLabel();
         lblAbrir = new javax.swing.JLabel();
+        lblAcercar = new javax.swing.JLabel();
+        lblAlejar = new javax.swing.JLabel();
+        lblToken = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        lblPila = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        lblAutomata = new javax.swing.JLabel();
+        lblArbol = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        lblCodigoObjeto = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(0, 0, 0));
         setForeground(new java.awt.Color(0, 0, 0));
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
@@ -134,7 +166,7 @@ public class IDE extends javax.swing.JFrame {
 
         txtOutput.setEditable(false);
         txtOutput.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
-        txtOutput.setText("En este espacio se mostrará la salida del compilador.");
+        txtOutput.setText("El código no ha sido compilado, presione el botón 'Compilar'");
         txtOutput.setToolTipText("");
         jScrollPane2.setViewportView(txtOutput);
 
@@ -146,9 +178,14 @@ public class IDE extends javax.swing.JFrame {
         lblCaretPosition.setForeground(new java.awt.Color(255, 255, 255));
         lblCaretPosition.setText("Posición del cursor 1:0");
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/compilar.png"))); // NOI18N
-        jLabel1.setToolTipText("Compilar");
-        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblCompilar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/compilar.png"))); // NOI18N
+        lblCompilar.setToolTipText("Compilar");
+        lblCompilar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblCompilar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblCompilarMouseClicked(evt);
+            }
+        });
 
         lblGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/guardar.png"))); // NOI18N
         lblGuardar.setToolTipText("Guardar");
@@ -177,6 +214,99 @@ public class IDE extends javax.swing.JFrame {
             }
         });
 
+        lblAcercar.setFont(new java.awt.Font("sansserif", 0, 48)); // NOI18N
+        lblAcercar.setForeground(new java.awt.Color(255, 255, 255));
+        lblAcercar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblAcercar.setText("+");
+        lblAcercar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblAcercar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblAcercarMouseClicked(evt);
+            }
+        });
+
+        lblAlejar.setFont(new java.awt.Font("sansserif", 0, 48)); // NOI18N
+        lblAlejar.setForeground(new java.awt.Color(255, 255, 255));
+        lblAlejar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblAlejar.setText("-");
+        lblAlejar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblAlejar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblAlejarMouseClicked(evt);
+            }
+        });
+
+        lblToken.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/token.png"))); // NOI18N
+        lblToken.setToolTipText("Tokens");
+        lblToken.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblToken.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblTokenMouseClicked(evt);
+            }
+        });
+
+        lblPila.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/stack.png"))); // NOI18N
+        lblPila.setToolTipText("Pila");
+        lblPila.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblPila.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPilaMouseClicked(evt);
+            }
+        });
+
+        lblAutomata.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/transicion.png"))); // NOI18N
+        lblAutomata.setToolTipText("Diagrama de transicion");
+        lblAutomata.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblAutomata.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblAutomataMouseClicked(evt);
+            }
+        });
+
+        lblArbol.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/arboles.png"))); // NOI18N
+        lblArbol.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblArbol.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblArbolMouseClicked(evt);
+            }
+        });
+
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Abrir archivo");
+
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Guardar como");
+
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel7.setText("Guardar");
+
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText("Compilar");
+
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel9.setText("Ver automatas");
+
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setText("Ver arbol");
+
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel11.setText("Ver tokens");
+
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setText("Ver pila");
+
+        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel13.setText("Código objeto");
+
+        lblCodigoObjeto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ensamblador.png"))); // NOI18N
+        lblCodigoObjeto.setToolTipText("Pila");
+        lblCodigoObjeto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblCodigoObjeto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblCodigoObjetoMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -189,19 +319,68 @@ public class IDE extends javax.swing.JFrame {
                         .addGap(34, 34, 34))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 678, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(679, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(364, 364, 364)
+                                .addComponent(jLabel3))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(77, 77, 77)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(lblAutomata)
+                                    .addComponent(jLabel9))
+                                .addGap(60, 60, 60)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel10)
+                                    .addComponent(lblArbol))
+                                .addGap(52, 52, 52)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblToken)
+                                    .addComponent(jLabel11))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(73, 73, 73)
+                                .addComponent(jLabel12))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel4))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(60, 60, 60)
+                                .addComponent(lblPila)))
+                        .addGap(43, 43, 43)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel13)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(lblCodigoObjeto)))
+                        .addGap(0, 106, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(lblLogo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblAbrir)
+                        .addComponent(lblAlejar, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(lblGuardarComo)
+                        .addComponent(lblAcercar, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(91, 91, 91)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(lblAbrir)
+                                .addGap(18, 18, 18)
+                                .addComponent(lblGuardarComo)
+                                .addGap(18, 18, 18)
+                                .addComponent(lblGuardar))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel6)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel7)))
                         .addGap(18, 18, 18)
-                        .addComponent(lblGuardar)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel1)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel8))
+                            .addComponent(lblCompilar))
                         .addGap(80, 80, 80))))
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(50, 50, 50)
                 .addComponent(lblSalida)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -212,21 +391,66 @@ public class IDE extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(28, 28, 28)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(lblGuardar)
-                    .addComponent(lblGuardarComo)
-                    .addComponent(lblAbrir))
-                .addGap(27, 27, 27)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(lblAcercar)
+                                .addComponent(lblAlejar))
+                            .addComponent(lblAbrir))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel7))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblGuardar)
+                            .addComponent(lblGuardarComo)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(lblCompilar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel8)))
+                        .addGap(12, 12, 12)))
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(11, 11, 11)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblSalida)
-                    .addComponent(lblCaretPosition))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
-                .addGap(56, 56, 56))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblSalida)
+                            .addComponent(lblCaretPosition))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2)
+                        .addGap(56, 56, 56))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 49, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4))
+                        .addGap(43, 43, 43)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel12)
+                                        .addComponent(jLabel13)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblToken)
+                                    .addComponent(lblPila)
+                                    .addComponent(lblCodigoObjeto)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel9)
+                                    .addComponent(jLabel10))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblArbol)
+                                    .addComponent(lblAutomata))))
+                        .addGap(121, 121, 121))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -245,23 +469,101 @@ public class IDE extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void actualizarLabel(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_actualizarLabel
-        escribir(f);
-    }//GEN-LAST:event_actualizarLabel
+    private void lblAlejarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAlejarMouseClicked
+        Font f = new Font("Arial", Font.PLAIN, tamañoFuente--);
+        txtPaneIDE.setFont(f);
+        p.setFont(f);
+    }//GEN-LAST:event_lblAlejarMouseClicked
 
-    private void lblGuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarMouseClicked
-        guardar(f);
-    }//GEN-LAST:event_lblGuardarMouseClicked
-
-    private void lblGuardarComoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarComoMouseClicked
-        guardarComo();
-    }//GEN-LAST:event_lblGuardarComoMouseClicked
+    private void lblAcercarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAcercarMouseClicked
+        Font f = new Font("Arial", Font.PLAIN, tamañoFuente++);
+        txtPaneIDE.setFont(f);
+        p.setFont(f);
+    }//GEN-LAST:event_lblAcercarMouseClicked
 
     private void lblAbrirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAbrirMouseClicked
         abrir();
     }//GEN-LAST:event_lblAbrirMouseClicked
 
-     private void guardarComo() {
+    private void lblGuardarComoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarComoMouseClicked
+        guardarComo();
+    }//GEN-LAST:event_lblGuardarComoMouseClicked
+
+    private void lblGuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarMouseClicked
+        guardar(f);
+    }//GEN-LAST:event_lblGuardarMouseClicked
+
+    private void actualizarLabel(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_actualizarLabel
+        escribir(f);
+    }//GEN-LAST:event_actualizarLabel
+
+    private void lblAutomataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAutomataMouseClicked
+        if(compilado)
+            new Automata().setVisible(true);
+        else
+            mensajeCompilado();
+    }//GEN-LAST:event_lblAutomataMouseClicked
+
+    private void lblArbolMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblArbolMouseClicked
+        
+    }//GEN-LAST:event_lblArbolMouseClicked
+
+    private void lblTokenMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTokenMouseClicked
+        if(compilado)
+            new TablaTokens().setVisible(true);
+        else
+            JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado");
+
+        
+    }//GEN-LAST:event_lblTokenMouseClicked
+
+    private void lblCompilarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCompilarMouseClicked
+        modelo = new DefaultTableModel(new String[]{"Token", "ID"}, 0);
+        guardar(f);
+        try {
+            CharStream input = CharStreams.fromFileName(rutaDocumento);
+            SimpleLexer lexer = new SimpleLexer(input);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            SimpleParser parser = new SimpleParser(tokens);
+            parser.programa();
+            for (Token t : tokens.getTokens()) {
+                try {
+                    String arreglo[] = {t.getText(), lexer.getTokenNames()[t.getType()]};
+                    modelo.addRow(arreglo);
+                    compilado = true;
+                } catch (Exception e) {
+                    txtOutput.setText("Compilado exitosamente...");
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }
+    }//GEN-LAST:event_lblCompilarMouseClicked
+
+    private void lblCodigoObjetoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCodigoObjetoMouseClicked
+        if (compilado) {
+            String ruta = System.getProperty("user.dir") + "\\" + "Intermitentes\\Intermitentes.ino";
+            System.out.println(ruta);
+            File file = new File(ruta);
+            Desktop d = Desktop.getDesktop();
+            try {
+                d.open(file);
+            } catch (IOException ex) {
+                Logger.getLogger(IDE.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado");
+        }
+    }//GEN-LAST:event_lblCodigoObjetoMouseClicked
+
+    private void lblPilaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPilaMouseClicked
+        if(compilado)
+            new Pila().setVisible(true);
+        else
+            mensajeCompilado();
+    }//GEN-LAST:event_lblPilaMouseClicked
+
+    private void guardarComo() {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos Cato (*.cato)", "cato");
         fileChooser.setFileFilter(filter);
@@ -275,23 +577,24 @@ public class IDE extends javax.swing.JFrame {
             rutaDocumento = file.getAbsolutePath();
             guardar(file);
             f = file;
-            this.setTitle(file.getName().replace(".cato", "")+" - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
         }
     }
-     
-     private void guardar(File file) {
+
+    private void guardar(File file) {
         try (PrintWriter escritor = new PrintWriter(rutaDocumento)) {
-            escritor.println(txtPaneIDE.getText());
+            escritor.print(txtPaneIDE.getText());
             // Puedes escribir más contenido si lo deseas
             escritor.flush(); // Asegúrate de guardar los cambios
-            this.setTitle(file.getName().replace(".cato", "")+" - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
+            escritor.close();
         } catch (IOException e) {
             e.printStackTrace(); // Manejo de errores
         }
         guardado = true;
-        System.out.println("Guardado...");
+        txtOutput.setText("Guardado...");
     }
-     
+
     private void abrir() {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos Cato (*.cato)", "cato");
@@ -301,12 +604,12 @@ public class IDE extends javax.swing.JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             cargarDocumento(file);
-            this.setTitle(file.getName().replace(".cato", "")+" - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
             p = new PonerNumeroDeLinea(txtPaneIDE);
             f = file;
         }
     }
-    
+
     private void cargarDocumento(File file) {
         rutaDocumento = file.getAbsolutePath();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -317,29 +620,34 @@ public class IDE extends javax.swing.JFrame {
             }
             // Cargar el contenido en el JTextPane
             txtPaneIDE.setText(content.toString());
-            this.setTitle(file.getName().replace(".cato", "")+" - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
             System.out.println("Archivo cargado correctamente.");
         } catch (IOException e) {
             System.out.println("Error al cargar el archivo: " + e.getMessage());
         }
     }
-    
+
     private void escribir(File file) {
-                 // Obtener la posición del caret
-                int caretPosition = txtPaneIDE.getCaretPosition();
-                // Obtener el elemento de texto donde se encuentra el caret
-                Element root = txtPaneIDE.getDocument().getDefaultRootElement();
-                int lineNumber = root.getElementIndex(caretPosition) + 1; // Sumar 1 para mostrar renglones basados en 1
-                
-                // Calcular la columna
-                int columnNumber = caretPosition - root.getElement(lineNumber - 1).getStartOffset(); // Sumar 1 para mostrar columnas basadas en 1
-                
-                lblCaretPosition.setText("Posición del cursor "+lineNumber + ":" + columnNumber);
-                if(guardado==false)
-                    this.setTitle(file.getName().replace(".cato", "")+"* - ElecatPlus IDE 1.0");
+            if(compilado == false)
+                txtOutput.setText("El código aún no ha sido compilado");
+            
+            // Obtener la posición del caret
+            int caretPosition = txtPaneIDE.getCaretPosition();
+            // Obtener el elemento de texto donde se encuentra el caret
+            Element root = txtPaneIDE.getDocument().getDefaultRootElement();
+            int lineNumber = root.getElementIndex(caretPosition) + 1; // Sumar 1 para mostrar renglones basados en 1
+
+            // Calcular la columna
+            int columnNumber = caretPosition - root.getElement(lineNumber - 1).getStartOffset(); // Sumar 1 para mostrar columnas basadas en 1
+
+            lblCaretPosition.setText("Posición del cursor " + lineNumber + ":" + columnNumber);
+            if (guardado == false) {
+                this.setTitle(file.getName().replace(".cato", "") + "* - ElecatPlus IDE 1.0");
+            }
+            compilado = false;
     }
-    
-     //METODO PARA ENCONTRAR LAS ULTIMAS CADENAS
+
+    //METODO PARA ENCONTRAR LAS ULTIMAS CADENAS
     private int findLastNonWordChar(String text, int index) {
         while (--index >= 0) {
             //  \\W = [A-Za-Z0-9]
@@ -353,7 +661,7 @@ public class IDE extends javax.swing.JFrame {
     //METODO PARA ENCONTRAR LAS PRIMERAS CADENAS 
     private int findFirstNonWordChar(String text, int index) {
         while (index < text.length()) {
-            if (String.valueOf(text.charAt(index)).matches("\\W")) {
+            if (String.valueOf(text.charAt(index)).matches("(\\W)")) {
                 break;
             }
             index++;
@@ -367,20 +675,20 @@ public class IDE extends javax.swing.JFrame {
         final StyleContext cont = StyleContext.getDefaultStyleContext();
 
         //COLORES 
-        final AttributeSet attred = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255,77,59));
+        final AttributeSet attred = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 77, 59));
         final AttributeSet attgreen = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(157, 220, 158));
         final AttributeSet attblue = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(41, 243, 226));
         final AttributeSet attwhite = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 255, 255));
         final AttributeSet attyellow = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 222, 89));
         final AttributeSet attorange = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(255, 165, 59));
-        
+        final AttributeSet attmagenta = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.MAGENTA);
 
         //STYLO 
         DefaultStyledDocument doc = new DefaultStyledDocument() {
             public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
                 super.insertString(offset, str, a);
 
-                String text = getText(0, getLength());
+                String text = getText(0, getLength() + 1);
                 int before = findLastNonWordChar(text, offset);
                 if (before < 0) {
                     before = 0;
@@ -391,62 +699,58 @@ public class IDE extends javax.swing.JFrame {
 
                 while (wordR <= after) {
                     if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
-                            //Componentes
-                        if (text.substring(wordL, wordR).matches("(\\W)*(LED|DISPLAY_LCD|SERVO|SENSOR_ULTRASONICO|MOTOR|FOTO_RESISTENCIA|BUZZER|"
-                                + "SERVO|SIETE_SEGMENTOS|BOTON|FUENTE|JOYSTICK)")) {
+                        //Componentes
+                        if (text.substring(wordL, wordR).matches("(\\W)*(led|display_lcd|servo|sensor_ultrasonico|motor|foto_resistencia|buzzer|"
+                                + "servo|siete_segmentos|boton|fuente|joystick)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attblue, false);
                             //Estructuras de control
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(SI|SINO|ELEGIR|OPCION|POR DEFECTO|"
-                                + "REPETIR|MIENTRAS|HASTA|POR)")) {
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*(si|si_no|elegir|opcion|por defecto|"
+                                + "repetir|mientras|hasta|por)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attgreen, false);
                             //Tipo de dato
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(DECIMAL|ENTERO|CARACTER|CADENA|BOOLEANO|VERDADERO|FALSO)")){
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*(decimal|entero|caracter|cadena|booleano|verdadero|falso|v|f)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attorange, false);
                             //Acciones
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(PRESIONA|VARIA|SUENA|ENCIENDE|APAGA|ESCRIBE|GIRA|ACCION)")) {
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*(presiona|varia|suena|enciende|apaga|escribir|gira|accion)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attred, false);
-                        } else if (text.substring(wordL, wordR).matches("(\\W)* (HOLA$)")) {
+                            //Variables
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*#([a-zA-Z](([a-zA-Z]|[0-9])*(_([a-zA-Z]|[0-9]))*)([a-zA-Z]|[0-9])*)")) {
+                            setCharacterAttributes(wordL, wordR - wordL, attyellow, false);
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*#")) {
                             setCharacterAttributes(wordL, wordR - wordL, attyellow, false);
                         } else {
+                            //Texto
                             setCharacterAttributes(wordL, wordR - wordL, attwhite, false);
                         }
                         wordL = wordR;
-
                     }
                     wordR++;
                 }
             }
 
-            public void remove(int offs, int len) throws BadLocationException {
-                super.remove(offs, len);
-
-                String text = getText(0, getLength());
-                int before = findLastNonWordChar(text, offs);
-                if (before < 0) {
-                    before = 0;
-                }
-            }
         };
-
         JTextPane txt = new JTextPane(doc);
         String temp = txtPaneIDE.getText();
         txtPaneIDE.setStyledDocument(txt.getStyledDocument());
         txtPaneIDE.setText(temp);
     }
-    
-    
-    
-    
+
     int caretPos;
-    private void inicializar(){
+
+    private void inicializar() {
         p = new PonerNumeroDeLinea(txtPaneIDE);
         jScrollPane1.setRowHeaderView(p);
         txtPaneIDE.setCaretColor(Color.WHITE);
         this.setBackground(Color.BLACK);
         caretPos = txtPaneIDE.getCaretPosition();
-        
         this.setLocationRelativeTo(null);
     }
+
+    private void mensajeCompilado(){
+        JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado","Presione el botón 'Compilar' porfavor", JOptionPane.WARNING_MESSAGE);    
+    }
+
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -480,16 +784,34 @@ public class IDE extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblAbrir;
+    private javax.swing.JLabel lblAcercar;
+    private javax.swing.JLabel lblAlejar;
+    private javax.swing.JLabel lblArbol;
+    private javax.swing.JLabel lblAutomata;
     private javax.swing.JLabel lblCaretPosition;
+    private javax.swing.JLabel lblCodigoObjeto;
+    private javax.swing.JLabel lblCompilar;
     private javax.swing.JLabel lblGuardar;
     private javax.swing.JLabel lblGuardarComo;
     private javax.swing.JLabel lblLogo;
+    private javax.swing.JLabel lblPila;
     private javax.swing.JLabel lblSalida;
+    private javax.swing.JLabel lblToken;
     private javax.swing.JTextPane txtOutput;
     private javax.swing.JTextPane txtPaneIDE;
     // End of variables declaration//GEN-END:variables

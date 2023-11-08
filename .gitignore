@@ -4,3 +4,6 @@ ElecatPlusIDE/gramatica/.antlr/
 *.interp
 *.tokens
 *.java
+/ElecatPlusIDE/build/
+*.g4
+ElecatPlusIDE/src/consola/arduino.cpp
