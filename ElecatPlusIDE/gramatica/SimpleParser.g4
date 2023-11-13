@@ -4,17 +4,17 @@ options {
 }
 programa:
 	'programa' 'remoto'? ID cuerpoPrograma EOF;
-cuerpoPrograma: '{' miembros* '}';
+cuerpoPrograma: '{' miembros '}';
 miembros: (setup | ejecucion | declaracionAtributo ';' | funcion)*;
 setup: ID '(' ')' bloque;
 ejecucion: 'ejecutar' '(' ')' bloque;
 funcion:
-	'funcion' tipo_dato? ID parametrosFormales (bloque | ';');
+	'funcion' tipo_dato? ID '(' parametrosFormales ')' (bloque | ';');
 declaracionAtributo: tipo declaraciones;
 tipo: tipo_dato | COMPONENTE;
 declaraciones:
 	declaracionDeVariable (',' declaracionDeVariable)*;
-parametrosFormales: parametroFormal (',' parametroFormal)*;
+parametrosFormales: parametroFormal? (',' parametroFormal)*;
 parametroFormal: tipo_dato ID;
 bloque: '{' sentencia* '}';
 //Duda: SEMI
@@ -26,7 +26,7 @@ sentencia:
 	| 'continuar' ';'
 	| 'romper' ';'
 	| 'devolver' expresion ';'
-	| 'elegir' parExpresion '{' sentenciaSwitch* etiquetaSwitch* '}'
+	| 'elegir' parExpresion '{' sentenciaSwitch* '}'
 	| 'repetir' 'mientras' parExpresion sentencia
 	| 'repetir' 'para' '(' controlFor ')' sentencia
 	| 'si' parExpresion sentencia ('sino' sentencia)*
