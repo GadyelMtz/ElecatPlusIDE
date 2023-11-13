@@ -1,5 +1,27 @@
 lexer grammar SimpleLexer;
-
+PROGRAMA: 'programa';
+REPETIR: 'repetir';
+ESPERAR: 'esperar';
+MIENTRAS: 'mientras';
+REMOTO : 'remoto';
+ACCION: 'accion';
+EJECUTAR : 'ejecutar';
+FUNCION : 'funcion';
+CONTINUAR : 'continuar';
+ROMPER : 'romper';
+DEVOLVER : 'devolver';
+ELEGIR : 'elegir';
+PARA : 'para';
+SINO : 'sino';
+CASO : 'caso';
+ESCRIBIR: 'escribir';
+PRED : 'predeterminado';
+SONAR : 'sonar';
+GIRAR : 'girar';
+AVANZAR : 'avanzar';
+DETECTAR : 'detectar';
+ENCENDER : 'encender';
+APAGAR : 'apagar';
 COMENTARIO_LINEA: '//' ~[\r\n]* -> skip;
 COMENTARIO_BLOQUE: '/*' .*? '*/' -> skip;
 ID:
@@ -7,50 +29,39 @@ ID:
 DECIMAL: ([0-9]+ '.' [0-9]+ | '.' [0-9]+);
 ENTERO: [0-9]+;
 CADENA: '"' .*? '"';
-ESCRIBIR: 'escribir';
-GIRAR: 'gira';
-PROGRAMA: 'programa';
-ACCION: 'accion';
 COMPONENTE:
 	'display_lcd'
 	| 'servo'
 	| 'sensor_ultrasonico'
 	| 'motor'
-	| 'foto_resistencia'
+	| 'led'
 	| 'buzzer'
 	| 'siete_segmentos'
 	| 'boton'
 	| 'fuente'
 	| 'registro'
 	| 'pin';
-DIRECCION: 'horario' | 'antihorario';
-OP_LOGICO: 'and' | 'or';
-OP_COMPARADOR: '==' | '!=' | '<' | '<=' | '>' | '>=';
-OP_ARITMETICO: '+' | '-' | '*' | '/';
-NOT: 'not';
-TIEMPO: 'milisegundo' | 'segundo' | 'minuto';
-SI: 'si';
-SI_NO: 'si_no';
-REPETIR: 'repetir';
-MIENTRAS: 'mientras';
+AND: 'and';
+OR: 'or';
+IGUAL: '==';
+DIFERENTE: '!=';
+MENOR_QUE: '<';
+MENOR_IGUAL: '<=';
+MAYOR_QUE: '>';
+MAYOR_IGUAL: '>=';
+DIVIDIR: '/';
+MULTIPLICAR: '*';
+RESTAR: '-' ;
+SUMAR: '+';
 TD_DECIMAL: 'decimal';
 TD_ENTERO: 'entero';
-TD_CARACTER: 'caracter';
 TD_CADENA: 'cadena';
 TD_BOOLEANO: 'booleano';
-FIN_LINEA: ';';
-SIGNO_IGUAL: '=';
 BOOLEANO: 'v' | 'f' | 'verdadero' | 'falso';
-BRACKET_ABRIR: '{';
-BRACKET_CERRAR: '}';
-PAR_ABRIR: '(';
-PAR_CERRAR: ')';
-ESPERAR: 'esperar';
-COMA: ',';
 WS: [ \t\r\n]+ -> skip;
 // ERROR: ~([0-9]|'/'|'#'|'"'|'e'|'g'|'p'|'a'|'d'|'f'|'b'|'s'|'r'|'h'|'o'|'n'|'m'|'c'|'v').+?WS;
-
-IDENTIFIER: Letter LetterOrDigit* { System.err.println("No se reconoce el identificador "); };
+DOSPUNTOS: ':';
+IDENTIFIER: Letter LetterOrDigit* { System.err.println("No se reconoce el identificador"); };
 fragment LetterOrDigit: Letter | [0-9];
 
 fragment Letter:
@@ -58,3 +69,12 @@ fragment Letter:
 	| ~[\u0000-\u007F\uD800-\uDBFF] // covers all characters above 0x7F which are not a surrogate
 	| [\uD800-\uDBFF] [\uDC00-\uDFFF]
 		; // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+
+LPAREN:             '(';
+RPAREN:             ')';
+LBRACE:             '{';
+RBRACE:             '}';
+SEMI:               ';';
+COMMA:              ',';
+ASSIGN:             '=';
+SI: 'si';

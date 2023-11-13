@@ -1,46 +1,89 @@
-//Basado en: ClassDeclaration,ClassBody
-
 parser grammar SimpleParser;
 options {
 	tokenVocab = SimpleLexer;
 }
-programa: PROGRAMA ID  cuerpoPrograma EOF;
-cuerpoPrograma: BRACKET_ABRIR sentencia+ BRACKET_CERRAR;
+programa:
+	'programa' 'remoto'? ID cuerpoPrograma EOF;
+cuerpoPrograma: '{' miembros '}';
+miembros: (setup | ejecucion | declaracionAtributo ';' | funcion)*;
+setup: ID '(' ')' bloque;
+ejecucion: 'ejecutar' '(' ')' bloque;
+funcion:
+	'funcion' tipo_dato? ID '(' parametrosFormales ')' (bloque | ';');
+declaracionAtributo: tipo declaraciones;
+tipo: tipo_dato | COMPONENTE;
+declaraciones:
+	declaracionDeVariable (',' declaracionDeVariable)*;
+parametrosFormales: parametroFormal? (',' parametroFormal)*;
+parametroFormal: tipo_dato ID;
+bloque: '{' sentencia* '}';
+//Duda: SEMI
 sentencia:
-	declaracion
-	| asignacion
-	| condicionalif
-	| cicloWhile
-	| accion;
-declaracion: (tipo_dato | COMPONENTE) (
-		(ID FIN_LINEA)
-		| asignacion
-	);
-asignacion: ID SIGNO_IGUAL expresion FIN_LINEA;
-condicionalif:
-	SI PAR_ABRIR expresion PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR (
-		SI_NO (SI PAR_ABRIR expresion PAR_CERRAR)? BRACKET_ABRIR sentencia* BRACKET_CERRAR
-	)?;
-cicloWhile:
-	REPETIR MIENTRAS PAR_ABRIR expresion PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR;
+	declaracionLocal ';'
+	| expresion ';'
+	| expresionSentencia = expresion ';'
+	| ';'
+	| 'continuar' ';'
+	| 'romper' ';'
+	| 'devolver' expresion ';'
+	| 'elegir' parExpresion '{' sentenciaSwitch* '}'
+	| 'repetir' 'mientras' parExpresion sentencia
+	| 'repetir' 'para' '(' controlFor ')' sentencia
+	| 'si' parExpresion sentencia ('sino' sentencia)*
+	| bloqueDeSentencias = bloque
+	| llamadaAFuncion ';'
+	| accion ';'
+	| esperar ';';
+llamadaAFuncion: ID argumentos;
+argumentos: '(' listaExpresiones? ')';
+controlFor: iniciadorFor ';' expresion? ';' listaExpresiones;
+iniciadorFor: declaracionLocal | listaExpresiones;
+listaExpresiones: expresion (',' expresion)*;
+parExpresion: '(' expresion ')';
+sentenciaSwitch: etiquetaSwitch+ sentencia+;
+etiquetaSwitch:
+	'caso' (
+		expresionConstante = expresion
+		| identificadorConstante = ID
+	) ':'
+	| 'predeterminado' ':';
+declaracionLocal: tipo declaracionDeVariable;
+declaracionDeVariable: ID ('=' expresion)?;
 accion:
-	esperar
-	| ACCION PAR_ABRIR ID COMA (girar | escribir) PAR_CERRAR FIN_LINEA;
-esperar:
-	ESPERAR PAR_ABRIR numero (COMA TIEMPO)? PAR_CERRAR FIN_LINEA;
-girar: GIRAR PAR_ABRIR numero COMA DIRECCION PAR_CERRAR;
-escribir: ESCRIBIR PAR_ABRIR (ID | CADENA | numero) PAR_CERRAR;
-termino: (BOOLEANO | ID)
-	| numero
-	| PAR_ABRIR expresion PAR_CERRAR;
-expresion: termino operacionBinaria*;
-operacionBinaria: (op_bin termino);
+	'accion' '(' ID ',' (
+		'sonar' argumentos
+		| 'escribir' parExpresion
+		| 'girar' parExpresion
+		| 'avanzar' parExpresion
+		| 'detectar' parExpresion
+		| 'encender' '(' ')'
+		| 'apagar' '(' ')'
+	) ')';
+// // esperar | ACCION PAR_ABRIR ID COMA (girar | escribir) PAR_CERRAR FIN_LINEA;
+esperar: 'esperar' parExpresion;
+termino: BOOLEANO | numero | parExpresion | CADENA | ID;
+expresion: 
+	primaria
+	| expresion ('*'|'/') expresion
+	| expresion ('+'|'-') expresion
+	| expresion ('<=' | '>=' | '>' | '<') expresion
+	| expresion ('=='|'!=') expresion
+	| expresion 'and' expresion
+	| expresion 'or' expresion	
+	| ID '=' expresion;
+primaria: 
+	literal
+	|parExpresion
+	|ID;
+literal: 
+	DECIMAL
+	|CADENA
+	|BOOLEANO
+	|ENTERO;
 numero: (DECIMAL | ENTERO);
-op_bin: (OP_LOGICO | OP_COMPARADOR | OP_ARITMETICO);
 tipo_dato: (
 		TD_DECIMAL
 		| TD_ENTERO
-		| TD_CARACTER
 		| TD_CADENA
 		| TD_BOOLEANO
 	);
