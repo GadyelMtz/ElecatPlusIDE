@@ -608,19 +608,29 @@ public class IDE extends javax.swing.JFrame {
                 @Override
                 public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                         int charPositionInLine, String msg, RecognitionException e) {
-                    System.err.println("Linea " + line + ":" + charPositionInLine + " " + msg);
+                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error léxico: " + msg);
                 }
             });
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             parser = new SimpleParser(tokens);
+            parser.getErrorListeners().clear();
+            parser.addErrorListener(new ConsoleErrorListener() {
+                @Override
+                public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+                        int charPositionInLine, String msg, RecognitionException e) {
+                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error sintáctico: " + msg + "; ");
+                }
+            });
+            txtOutput.setText("");
             arbol = parser.programa();
+            if (txtOutput.getText().equals(""))
+                txtOutput.setText("Compilado exitosamente...");
             for (Token t : tokens.getTokens()) {
                 try {
                     String arreglo[] = { t.getText(), lexer.getTokenNames()[t.getType()] };
                     modelo.addRow(arreglo);
                     compilado = true;
                 } catch (Exception e) {
-                    // txtOutput.setText("Compilado exitosamente...");
                 }
             }
         } catch (IOException ex) {

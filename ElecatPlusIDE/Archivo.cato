@@ -1,3 +1,33 @@
 programa #programa1# {
-    #a
-}
+	motor #Motor#;
+	siete_segmentos #Siete#;
+    	entero #contador# = 0+0;
+	repetir mientras (#contador# <= 1000000000000){
+		accion(#Motor#,gira(45,horario));
+		accion(#Siete#,escribir(#frank#));
+	}
+	
+/*   
+ booleano #frank# = verdadero; //Vientos
+    booleano #CARAMBA# = verdadero and falso;
+
+    entero #contador# = 0;
+    repetir mientras ( ( #contador# <= 3)   ) {	
+	accion(#Siete#,escribir(#contador#));
+         	repetir mientras ( ( v    )  or  #Z#    ) { 
+	    #frank# = v and f;
+	}
+    }
+
+   motor #Motomami#;
+   accion(#Motomami#,gira(45,horario));
+   servo #Cm1ZEZe# = f  >  ( ( 001    )  or  ( 32104.324436044    )    )    ;
+   gira ( 629  , antihorario )
+   siete_segmentos #Siete# ;
+   accion(#Siete#,escribir(3));
+*/
+/*
+entero #O_v9qvaLxTF#;
+repetir mientras ( v and f    ) { } ( (31.4   +  ( #O_v9qvaLxTF#  -  3.53) == 1  )    ) { }
+*/
+} 

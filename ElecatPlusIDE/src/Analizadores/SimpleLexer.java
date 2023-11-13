@@ -157,7 +157,7 @@ public class SimpleLexer extends Lexer {
 	private void IDENTIFIER_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 			case 0:
-				System.err.println("No se reconoce el identificador ");
+				notifyListeners(new LexerNoViableAltException(null,null , actionIndex, null));
 				break;
 		}
 	}
