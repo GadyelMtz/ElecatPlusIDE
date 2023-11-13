@@ -1,26 +1,53 @@
-//Basado en: ClassDeclaration,ClassBody
-
 parser grammar SimpleParser;
 options {
 	tokenVocab = SimpleLexer;
 }
-programa: PROGRAMA ID  cuerpoPrograma EOF;
-cuerpoPrograma: BRACKET_ABRIR sentencia+ BRACKET_CERRAR;
+//Statement
+programa:
+	'programa' MODIFICADOR = 'remoto'? ID cuerpoPrograma EOF;
+cuerpoPrograma: '{' miembros* '}';
+miembros: 
+	setup
+	| ejecucion
+	| tipo declaraciones ';'
+	| funcion;
+funcion: 'funcion' tipo_dato? ID parametrosFormales (bloque|';');
+parametrosFormales: parametroFormal (',' parametroFormal)*;
+parametroFormal: tipo_dato ID;
+declaraciones: declaracionDeVariable (',' declaracionDeVariable)*;
+setup: ID '(' ')' bloque;
+ejecucion: 'ejecutar' '(' ')' bloque;
+bloque: '{' sentencia* '}';
+//Duda: SEMI
 sentencia:
-	declaracion
-	| asignacion
-	| condicionalif
-	| cicloWhile
-	| accion;
-declaracion: (tipo_dato | COMPONENTE) (
-		(ID FIN_LINEA)
-		| asignacion
-	);
-asignacion: ID SIGNO_IGUAL expresion FIN_LINEA;
-condicionalif:
-	SI PAR_ABRIR expresion PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR (
-		SI_NO (SI PAR_ABRIR expresion PAR_CERRAR)? BRACKET_ABRIR sentencia* BRACKET_CERRAR
-	)?;
+	declaracionLocal ';'
+	| asignacion ';'
+	| expresionSentencia = expresion ';'
+	| ';'
+	| 'continuar' ';'
+	| 'romper' ';'
+	| 'devolver' expresion ';'
+	| 'elegir' parExpresion '{' sentenciaSwitch* etiquetaSwitch* '}'
+	| 'repetir' 'mientras' parExpresion sentencia
+	| 'repetir' 'para' '(' controlFor ')' sentencia
+	| 'si' parExpresion sentencia ('sino' sentencia)*
+	| accion
+	| bloqueDeSentencias=bloque;
+controlFor: iniciadorFor ';' expresion? ';' listaExpresiones;
+iniciadorFor: declaracionLocal|listaExpresiones;
+listaExpresiones: expresion (',' expresion)*;
+parExpresion: '(' expresion ')';
+sentenciaSwitch: etiquetaSwitch+ sentencia+;
+etiquetaSwitch:
+	'caso' (
+		expresionConstante = expresion
+		| identificadorConstante = ID
+	) ':'
+	| 'predeterminado' ':';
+declaracionLocal: tipo declaracionDeVariable;
+declaracionDeVariable: ID ('=' expresion)?;
+tipo: tipo_dato | COMPONENTE;
+asignacion: ID '=' expresion;
 cicloWhile:
 	REPETIR MIENTRAS PAR_ABRIR expresion PAR_CERRAR BRACKET_ABRIR sentencia* BRACKET_CERRAR;
 accion:
