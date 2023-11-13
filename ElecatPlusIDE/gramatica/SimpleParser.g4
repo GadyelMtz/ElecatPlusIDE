@@ -1,8 +1,7 @@
 grammar SimpleParser;
-// options {
-// 	tokenVocab = SimpleLexer;
-// }
-//Statement
+options {
+	tokenVocab = SimpleLexer;
+}
 programa:
 	'programa' 'remoto'? ID cuerpoPrograma EOF;
 cuerpoPrograma: '{' miembros* '}';
