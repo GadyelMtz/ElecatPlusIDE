@@ -608,7 +608,7 @@ public class IDE extends javax.swing.JFrame {
                 @Override
                 public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                         int charPositionInLine, String msg, RecognitionException e) {
-                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error léxico: " + msg);
+                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error lexico: " + msg);
                 }
             });
             CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -618,7 +618,7 @@ public class IDE extends javax.swing.JFrame {
                 @Override
                 public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                         int charPositionInLine, String msg, RecognitionException e) {
-                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error sintáctico: " + msg + "; ");
+                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error sintactico: " + msg + "; ");
                 }
             });
             txtOutput.setText("");
