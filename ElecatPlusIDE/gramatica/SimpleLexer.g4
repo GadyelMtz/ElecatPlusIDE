@@ -1,6 +1,10 @@
 lexer grammar SimpleLexer;
 PROGRAMA: 'programa';
+REPETIR: 'repetir';
+ESPERAR: 'esperar';
+MIENTRAS: 'mientras';
 REMOTO : 'remoto';
+ACCION: 'accion';
 EJECUTAR : 'ejecutar';
 FUNCION : 'funcion';
 CONTINUAR : 'continuar';
@@ -10,6 +14,7 @@ ELEGIR : 'elegir';
 PARA : 'para';
 SINO : 'sino';
 CASO : 'caso';
+ESCRIBIR: 'escribir';
 PRED : 'predeterminado';
 SONAR : 'sonar';
 GIRAR : 'girar';
@@ -36,9 +41,18 @@ COMPONENTE:
 	| 'fuente'
 	| 'registro'
 	| 'pin';
-OP_LOGICO: 'and' | 'or';
-OP_COMPARADOR: '==' | '!=' | '<' | '<=' | '>' | '>=';
-OP_ARITMETICO: '+' | '-' | '*' | '/';
+AND: 'and';
+OR: 'or';
+IGUAL: '==';
+DIFERENTE: '!=';
+MENOR_QUE: '<';
+MENOR_IGUAL: '<=';
+MAYOR_QUE: '>';
+MAYOR_IGUAL: '>=';
+DIVIDIR: '/';
+MULTIPLICAR: '*';
+RESTAR: '-' ;
+SUMAR: '+';
 TD_DECIMAL: 'decimal';
 TD_ENTERO: 'entero';
 TD_CADENA: 'cadena';

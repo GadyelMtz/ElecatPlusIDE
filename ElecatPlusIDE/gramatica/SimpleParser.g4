@@ -20,7 +20,7 @@ bloque: '{' sentencia* '}';
 //Duda: SEMI
 sentencia:
 	declaracionLocal ';'
-	| asignacion ';'
+	| expresion ';'
 	| expresionSentencia = expresion ';'
 	| ';'
 	| 'continuar' ';'
@@ -49,7 +49,6 @@ etiquetaSwitch:
 	| 'predeterminado' ':';
 declaracionLocal: tipo declaracionDeVariable;
 declaracionDeVariable: ID ('=' expresion)?;
-asignacion: ID '=' expresion;
 accion:
 	'accion' '(' ID ',' (
 		'sonar' argumentos
@@ -63,10 +62,25 @@ accion:
 // // esperar | ACCION PAR_ABRIR ID COMA (girar | escribir) PAR_CERRAR FIN_LINEA;
 esperar: 'esperar' parExpresion;
 termino: BOOLEANO | numero | parExpresion | CADENA | ID;
-expresion: termino operacionBinaria*;
-operacionBinaria: (op_bin termino);
+expresion: 
+	primaria
+	| expresion ('*'|'/') expresion
+	| expresion ('+'|'-') expresion
+	| expresion ('<=' | '>=' | '>' | '<') expresion
+	| expresion ('=='|'!=') expresion
+	| expresion 'and' expresion
+	| expresion 'or' expresion	
+	| ID '=' expresion;
+primaria: 
+	literal
+	|parExpresion
+	|ID;
+literal: 
+	DECIMAL
+	|CADENA
+	|BOOLEANO
+	|ENTERO;
 numero: (DECIMAL | ENTERO);
-op_bin: (OP_LOGICO | OP_COMPARADOR | OP_ARITMETICO);
 tipo_dato: (
 		TD_DECIMAL
 		| TD_ENTERO
