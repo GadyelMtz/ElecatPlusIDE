@@ -1,4 +1,4 @@
-grammar SimpleParser;
+parser grammar SimpleParser;
 options {
 	tokenVocab = SimpleLexer;
 }

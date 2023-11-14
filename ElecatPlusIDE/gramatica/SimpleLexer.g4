@@ -77,3 +77,4 @@ RBRACE:             '}';
 SEMI:               ';';
 COMMA:              ',';
 ASSIGN:             '=';
+SI: 'si';

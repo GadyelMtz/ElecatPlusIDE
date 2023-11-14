@@ -14,15 +14,15 @@ programa #P1# {
         ;
         decimal #D1#=3.42;
         elegir(#D1#){
-            // caso 34.12:
-            //     booleano #DE# = falso;
-            //     si (#DE# == v)
-            //         #D1# = #D1#*34;
-            //     sino
-            //         ;
-            //     continuar;
-            // predeterminado:
-            //     romper;
+            caso 34.12:
+                booleano #DE# = falso;
+                si (#DE# == v)
+                    #D1# = #D1#*34;
+                sino
+                    ;
+                continuar;
+            predeterminado:
+                romper;
         }
 
         repetir mientras (f and v or (35<31 or (32+2) == 34 )){
