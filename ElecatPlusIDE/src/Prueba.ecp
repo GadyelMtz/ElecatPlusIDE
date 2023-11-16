@@ -1,15 +1,15 @@
 programa #P1# {
-    siete_segmentos #SS1#,#SS2#,#SS3#;
+    siete_segmentos #SS1#,#SS2#,#SS3#,#SS3#;
     booleano #B1#,#B2#=falso,#B3#;
-    entero #E1# = 3, #E2#;
-    
+    entero #E1# = 3, #E2#,#SS2#;
+   
     #P1#(){
         entero #xd# = 0;
         #xd# = 3;
         ;
         1+3;
     }
-    
+
     ejecutar(){
         ;
         decimal #D1#=3.42;
@@ -54,6 +54,6 @@ programa #P1# {
     }
 
     funcion booleano #F2#(){
-        devolver f;    
+        devolver f;
     }
 }

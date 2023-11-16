@@ -2,6 +2,10 @@ parser grammar SimpleParser;
 options {
 	tokenVocab = SimpleLexer;
 }
+@header{
+	import static Analizadores.SimpleSemantic.*;
+}
+
 programa:
 	'programa' 'remoto'? ID cuerpoPrograma EOF;
 cuerpoPrograma: '{' miembros '}';
@@ -11,7 +15,7 @@ ejecucion: 'ejecutar' '(' ')' bloque;
 funcion:
 	'funcion' tipo_dato? ID '(' parametrosFormales ')' (bloque | ';');
 declaracionAtributo: tipo declaraciones;
-tipo: tipo_dato | COMPONENTE;
+tipo: tipo_dato | t=COMPONENTE { t=$t; };
 declaraciones:
 	declaracionDeVariable (',' declaracionDeVariable)*;
 parametrosFormales: parametroFormal? (',' parametroFormal)*;
@@ -48,7 +52,7 @@ etiquetaSwitch:
 	) ':'
 	| 'predeterminado' ':';
 declaracionLocal: tipo declaracionDeVariable;
-declaracionDeVariable: ID ('=' expresion)?;
+declaracionDeVariable: ID ('=' expresion)? { variableDeclarada($ID,t); };
 accion:
 	'accion' '(' ID ',' (
 		'sonar' argumentos
@@ -81,9 +85,9 @@ literal:
 	|BOOLEANO
 	|ENTERO;
 numero: (DECIMAL | ENTERO);
-tipo_dato: (
+tipo_dato: t=(
 		TD_DECIMAL
 		| TD_ENTERO
 		| TD_CADENA
 		| TD_BOOLEANO
-	);
+	) {t=$t;};

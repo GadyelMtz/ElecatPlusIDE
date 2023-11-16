@@ -7,6 +7,7 @@ package elecatpluside;
 
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
+import Analizadores.SimpleSemantic;
 import Analizadores.SimpleParser.ProgramaContext;
 
 import java.awt.Color;
@@ -57,7 +58,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 public class IDE extends javax.swing.JFrame {
 
-    String rutaDocumento = System.getProperty("user.dir") + "Archivo.cato";
+    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src\\Prueba.ecp";
     private boolean guardado = false;
     File f;
     int tamañoFuente = 18;
@@ -597,6 +598,7 @@ public class IDE extends javax.swing.JFrame {
     }// GEN-LAST:event_lblTokenMouseClicked
 
     private void lblCompilarMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCompilarMouseClicked
+        SimpleSemantic.variablesDeclaradas.clear();
         modelo = new DefaultTableModel(new String[] { "Token", "ID" }, 0);
         guardar(f);
         try {
