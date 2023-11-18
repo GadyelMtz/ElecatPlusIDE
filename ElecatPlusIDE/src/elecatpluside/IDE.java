@@ -7,6 +7,7 @@ package elecatpluside;
 
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
+import Analizadores.SimpleSemantic;
 import Analizadores.SimpleParser.ProgramaContext;
 
 import java.awt.Color;
@@ -57,7 +58,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 public class IDE extends javax.swing.JFrame {
 
-    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "Archivo.cato";
+    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src\\Prueba.ecp";
     private boolean guardado = false;
     File f;
     int tamañoFuente = 18;
@@ -608,19 +609,29 @@ public class IDE extends javax.swing.JFrame {
                 @Override
                 public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                         int charPositionInLine, String msg, RecognitionException e) {
-                    System.err.println("Linea " + line + ":" + charPositionInLine + " " + msg);
+                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error lexico: " + msg);
                 }
             });
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             parser = new SimpleParser(tokens);
+            parser.getErrorListeners().clear();
+            parser.addErrorListener(new ConsoleErrorListener() {
+                @Override
+                public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
+                        int charPositionInLine, String msg, RecognitionException e) {
+                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error sintactico: " + msg + "; ");
+                }
+            });
+            txtOutput.setText("");
             arbol = parser.programa();
+            if (txtOutput.getText().equals(""))
+                txtOutput.setText("Compilado exitosamente...");
             for (Token t : tokens.getTokens()) {
                 try {
                     String arreglo[] = { t.getText(), lexer.getTokenNames()[t.getType()] };
                     modelo.addRow(arreglo);
                     compilado = true;
                 } catch (Exception e) {
-                    // txtOutput.setText("Compilado exitosamente...");
                 }
             }
         } catch (IOException ex) {
@@ -716,8 +727,8 @@ public class IDE extends javax.swing.JFrame {
     }
 
     private void escribir(File file) {
-        if (compilado == false)
-            txtOutput.setText("El código aún no ha sido compilado");
+        // if (compilado == false)
+            // txtOutput.setText("El código aún no ha sido compilado");
 
         // Obtener la posición del caret
         int caretPosition = txtPaneIDE.getCaretPosition();
@@ -796,20 +807,20 @@ public class IDE extends javax.swing.JFrame {
                     if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
                         // Componentes
                         if (text.substring(wordL, wordR).matches(
-                                "(\\W)*(led|display_lcd|servo|sensor_ultrasonico|motor|foto_resistencia|buzzer|"
-                                        + "servo|siete_segmentos|boton|fuente|joystick)")) {
+                                "(\\W)*(led|display_lcd|servo|sensor_ultrasonico|motor|buzzer|"
+                                        + "servo|siete_segmentos|boton|fuente|pin|registro)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attblue, false);
                             // Estructuras de control
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(si|si_no|elegir|opcion|por defecto|"
-                                + "repetir|mientras|hasta|por)")) {
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*(si|sino|elegir|opcion|predeterminado|repetir|esperar|remoto|mientras"
+                                + "|ejecutar|funcion|continuar|romper|devolver|elegir|para|caso)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attgreen, false);
                             // Tipo de dato
                         } else if (text.substring(wordL, wordR)
-                                .matches("(\\W)*(decimal|entero|caracter|cadena|booleano|verdadero|falso|v|f)")) {
+                                .matches("(\\W)*(decimal|entero|cadena|booleano|verdadero|falso|v|f)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attorange, false);
                             // Acciones
                         } else if (text.substring(wordL, wordR)
-                                .matches("(\\W)*(presiona|varia|suena|enciende|apaga|escribir|gira|accion)")) {
+                                .matches("(\\W)*(sonar|girar|avanzar|detectar|encender|apagar|accion|escribir)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attred, false);
                             // Variables
                         } else if (text.substring(wordL, wordR)
