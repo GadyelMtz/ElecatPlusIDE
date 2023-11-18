@@ -598,7 +598,6 @@ public class IDE extends javax.swing.JFrame {
     }// GEN-LAST:event_lblTokenMouseClicked
 
     private void lblCompilarMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCompilarMouseClicked
-        SimpleSemantic.variablesDeclaradas.clear();
         modelo = new DefaultTableModel(new String[] { "Token", "ID" }, 0);
         guardar(f);
         try {
@@ -728,8 +727,8 @@ public class IDE extends javax.swing.JFrame {
     }
 
     private void escribir(File file) {
-        if (compilado == false)
-            txtOutput.setText("El código aún no ha sido compilado");
+        // if (compilado == false)
+            // txtOutput.setText("El código aún no ha sido compilado");
 
         // Obtener la posición del caret
         int caretPosition = txtPaneIDE.getCaretPosition();
