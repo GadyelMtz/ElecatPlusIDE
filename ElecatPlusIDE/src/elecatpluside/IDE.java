@@ -59,7 +59,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 public class IDE extends javax.swing.JFrame {
 
-    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src\\Prueba.ecp";
+    String rutaDocumento = System.getProperty("user.dir") + "\\src\\Prueba.ecp";
     private boolean guardado = false;
     File f;
     int tamañoFuente = 18;
@@ -581,7 +581,8 @@ public class IDE extends javax.swing.JFrame {
 
     private void lblAutomataMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblAutomataMouseClicked
         if (compilado)
-            new Automata().setVisible(true);
+            ReglasLexicas();
+            //new Automata().setVisible(true);
         else
             mensajeCompilado();
     }// GEN-LAST:event_lblAutomataMouseClicked
@@ -597,7 +598,26 @@ public class IDE extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado");
 
     }// GEN-LAST:event_lblTokenMouseClicked
-
+    
+    private void ReglasLexicas(){
+        try {
+       // Reemplaza "ruta/tu_archivo.html" con la ruta de tu archivo HTML
+       File file = new File(System.getProperty("user.dir")+"\\src\\elecatpluside\\ReglasLexicas.html");
+       // Verifica si el archivo existe antes de intentar abrirlo
+       if (file.exists()) {
+           if (Desktop.isDesktopSupported()) {
+               // Intenta abrir el archivo en el navegador predeterminado
+               Desktop.getDesktop().browse(file.toURI());
+           } else {
+               JOptionPane.showMessageDialog(null,"La apertura de archivos no es compatible en este sistema.");
+           }
+       } else {
+           JOptionPane.showMessageDialog(null,"El archivo no existe en la ruta especificada.");
+       }
+   } catch (IOException ex) {
+       ex.printStackTrace();
+   }
+   }
     private void lblCompilarMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCompilarMouseClicked
         modelo = new DefaultTableModel(new String[] { "Token", "ID" }, 0);
         guardar(f);
