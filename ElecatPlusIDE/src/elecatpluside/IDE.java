@@ -9,6 +9,7 @@ import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
 import Analizadores.SimpleSemantic;
 import Analizadores.SimpleParser.ProgramaContext;
+import codigoObjeto.codigoObjeto;
 
 import java.awt.Color;
 import java.awt.Desktop;
@@ -619,7 +620,8 @@ public class IDE extends javax.swing.JFrame {
                 @Override
                 public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line,
                         int charPositionInLine, String msg, RecognitionException e) {
-                    System.err.println("Linea " + line + ":" + charPositionInLine + "; Error sintactico: " + msg + "; ");
+                    System.err
+                            .println("Linea " + line + ":" + charPositionInLine + "; Error sintactico: " + msg + "; ");
                 }
             });
             txtOutput.setText("");
@@ -641,17 +643,8 @@ public class IDE extends javax.swing.JFrame {
 
     private void lblCodigoObjetoMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCodigoObjetoMouseClicked
         if (compilado) {
-            String ruta = System.getProperty("user.dir") + "\\" + "Intermitentes\\Intermitentes.ino";
-            System.out.println(ruta);
-            File file = new File(ruta);
-            Desktop d = Desktop.getDesktop();
-            try {
-                d.open(file);
-            } catch (IOException ex) {
-                Logger.getLogger(IDE.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "El código aún no ha sido compilado");
+            codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText());
+            codigo.crearCodigoObjeto(this.getTitle());
         }
     }// GEN-LAST:event_lblCodigoObjetoMouseClicked
 
@@ -664,19 +657,19 @@ public class IDE extends javax.swing.JFrame {
 
     private void guardarComo() {
         JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos Cato (*.cato)", "cato");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos ElecatPlus (*.ecp)", "ecp");
         fileChooser.setFileFilter(filter);
         fileChooser.setCurrentDirectory(new File(rutaDocumento));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            if (!file.getAbsolutePath().endsWith(".cato")) {
-                file = new File(file.getAbsolutePath() + ".cato");
+            if (!file.getAbsolutePath().endsWith(".ecp")) {
+                file = new File(file.getAbsolutePath() + ".ecp");
             }
             rutaDocumento = file.getAbsolutePath();
             guardar(file);
             f = file;
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName()+" - ElecatPlus IDE 1.0");
         }
     }
 
@@ -685,7 +678,7 @@ public class IDE extends javax.swing.JFrame {
             escritor.print(txtPaneIDE.getText());
             // Puedes escribir más contenido si lo deseas
             escritor.flush(); // Asegúrate de guardar los cambios
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName() + " - ElecatPlus IDE 1.0");
             escritor.close();
         } catch (IOException e) {
             e.printStackTrace(); // Manejo de errores
@@ -696,14 +689,14 @@ public class IDE extends javax.swing.JFrame {
 
     private void abrir() {
         JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos Cato (*.cato)", "cato");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos ElecatPlus (*.ecp)", "ecp");
         fileChooser.setFileFilter(filter);
         fileChooser.setCurrentDirectory(new File(rutaDocumento));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             cargarDocumento(file);
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName()+ " - ElecatPlus IDE 1.0");
             p = new PonerNumeroDeLinea(txtPaneIDE);
             f = file;
         }
@@ -719,16 +712,14 @@ public class IDE extends javax.swing.JFrame {
             }
             // Cargar el contenido en el JTextPane
             txtPaneIDE.setText(content.toString());
-            this.setTitle(file.getName().replace(".cato", "") + " - ElecatPlus IDE 1.0");
-            System.out.println("Archivo cargado correctamente.");
+            this.setTitle(file.getName() + " - ElecatPlus IDE 1.0");
+            System.out.println("\nArchivo cargado correctamente.");
         } catch (IOException e) {
             System.out.println("Error al cargar el archivo: " + e.getMessage());
         }
     }
 
     private void escribir(File file) {
-        // if (compilado == false)
-            // txtOutput.setText("El código aún no ha sido compilado");
 
         // Obtener la posición del caret
         int caretPosition = txtPaneIDE.getCaretPosition();
@@ -742,7 +733,7 @@ public class IDE extends javax.swing.JFrame {
 
         lblCaretPosition.setText("Posición del cursor " + lineNumber + ":" + columnNumber);
         if (guardado == false) {
-            this.setTitle(file.getName().replace(".cato", "") + "* - ElecatPlus IDE 1.0");
+            this.setTitle(file.getName()+" - ElecatPlus IDE 1.0");
         }
         compilado = false;
     }
@@ -789,6 +780,8 @@ public class IDE extends javax.swing.JFrame {
                 new Color(255, 165, 59));
         final AttributeSet attmagenta = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.MAGENTA);
 
+        
+
         // STYLO
         DefaultStyledDocument doc = new DefaultStyledDocument() {
             public void insertString(int offset, String str, AttributeSet a) throws BadLocationException {
@@ -811,8 +804,9 @@ public class IDE extends javax.swing.JFrame {
                                         + "servo|siete_segmentos|boton|fuente|pin|registro)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attblue, false);
                             // Estructuras de control
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(si|sino|elegir|opcion|predeterminado|repetir|esperar|remoto|mientras"
-                                + "|ejecutar|funcion|continuar|romper|devolver|elegir|para|caso)")) {
+                        } else if (text.substring(wordL, wordR)
+                                .matches("(\\W)*(si|sino|elegir|opcion|predeterminado|repetir|esperar|remoto|mientras"
+                                        + "|ejecutar|funcion|continuar|romper|devolver|elegir|para|caso)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attgreen, false);
                             // Tipo de dato
                         } else if (text.substring(wordL, wordR)

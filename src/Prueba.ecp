@@ -1,0 +1,31 @@
+programa #luces#{
+	entero #variable1#=0;
+	#luces#(){
+		led #ledIzquierda# = 18;	
+		led #ledDerecha# = 9;
+		buzzer #claxon# = 12;
+	}
+
+	ejecutar(){
+		si(#variable1#<=3){
+			accion(#ledIzquierda#, encender());
+			//esperar(500);
+			accion(#ledIzquierda#, apagar());
+			esperar(500);
+			#variable1#=#variable1#+1;
+		}
+
+		si(#variable1#>3){
+			accion(#ledDerecha#, encender());
+			esperar(500);
+			accion(#ledDerecha#, apagar());
+			// esperar(500);
+		}
+
+	}
+
+	funcion #pitarVeces#(){
+		
+	}
+
+}

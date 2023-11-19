@@ -235,8 +235,6 @@ public class Main {
             CharStream input = CharStreams.fromFileName(new File("ElecatPlusIDE/src/Prueba.ecp").getAbsolutePath());
             // Leer código fuente
             int x=0;
-            while (true) 
-                System.out.println("x");
             SimpleLexer lexer = new SimpleLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SimpleParser parser = new SimpleParser(tokens);
