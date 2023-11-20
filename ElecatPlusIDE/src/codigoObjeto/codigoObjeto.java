@@ -18,20 +18,44 @@ import javax.swing.JOptionPane;
 import elecatpluside.IDE;
 
 public class codigoObjeto {
-
+    String nombre;
     String codigo;
+    String ruta;
     // Definir la estructura de datos
     Map<String, String> componentes = new HashMap<>();
     Map<String, String> cadenas = new HashMap<>();
+    Map<String, String> enteros = new HashMap<>();
 
-    public codigoObjeto(String codigo) {
+    public codigoObjeto(String codigo, String ruta) {
         this.codigo = codigo;
+        this.ruta = ruta;
     }
 
     public void crearCodigoObjeto(String nombre) {
         eliminarEspacios();
         transformarArduino();
         crearArchivo(nombre);
+    }
+
+    public void cargarArduino(String nombre) {
+        // Nombre del archivo .ino
+        String nombreArchivo = nombre.split(".ecp - ElecatPlus IDE 1.0")[0];
+        String rutaArchivo = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\" + nombreArchivo
+                + "\\" + nombreArchivo + ".ino";
+
+        File archivo = new File(rutaArchivo);
+        Desktop d = Desktop.getDesktop();
+        try {
+            d.open(archivo);
+            String compilado = "arduino-cli compile -b arduino:avr:uno " + rutaArchivo;
+            Runtime.getRuntime().exec(compilado);
+
+            String subido = "arduino-cli upload -p COM6 --fqbn arduino:avr:uno " + rutaArchivo;
+            Runtime.getRuntime().exec(subido);
+
+        } catch (IOException ioe) {
+            System.out.println(ioe);
+        }
     }
 
     private void eliminarEspacios() {
@@ -57,27 +81,35 @@ public class codigoObjeto {
         cambiarVariables();
         cambiarSetup();
         cambiarLoop();
-        almacenarCadenas();
+        almacenarTiposDeDato();
+
         cambiarPalabras();
         cambiarComponentes();
         cambiarAcciones();
     }
 
-    private void almacenarCadenas() {
+    private void almacenarTiposDeDato() {
         String[] lineasCodigo = codigo.split("\n");
 
-        // Cadena ID = "texto";
         for (int i = 0; i < lineasCodigo.length; i++) {
-            if (lineasCodigo[i].contains("cadena ")) {
+            // Cadena ID = "texto";
+            if (lineasCodigo[i].contains("cadena ") && lineasCodigo[i].contains("=")) {
                 String id = lineasCodigo[i].split(" ")[1].trim();
-                 // Patrón de expresión regular para encontrar texto entre comillas
+                // Patrón de expresión regular para encontrar texto entre comillas
                 Pattern patronComillas = Pattern.compile("\"([^\"]*)\"");
                 // Utilizar el patrón para buscar coincidencias
                 Matcher matcher = patronComillas.matcher(lineasCodigo[i]);
-                if(matcher.find()){
+                if (matcher.find()) {
                     String cadena = matcher.group(1);
                     cadenas.put(id, cadena);
                 }
+            }
+            // Entero ID = ENTERO;
+            if (lineasCodigo[i].contains("entero ") && lineasCodigo[i].contains("=")) {
+                String id = lineasCodigo[i].split(" ")[1].trim();
+                String entero = lineasCodigo[i].split("=")[1].trim().replaceAll("[^0-9]", "").trim();
+                // Patrón de expresión regular para encontrar el entero despues del =
+                enteros.put(id, entero);
             }
         }
     }
@@ -130,6 +162,39 @@ public class codigoObjeto {
                 lineasCodigo[i] = "pinMode(" + id + ",OUTPUT);";
             }
 
+            // Agregar un sensor_distancia
+            // Sensor_ultrasonico ID = 10;
+            if (lineasCodigo[i].contains("sensor_ultrasonico ")) {
+                String id = lineasCodigo[i].split("=")[0].split(" ")[1];
+                String pin = lineasCodigo[i].split("=")[1].replaceAll("\\D", "");
+                String componente = lineasCodigo[i].split(" ")[0];
+                componentes.put(id, componente);
+
+                // Esta parte del codigo pone hasta arriba el nombre del componente
+                // y su respectiva asignacion sensorInfrarrojo = 1;
+                declaracionPinComponente = "int " + id + "=" + pin + ";\n";
+                codigoAuxiliar = codigoNuevo;
+                codigoNuevo = declaracionPinComponente;
+                codigoNuevo += codigoAuxiliar;
+                lineasCodigo[i] = "pinMode(" + id + ",INPUT);";
+            }
+
+            // Agregar un boton
+            // Boton ID = 3;
+            if (lineasCodigo[i].contains("boton ")) {
+                String id = lineasCodigo[i].split("=")[0].split(" ")[1];
+                String pin = lineasCodigo[i].split("=")[1].replaceAll("\\D", "");
+                String componente = lineasCodigo[i].split(" ")[0];
+                componentes.put(id, componente);
+
+                // Esta parte del codigo pone hasta arriba el nombre del componente
+                // y su respectiva asignacion sensorInfrarrojo = 1;
+                declaracionPinComponente = "int " + id + "=" + pin + ";\n";
+                codigoAuxiliar = codigoNuevo;
+                codigoNuevo = declaracionPinComponente;
+                codigoNuevo += codigoAuxiliar;
+                lineasCodigo[i] = "pinMode(" + id + ",INPUT);";
+            }
 
             // Agergar un display_lcd
             // Declarar el Liquid.Crystal
@@ -148,27 +213,11 @@ public class codigoObjeto {
                 codigoNuevo = declaracionPinComponente;
                 codigoNuevo += codigoAuxiliar;
                 lineasCodigo[i] = id + ".init();\n"
-                        + id + ".backlight();\n";
-            }
-
-            // Agregar un sensor_distancia
-            // Sensor_ultrasonico ID = 10;
-            if (lineasCodigo[i].contains("sensor_ultrasonico ")) {
-                String id = lineasCodigo[i].split("=")[0].split(" ")[1];
-                String pin = lineasCodigo[i].split("=")[1].replaceAll("\\D", "");
-                String componente = lineasCodigo[i].split(" ")[0];
-                componentes.put(id, componente);
-
-                // Esta parte del codigo pone hasta arriba el nombre del componente
-                // y su respectiva asignacion sensorInfrarrojo = 1;
-                declaracionPinComponente = "int " + id + "=" + pin + ";\n";
-                codigoAuxiliar = codigoNuevo;
-                codigoNuevo = declaracionPinComponente;
-                codigoNuevo += codigoAuxiliar;
-                lineasCodigo[i] = "pinMode(" + id + ",INPUT);\n";
+                        + id + ".backlight();";
             }
             codigoNuevo += lineasCodigo[i] + "\n";
         }
+
         codigo = codigoNuevo;
     }
 
@@ -203,39 +252,63 @@ public class codigoObjeto {
                 // 'accion' '(' ID ',' 'escribir' '(' CUALQUIERA | ID ')' ')' ';'
                 if (componente.equals("display_lcd")) {
                     id = lineasCodigo[i].split("accion\\(")[1].trim().split(",")[0];
+
                     // Verificar si usa ID o usa una cadena
+                    // En caso de que sea cadena
                     if (lineasCodigo[i].contains("\"")) {
                         String cadenaComilla = lineasCodigo[i].split("\"")[1].trim();
                         int tamCadena = cadenaComilla.length();
-                        if(tamCadena>16){
+                        if (tamCadena > 16) {
                             String renglon1 = cadenaComilla.substring(0, 16);
                             String renglon2 = cadenaComilla.substring(16, tamCadena);
                             lineasCodigo[i] = id + ".clear(); \n" +
-                                          id + ".print(\""+ renglon1+"\");\n" +
-                                          id + ".setCursor(0, 1);\n" +
-                                          id + ".print(\""+ renglon2+"\");\n";
-                        } 
-                        else
-                        lineasCodigo[i] = id + ".clear(); \n" +
-                                          id + ".print(\""+ cadenaComilla+"\");\n";
+                                    id + ".print(\"" + renglon1 + "\");\n" +
+                                    id + ".setCursor(0, 1);\n" +
+                                    id + ".print(\"" + renglon2 + "\");";
+                        } else
+                            lineasCodigo[i] = id + ".clear(); \n" +
+                                    id + ".print(\"" + cadenaComilla + "\");";
                     }
                     // Tratamiento de cadena mediante ID
                     else {
                         String ID = lineasCodigo[i].split(",")[1].trim().split("\\(")[1]
                                 .replaceAll("[^a-zA-Z0-9]", "");
+
+                        // Ver si es una cadena o un numero
                         String cadenaID = cadenas.get(ID);
-                        int tamCadena = cadenaID.length(); 
-                        if(tamCadena>16){
-                            String renglon1 = cadenaID.substring(0, 16);
-                            String renglon2 = cadenaID.substring(16, tamCadena);
+                        String enteroID = enteros.get(ID);
+
+                        // Si se encuentra declarado como cadena pero no como numero
+                        if (cadenaID != null && enteroID == null) {
+                            int tamCadena = cadenaID.length();
+                            if (tamCadena > 16) {
+                                String renglon1 = cadenaID.substring(0, 16);
+                                String renglon2 = cadenaID.substring(16, tamCadena);
+                                lineasCodigo[i] = id + ".clear(); \n" +
+                                        id + ".print(\"" + renglon1 + "\");\n" +
+                                        id + ".setCursor(0, 1);\n" +
+                                        id + ".print(\"" + renglon2 + "\");\n";
+                            } else
+                                lineasCodigo[i] = id + ".clear(); \n" +
+                                        id + ".print(\"" + cadenaID + "\");\n";
+                        } else if (cadenaID == null && enteroID != null) {
+                            int tamCadena = cadenaID.length();
+                            if (tamCadena > 16) {
+                                String renglon1 = enteroID.substring(0, 16);
+                                String renglon2 = enteroID.substring(16, tamCadena);
+                                lineasCodigo[i] = id + ".clear(); \n" +
+                                        id + ".print(\"" + renglon1 + "\");\n" +
+                                        id + ".setCursor(0, 1);\n" +
+                                        id + ".print(\"" + renglon2 + "\");\n";
+                            } else
+                                lineasCodigo[i] = id + ".clear(); \n" +
+                                        id + ".print(\"" + enteroID + "\");\n";
+                        }
+                        // Se usa un identifcador directamente
+                        else {
                             lineasCodigo[i] = id + ".clear(); \n" +
-                                          id + ".print(\""+ renglon1+"\");\n" +
-                                          id + ".setCursor(0, 1);\n" +
-                                          id + ".print(\""+ renglon2+"\");\n";
-                        } 
-                        else
-                        lineasCodigo[i] = id + ".clear(); \n" +
-                                          id + ".print(\""+ cadenaID +"\");\n";
+                                    id + ".print(" + ID + ");\n";
+                        }
                     }
                 }
 
@@ -243,8 +316,19 @@ public class codigoObjeto {
                 // 'accion' '(' ID ',' 'detectar' '(' ID ')' ')' ';'
                 // Tono y tiempo deben ser enteros
                 if (componente.equals("sensor_ultrasonico")) {
-                    String variableLectura = lineasCodigo[i].split(",")[1].trim().split("\\(")[1].replaceAll("[^a-zA-Z0-9]", "");
+                    String variableLectura = lineasCodigo[i].split(",")[1].trim().split("\\(")[1]
+                            .replaceAll("[^a-zA-Z0-9]", "");
                     lineasCodigo[i] = variableLectura + "=digitalRead(" + id + ");";
+                }
+
+                // Para los sensor botones
+                // Se usará temporalmente la accion DETECTAR
+                // 'accion' '(' ID ',' 'detectar' '(' ID ')' ')' ';'
+                // Tono y tiempo deben ser enteros
+                if (componente.equals("boton")) {
+                    String variableLectura = lineasCodigo[i].split(",")[1].trim().split("\\(")[1]
+                            .replaceAll("[^a-zA-Z0-9]", "");
+                    lineasCodigo[i] = variableLectura + "=analogRead(" + id + ");";
                 }
 
             }
@@ -261,6 +345,10 @@ public class codigoObjeto {
         codigo = codigo.replaceAll("entero", "int");
         // cadena - string
         codigo = codigo.replaceAll("cadena", "String");
+        // cadena - string
+        codigo = codigo.replaceAll("booleano", "boolean");
+        // cadena - string
+        codigo = codigo.replaceAll("decimal", "float");
         // si - if
         codigo = codigo.replaceAll("si\\(", "if(");
         // mientras - while
@@ -268,7 +356,7 @@ public class codigoObjeto {
         // para - for
         codigo = codigo.replaceAll("repetir para\\(", "for(");
         // sino - else
-        codigo = codigo.replaceAll("sino\\{", "else{");
+        codigo = codigo.replace("sino", "else");
         // continuar - continue
         codigo = codigo.replaceAll("continuar\\;", "continue;");
         // romper - break
@@ -279,6 +367,10 @@ public class codigoObjeto {
         codigo = codigo.replaceAll(" and ", "&&");
         // or - ||
         codigo = codigo.replaceAll(" or ", "||");
+        // verdadero - true
+        codigo = codigo.replace("verdadero", "true");
+        // falso - false
+        codigo = codigo.replace("falso", "false");
     }
 
     private void cambiarSetup() {
@@ -303,7 +395,6 @@ public class codigoObjeto {
             }
             codigo = codigoNuevo;
         }
-
     }
 
     private void cambiarLoop() {
@@ -338,14 +429,13 @@ public class codigoObjeto {
     private void crearArchivo(String nombre) {
         // Nombre del archivo .ino
         String nombreArchivo = nombre.split(".ecp - ElecatPlus IDE 1.0")[0];
-        String rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "Codigo objeto\\"
+        String rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\"
                 + nombreArchivo;
-        String rutaArchivo = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "Codigo objeto\\" + nombreArchivo
+        String rutaArchivo = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\" + nombreArchivo
                 + "\\" + nombreArchivo + ".ino";
 
         File archivo = new File(rutaArchivo);
         File directorio = new File(rutaDirectorio);
-        Desktop d = Desktop.getDesktop();
         try {
             if (!archivo.exists() && !directorio.exists()) {
                 // Si no existe, intentar crear el archivo
@@ -357,7 +447,7 @@ public class codigoObjeto {
             // Lectura del fichero
             bw.write(codigo);
             bw.close();
-            d.open(archivo);
+            cargarArduino(nombre);
         } catch (Exception ex) {
             System.out.println("\n Hubo un error al generar el codigo objeto " + ex);
         }

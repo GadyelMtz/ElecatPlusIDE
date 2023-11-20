@@ -58,8 +58,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * @author zapat
  */
 public class IDE extends javax.swing.JFrame {
-
-    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src\\Prueba.ecp";
+    String rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\ElecatPlusIDE\\src"; 
+    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\ElecatPlusIDE\\src\\Prueba.ecp";
     private boolean guardado = false;
     File f;
     int tamañoFuente = 18;
@@ -643,7 +643,8 @@ public class IDE extends javax.swing.JFrame {
 
     private void lblCodigoObjetoMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCodigoObjetoMouseClicked
         if (compilado) {
-            codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText());
+            txtOutput.setText("Generando codigo objeto...");
+            codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText(), rutaDocumento);
             codigo.crearCodigoObjeto(this.getTitle());
         }
     }// GEN-LAST:event_lblCodigoObjetoMouseClicked
@@ -659,7 +660,7 @@ public class IDE extends javax.swing.JFrame {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos ElecatPlus (*.ecp)", "ecp");
         fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(new File(rutaDocumento));
+        fileChooser.setCurrentDirectory(new File(rutaDirectorio));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
@@ -691,7 +692,7 @@ public class IDE extends javax.swing.JFrame {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos ElecatPlus (*.ecp)", "ecp");
         fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(new File(rutaDocumento));
+        fileChooser.setCurrentDirectory(new File(rutaDirectorio));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
