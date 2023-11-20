@@ -1,3 +1,5 @@
+#include <Servo.h>
+Servo servomotor;
 int botonera=3;
 int sensor=10;
 int claxon=12;
@@ -14,19 +16,18 @@ pinMode(ledDerecha,OUTPUT);
 pinMode(claxon,OUTPUT);
 pinMode(sensor,INPUT);
 pinMode(botonera,INPUT);
+servomotor.attach(11);
 }
 
 void loop(){
-digitalWrite(ledIzquierda,HIGH);
-digitalWrite(ledDerecha,LOW);
-delay(500);
-digitalWrite(ledIzquierda,LOW);
-digitalWrite(ledDerecha,HIGH);
-delay(500);
-tone(claxon,900,200);
-delay(500);
-tone(claxon,1000,200);
-delay(500);
-tone(claxon,1100,200);
-delay(500);
+servomotor.write(0);
+delay(1000);
+servomotor.write(10);
+delay(1000);
+servomotor.write(20);
+delay(1000);
+servomotor.write(30);
+delay(1000);
+tone(claxon,1000,1000);
+
 }

@@ -22,7 +22,10 @@ public class codigoObjeto {
     Map<String, String> cadenas = new HashMap<>();
     Map<String, String> enteros = new HashMap<>();
 
+
     public codigoObjeto(String codigo, String nombre) {
+    
+        // Definir las rutas de trabajo
         this.codigo = codigo;
         this.nombreArchivo = nombre.split(".ecp - ElecatPlus IDE 1.0")[0];
         this.rutaArchivo = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\" + nombreArchivo
@@ -86,12 +89,22 @@ public class codigoObjeto {
     }
 
     private void transformarArduino() {
+        // Elimina los ## a las variables
         cambiarVariables();
+        // Cambia a void setup(){ la funcion que coincide con la declarada
+        // como programa #ID#{
+        // #ID#(){
         cambiarSetup();
+        // Cambia a void loop() la funcion ejecutar(){
         cambiarLoop();
+        // Almacena las variables y su valor en un mapa
         almacenarTiposDeDato();
+        // Cambia las palabras de ElecatPlus a sus equivalentes en Arduino
         cambiarPalabras();
+        // Cambia la declaracion de componentes a declaraciones de pines y 
+        // tipos de OUTPUT o INPUT según sea el caso
         cambiarComponentes();
+        // Cambia a las acciones por sus equivalentes en Arduino
         cambiarAcciones();
     }
 
@@ -222,6 +235,25 @@ public class codigoObjeto {
                 lineasCodigo[i] = id + ".init();\n"
                         + id + ".backlight();";
             }
+
+            // Agergar un servo
+            // Declarar el <Servo.h>
+            if (lineasCodigo[i].contains("servo ")) {
+                String id = lineasCodigo[i].split(" ")[1].trim().replaceAll("[^a-zA-Z]", "");
+                String pin = lineasCodigo[i].split("=")[1].replaceAll("\\D", "");
+                String componente = lineasCodigo[i].split(" ")[0].trim();
+                componentes.put(id, componente);
+
+                // Esta parte del codigo pone hasta arriba el nombre del componente
+                // y su respectiva asignacion servo ID = 11;
+                // <Servo.h>
+                declaracionPinComponente = "#include <Servo.h>\n" +
+                                            "Servo " + id + ";\n";
+                codigoAuxiliar = codigoNuevo;
+                codigoNuevo = declaracionPinComponente;
+                codigoNuevo += codigoAuxiliar;
+                lineasCodigo[i] = id + ".attach("+pin+");";
+            }
             codigoNuevo += lineasCodigo[i] + "\n";
         }
         codigo = codigoNuevo;
@@ -337,8 +369,15 @@ public class codigoObjeto {
                     lineasCodigo[i] = variableLectura + "=analogRead(" + id + ");";
                 }
 
+                // Para los servo motores
+                // 'accion' '(' ID ',' 'girar' '(' ID | ENTERO ')' ')' ';'
+                // Tono y tiempo deben ser enteros
+                if (componente.equals("servo")) {
+                    // Si el girar tiene un entero
+                    String cantidadAGirar = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
+                    lineasCodigo[i] = id+".write(" + cantidadAGirar + ");";
+                }
             }
-
             codigoNuevo += lineasCodigo[i] + "\n";
         }
         codigo = codigoNuevo;
