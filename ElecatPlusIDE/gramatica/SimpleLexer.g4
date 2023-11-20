@@ -29,6 +29,7 @@ GIRAR: 'girar';
 AVANZAR: 'avanzar';
 DETECTAR: 'detectar';
 ENCENDER: 'encender';
+DETENER: 'detener';
 APAGAR: 'apagar';
 CADENA: '"' .*? '"';
 COMPONENTE:

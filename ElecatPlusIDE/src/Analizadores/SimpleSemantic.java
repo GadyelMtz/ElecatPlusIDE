@@ -2,6 +2,7 @@ package Analizadores;
 
 import static Analizadores.SimpleParser.*;
 
+import java.awt.Component;
 import java.awt.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CommonToken;
@@ -18,19 +20,36 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 
+class Funcion {
+    String nombre;
+    ArrayList<Token> parametros;
+
+    public Funcion(String nombre, ArrayList<Token> parametros) {
+        this.nombre = nombre;
+        this.parametros = parametros;
+    }
+}
+
 public class SimpleSemantic {
+    public SimpleSemantic() {
+        variablesDeclaradas = new HashMap<>();
+        funcionesDeclaradas = new ArrayList<>();
+        listaParametros = new ArrayList<>();
+        nombreParametros = new HashSet<>();
+        salida = new Stack<>();
+        pilaOperadores = new Stack<>();
+        pilas = new ArrayList<>();
+    }
+
     public static Map<String, Token> variablesDeclaradas = new HashMap<>();
-    public static Map<String, ArrayList<Token>> funcionesDeclaradas = new HashMap<>();
+    public static ArrayList<Funcion> funcionesDeclaradas = new ArrayList<>();
     public static ArrayList<Token> listaParametros = new ArrayList<>();
+    public static ArrayList<String> pilas = new ArrayList<>();
     public static Set<String> nombreParametros = new HashSet<>();
-    private static final int PAR_ABRIR = 0;
-    private static final int PAR_CERRAR = 0;
-    private static final int OP_ARITMETICO = 0;
-    private static final int OP_COMPARADOR = 0;
-    private static final int OP_LOGICO = 0;
-    Stack<Token> salida = new Stack<>();
-    Stack<Token> pilaOperadores = new Stack<>();
+    public static Stack<Token> salida = new Stack<>();
+    public static Stack<Token> pilaOperadores = new Stack<>();
     boolean isDeclaration = false;
+
     public static Token t;
     private static ANTLRErrorListener listener = new ConsoleErrorListener() {
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
@@ -40,265 +59,393 @@ public class SimpleSemantic {
     };
     final Set<Integer> booleanos = new HashSet<Integer>(Arrays.asList(TD_BOOLEANO, BOOLEANO));
     final Set<Integer> enteros = new HashSet<>(Arrays.asList(TD_ENTERO, ENTERO));
-    final Set<Integer> decimales = new HashSet<>(Arrays.asList(DECIMAL, TD_DECIMAL));
-    final Set<Integer> operadores = new HashSet<>(Arrays.asList(OP_ARITMETICO, OP_COMPARADOR, OP_LOGICO));
+    static final Set<Integer> decimales = new HashSet<>(Arrays.asList(DECIMAL, TD_DECIMAL));
+    static final Set<String> operadores = new HashSet<>(
+            Arrays.asList("and", "or", "==", "!=", "<", "<=", ">", ">=", "/", "*", "-", "+"));
+    static final Set<Integer> literales = new HashSet<>(Arrays.asList(DECIMAL, CADENA, BOOLEANO, ENTERO));
 
     public static void usarFuncion(Token funcion, ArrayList<Token> lista) {
-        try {
-            ArrayList<Token> parametros = funcionesDeclaradas.get(funcion.getText());
-            if(parametros==null)
-                throw new Exception();
-            for (int i = 0; i < parametros.size(); i++) {
-                if(!parametros.get(i).getText().equals(lista.get(i).getText()))
-                    throw new Exception();
-            }
-        } catch (Exception e) {
-            errorFuncion(funcion, lista, " no ha sido declarada");
-        }
+        // try {
+        // ArrayList<Token> parametros = funcionesDeclaradas.get(funcion.getText());
+        // if (parametros == null)
+        // throw new Exception();
+        // for (int i = 0; i < parametros.size(); i++) {
+        // if (!parametros.get(i).getText().equals(lista.get(i).getText()))
+        // throw new Exception();
+        // }
+        // } catch (Exception e) {
+        // errorFuncion(funcion, lista, " no ha sido declarada");
+        // }
     }
 
-    static void parametrosDeclarados(Token parametro) {
-        try {
-            String nombreParametro = parametro.getText();
-            if (nombreParametros.contains(nombreParametro))
-                throw new Exception();
-            nombreParametros.add(parametro.getText());
-        } catch (Exception e) {
-            String msg = "el parametro: '" + parametro.getText() + "' se encuentra duplicado";
-            semanticError(parametro, msg);
-        }
-    }
+    static void nuevaExpresion() {
+        pilaOperadores = new Stack<>();
+        salida = new Stack<>();
+    };
 
-    static void funcionDeclarada(Token funcion, ArrayList<Token> lista) {
-        try {
-            if (funcionesDeclaradas.containsKey(funcion.getText())) {
-                ArrayList<Token> listaExistente = funcionesDeclaradas.get(funcion.getText());
-                if (listaExistente.size() == lista.size()) {
-                    if (lista.size() != 0)
-                        for (int i = 0; i < lista.size(); i++) {
-                            if (!lista.get(i).getText().equals(listaExistente.get(i).getText()))
-                                return;
-                        }
-                    // HashSet<String> tiposDato = new HashSet<>();
-                    // for (Token[] tok : lista) {
-                    // tiposDato.add(tok[0].getText());
-                    // }
-                    // int cuentaLN[] = new int[tiposDato.size()];
-                    // int cuentaLE[] = new int[tiposDato.size()];
-                    // for (int i = 0; i < tiposDato.size(); i++) {
-                    // for(Token[] tok : lista){
-                    // cuentaLE[i] += tok[0].equals(tiposDato.toArray()[i]) ? 1 : 0;
-                    // }
-                    // for(Token[] tok : listaExistente){
-                    // cuentaLE[i] += tok[0].equals(tiposDato.toArray()[i]) ? 1 : 0;
-                    // }
-                    // if (cuentaLE[i]!=cuentaLN[i])
-                    // return;
-                    // }
-                    throw new Exception();
-                }
-            }
-            funcionesDeclaradas.put(funcion.getText(), lista);
-        } catch (Exception e) {
-            errorFuncion(funcion, lista, " ya ha sido declarada");
-        }
-    }
-
-    private static void errorFuncion(Token funcion, ArrayList<Token> lista, String predicado) {
-        String params = "(";
-        boolean b = false;
-        boolean c = false;
-        for (Token tokens : lista) {
-            if (c) {
-                params += tokens.getText() + ",";
-                if (!b)
-                    b = true;
-            } else {
-                c = true;
-            }
-        }
-        if (b)
-            params = params.substring(0, params.length() - 1) + ")";
-        else
-            params += ")";
-        semanticError(funcion, "la funcion "+ lista.get(0).getText() + funcion.getText() + params + predicado);
-    }
-
-    private static void semanticError(Token variable, String msg) {
-        listener.syntaxError(null, null, variable.getLine(), variable.getCharPositionInLine(), msg, null);
-    }
-
-    void imprimirPila(Stack<Token> xdd) {
-        Stack<Token> x = (Stack<Token>) xdd.clone();
-        String xd = "";
-        while (!x.empty()) {
-            xd += x.pop().getText() + " ";
-        }
-        System.out.println(xd);
-    }
-
-    boolean resolverPila(HashSet<Integer> tipos) {
-        invertirSalida();
-        imprimirPila(salida);
-        // Para leer de izquierda a derecha y no de derecha a izquierda (como llega)
-        if (salida.size() == 1) {
-            Token t = salida.pop();
-            return tipos.contains(t.getType());
-        }
-        Stack<Token> t = new Stack<>();
-        while (!salida.empty()) {
-            if (!(salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <= OP_ARITMETICO)) {
-                t.push(salida.pop());
-                imprimirPila(t);
-            } else {
-                try {
-                    t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
-                    imprimirPila(t);
-                } catch (Exception e) {
-                    return false;
-                }
-            }
-        }
-        if (tipos.size() == 1)
-            switch (t.pop().getType()) {
-                case DECIMAL:
-                    return decimales.contains(tipos.toArray()[0]);
-                case ENTERO:
-                    return enteros.contains(tipos.toArray()[0]);
-                case BOOLEANO:
-                    return booleanos.contains(tipos.toArray()[0]);
-                default:
-                    break;
-            }
-        return tipos.contains(t.pop().getType());
-    }
-
-    private Token validarOperacion(Token operando1, Token operando2, Token operador) throws Exception {
-        try {
-            if (operador.getType() == OP_LOGICO) {
-                if (!booleanos.contains(operando1.getType()) || !booleanos.contains(operando2.getType())) {
-                    throw new Exception();
-                }
-                return new CommonToken(BOOLEANO, "booleano");
-            } else if (operador.getType() == OP_ARITMETICO || operador.getType() == OP_COMPARADOR) {
-                byte d = 0;
-                d += decimales.contains(operando1.getType()) ? 1 : 0;
-                d += decimales.contains(operando2.getType()) ? 2 : 0;
-                switch (d) {
-                    case 0:
-                        if (!enteros.contains(operando1.getType()) && !enteros.contains(operando2.getType()))
-                            throw new Exception();
-                        return new CommonToken(operador.getType() == OP_ARITMETICO
-                                ? (operador.getText().equals("/")) ? DECIMAL : ENTERO
-                                : BOOLEANO, "valor");
-                    case 1:
-                        if (!enteros.contains(operando2.getType()))
-                            throw new Exception();
-                        break;
-                    case 2:
-                        if (!enteros.contains(operando1.getType()))
-                            throw new Exception();
-                        break;
-                    default:
-                        break;
-                }
-                return new CommonToken(operador.getType() == OP_ARITMETICO ? DECIMAL : BOOLEANO, "valor");
-            }
-        } catch (Exception e) {
-            String err = "Operación inválida: '" + operando1.getText() + " " + operador.getText() + " "
-                    + operando2.getText() + "'";
-            err += "\nTipos de dato incompatibles: '" + operando1.getType() + " " + operador.getText() + " "
-                    + operando2.getType() + "'";
-            err += "\nLínea: " + operador.getLine() + ", " + operador.getCharPositionInLine();
-            System.out.println(err);
-            throw e;
-        }
-        return null;
-    }
-
-    private void invertirSalida() {
+    private static void invertirSalida() {
         while (!pilaOperadores.empty()) {
             salida.push(pilaOperadores.pop());
         }
         // Sacar el resto de operadores de la pila
-        Stack<Token> invertido = new Stack<>();
-        while (!salida.empty()) {
-            invertido.push(salida.pop());
-        }
-        salida = invertido;
+        // Stack<Token> invertido = new Stack<>();
+        // while (!salida.empty()) {
+        //     invertido.push(salida.pop());
+        // }
+        // salida = invertido;
     }
 
-    boolean operando(int tipo) {
-        return booleanos.contains(tipo) || enteros.contains(tipo) || decimales.contains(tipo);
+    static void imprimirPila(Stack<Token> xdd,Token inicial) {
+        StringBuilder xd = new StringBuilder();
+        xd.append("Linea "+inicial.getLine()+":"+inicial.getCharPositionInLine()+"[");
+        xdd.forEach(t -> xd.append("["+t.getText()+"]"));
+        xd.append("]");
+        pilas.add(xd.toString());
     }
 
-    // Funcion para añadir a la pila semántica
-    void añadirAPila(Token t) {
-        if (t == null)
+    static void resolverPila(Integer tipo) {
+        invertirSalida();
+        imprimirPila(salida,salida.peek());
+        // if (salida.size() == 1) {
+        // Token t = salida.pop();
+        // return tipos.contains(t.getType());
+        // }
+        // Stack<Token> t = new Stack<>();
+        // while (!salida.empty()) {
+        // if (!(salida.peek().getType() >= OP_LOGICO && salida.peek().getType() <=
+        // OP_ARITMETICO)) {
+        // t.push(salida.pop());
+        // } else {
+        // try {
+        // t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
+        // } catch (Exception e) {
+        // return false;
+        // }
+        // }
+        // }
+        // if (tipos.size() == 1)
+        // switch (t.pop().getType()) {
+        // case DECIMAL:
+        // return decimales.contains(tipos.toArray()[0]);
+        // case ENTERO:
+        // return enteros.contains(tipos.toArray()[0]);
+        // case BOOLEANO:
+        // return booleanos.contains(tipos.toArray()[0]);
+        // default:
+        // break;
+        // }
+        // return tipos.contains(t.pop().getType());
+    }
+
+    private Token validarOperacion(Token operando1, Token operando2, Token operador) throws Exception {
+        // try {
+        //     if (operador.getType() == OP_LOGICO) {
+        //         if (!booleanos.contains(operando1.getType()) || !booleanos.contains(operando2.getType())) {
+        //             throw new Exception();
+        //         }
+        //         return new CommonToken(BOOLEANO, "booleano");
+        //     } else if (operador.getType() == OP_ARITMETICO || operador.getType() == OP_COMPARADOR) {
+        //         byte d = 0;
+        //         d += decimales.contains(operando1.getType()) ? 1 : 0;
+        //         d += decimales.contains(operando2.getType()) ? 2 : 0;
+        //         switch (d) {
+        //             case 0:
+        //                 if (!enteros.contains(operando1.getType()) && !enteros.contains(operando2.getType()))
+        //                     throw new Exception();
+        //                 return new CommonToken(operador.getType() == OP_ARITMETICO
+        //                         ? (operador.getText().equals("/")) ? DECIMAL : ENTERO
+        //                         : BOOLEANO, "valor");
+        //             case 1:
+        //                 if (!enteros.contains(operando2.getType()))
+        //                     throw new Exception();
+        //                 break;
+        //             case 2:
+        //                 if (!enteros.contains(operando1.getType()))
+        //                     throw new Exception();
+        //                 break;
+        //             default:
+        //                 break;
+        //         }
+        //         return new CommonToken(operador.getType() == OP_ARITMETICO ? DECIMAL : BOOLEANO, "valor");
+        //     }
+        // } catch (Exception e) {
+        //     String err = "Operación inválida: '" + operando1.getText() + " " + operador.getText() + " "
+        //             + operando2.getText() + "'";
+        //     err += "\nTipos de dato incompatibles: '" + operando1.getType() + " " + operador.getText() + " "
+        //             + operando2.getType() + "'";
+        //     err += "\nLínea: " + operador.getLine() + ", " + operador.getCharPositionInLine();
+        //     System.out.println(err);
+        //     throw e;
+        // }
+        return null;
+    }
+
+    /**
+     * La función comprueba si un parámetro ya ha sido declarado y arroja un error
+     * semántico si es un
+     * duplicado.
+     * 
+     * @param parametro El parámetro "parametro" es de tipo "Token".
+     */
+    public static void parametrosDeclarados(Token parametro) {
+        String nombreParametro = parametro.getText();
+        if (!nombreParametros.contains(nombreParametro)) {
+            nombreParametros.add(parametro.getText());
             return;
-        int type = t.getType();
-        if (type == ID) {
-            salida.push(variablesDeclaradas.get(t.getText()));
-        } else if (operando(type)) {
-            salida.push(t);
-        } else if (operadores.contains(type)) {
-            while (!pilaOperadores.empty()
-                    && precedencia(pilaOperadores.peek().getText()) >= precedencia(t.getText())) {
-                salida.push(pilaOperadores.pop());
+        }
+        String msg = "el parametro: '" + parametro.getText() + "' se encuentra duplicado";
+        semanticError(parametro, msg);
+    }
+
+    /**
+     * La función "parametrosIguales" comprueba si dos ArrayLists de Tokens tienen
+     * los mismos elementos
+     * en el mismo orden.
+     * 
+     * @param lista1 Un ArrayList de objetos Token llamado lista1.
+     * @param lista2 El parámetro "lista2" es un ArrayList de objetos Token.
+     * @return El método devuelve un valor booleano.
+     */
+    private static boolean parametrosIguales(ArrayList<Token> lista1, ArrayList<Token> lista2) {
+        for (int i = 0; i < lista1.size(); i++) {
+            if (!lista1.get(i).equals(lista2.get(i))) {
+                return false;
             }
-            pilaOperadores.push(t);
-        } else if (type == PAR_ABRIR) {
-            pilaOperadores.push(t);
-        } else if (type == PAR_CERRAR) {
-            while (!pilaOperadores.empty() && pilaOperadores.peek().getType() != PAR_ABRIR) {
-                salida.push(pilaOperadores.pop());
-            }
-            if (!pilaOperadores.empty() && pilaOperadores.peek().getType() == PAR_ABRIR)
-                pilaOperadores.pop();
+        }
+        return true;
+    }
+
+    /**
+     * La función comprueba si ya se ha declarado una función con el mismo nombre y
+     * parámetros y, en
+     * caso contrario, declara la función.
+     * 
+     * @param funcion El parámetro "funcion" es de tipo Token, que representa un
+     *                token en el código. Se
+     *                utiliza para representar el nombre de la función que se
+     *                declara.
+     * @param lista   El parámetro "lista" es un ArrayList de objetos Token.
+     */
+    public static void funcionDeclarada(Token funcion, ArrayList<Token> lista) {
+        // 1. Encontrar funciones iguales, mismo nombre, mismos parámetros en el mismo
+        // orden
+        boolean existeFuncion = funcionesDeclaradas.stream()
+                .anyMatch(t -> t.nombre.equals(funcion.getText())
+                        && t.parametros.size() == lista.size()
+                        && parametrosIguales(t.parametros, lista));
+
+        // 2. Si las hay, manejar el error
+        if (existeFuncion) {
+            errorFuncion(funcion, lista, " ya ha sido declarada");
+        } else {
+            // 3. Si no existe, declarar la función
+            funcionesDeclaradas.add(new Funcion(funcion.getText(), lista));
         }
     }
 
-    private int precedencia(String text) {
+    /**
+     * La función `errorFuncion` genera un mensaje de error basado en el token de
+     * función dado, la
+     * lista de tokens y un predicado, y luego llama a la función `semanticError`
+     * con el mensaje de
+     * error generado.
+     * 
+     * @param funcion   Un Token que representa el nombre de la función.
+     * @param lista     Una ArrayList de objetos Token que representan los
+     *                  parámetros de la función.
+     * @param predicado El parámetro "predicado" es una cadena que representa el
+     *                  mensaje de error o
+     *                  descripción del error ocurrido en la función.
+     */
+    private static void errorFuncion(Token funcion, ArrayList<Token> lista, String predicado) {
+        String message = "la funcion ";
+        switch (lista.size()) {
+            case 0:
+                message += String.format("%s() %s", funcion.getText(), predicado);
+                break;
+            case 1:
+                message += String.format("%s %s() %s", lista.get(0).getText(), funcion.getText(), predicado);
+            default:
+                StringBuilder paramsBuilder = new StringBuilder();
+                boolean[] ban = { false }; // Esto es una forma de simular una variable mutable
+                lista.forEach(t -> {
+                    if (ban[0]) {
+                        paramsBuilder.append(t.getText()).append(",");
+                    } else {
+                        ban[0] = true;
+                    }
+                });
+                String params = paramsBuilder.toString().substring(0, paramsBuilder.length() - 1);
+                message += String.format("%s %s(%s) %s", funcion.getText(), lista.get(0).getText(), params, predicado);
+                break;
+        }
+        semanticError(funcion, message);
+    }
+
+    /**
+     * La función `semanticError` se utiliza para informar un error semántico con un
+     * mensaje y una
+     * ubicación específicos.
+     * 
+     * @param variable El parámetro variable es de tipo Token y representa el token
+     *                 que provocó el
+     *                 error semántico.
+     * @param msg      El parámetro "msg" es una cadena que representa el mensaje de
+     *                 error o la descripción
+     *                 del error semántico. Se utiliza para proporcionar más
+     *                 información sobre el error ocurrido.
+     */
+    private static void semanticError(Token variable, String msg) {
+        listener.syntaxError(null, null, variable.getLine(), variable.getCharPositionInLine(), msg, null);
+    }
+
+    /**
+     * La función "añadirAPila" agrega un token a una pila según su tipo y maneja
+     * operadores y
+     * paréntesis en consecuencia.
+     * 
+     * @param token El parámetro "token" es de tipo Token, que representa un token
+     *              en un lenguaje de
+     *              programación. Contiene información como el tipo de token y el
+     *              texto.
+     */
+    public static void añadirAPila(Token token) {
+        try {
+            // Salir si el token es nulo
+            if (token == null)
+                return;
+            int tipoToken = token.getType();
+
+            // Agregar a la pila según el tipo del token
+            if (tipoToken == ID) {
+                salida.push(variablesDeclaradas.get(token.getText()));
+            } else if (literal(tipoToken)) {
+                salida.push(token);
+            } else if (operador(token.getText())) {
+                // Lógica para operadores
+                manejarOperadores(token);
+            } else if (tipoToken == LPAREN) {
+                pilaOperadores.push(token);
+            } else if (tipoToken == RPAREN) {
+                manejarParentesis();
+            }
+        } catch (Exception e) {
+            // Manejo de excepciones
+            System.err.println("Error en añadirAPila: " + e.getMessage());
+        }
+    }
+
+    /**
+     * La función comprueba si un tipo de Token determinado es literal.
+     * 
+     * @param tipo El parámetro "tipo" es un número entero que representa un tipo.
+     * @return El método devuelve un valor booleano.
+     */
+    private static boolean literal(int tipo) {
+        return literales.contains(tipo);
+    }
+
+    /**
+     * La función comprueba si un texto determinado es un operador.
+     * 
+     * @param text El parámetro "texto" es una cadena que representa un operador.
+     * @return El método devuelve un valor booleano.
+     */
+    private static boolean operador(String text) {
+        return operadores.contains(text);
+    }
+
+    /**
+     * La función "manejarOperadores" maneja operadores comparando su precedencia y
+     * empujándolos a la
+     * pila apropiada.
+     * 
+     * @param token El parámetro "token" es un objeto de tipo "Token" que representa
+     *              el operador.
+     */
+    private static void manejarOperadores(Token token) {
+        while (!pilaOperadores.empty()
+                && precedencia(pilaOperadores.peek().getText()) >= precedencia(token.getText())) {
+            salida.push(pilaOperadores.pop());
+        }
+        pilaOperadores.push(token);
+    }
+
+    /**
+     * La función "precedencia" devuelve el nivel de precedencia de un operador u
+     * operador lógico
+     * determinado.
+     * 
+     * @param text El parámetro "texto" es una cadena que representa un operador en
+     *             una expresión.
+     * @return El método devuelve un valor entero que representa la precedencia del
+     *         texto dado.
+     */
+    private static int precedencia(String text) {
         switch (text) {
-            case "+":
-            case "-":
             case "or":
-            case "==":
-            case "!=":
-            case "<":
-            case "<=":
-            case ">":
-            case ">=":
                 return 1;
-            case "*":
-            case "/":
             case "and":
                 return 2;
-            default:
-                return -1;
+            case "==":
+            case "!=":
+                return 3;
+            case "<":
+            case ">":
+            case "<=":
+            case ">=":
+                return 4;
+            case "+":
+            case "-":
+                return 5;
+            case "*":
+            case "/":
+                return 6;
+        }
+        return -1;
+    }
+
+    /**
+     * La función "manejarParentesis" extrae operadores de una pila hasta que
+     * encuentra un paréntesis
+     * izquierdo y luego extrae el paréntesis izquierdo de la pila.
+     */
+    private static void manejarParentesis() {
+        while (!pilaOperadores.empty() && pilaOperadores.peek().getType() != LPAREN) {
+            salida.push(pilaOperadores.pop());
+        }
+        if (!pilaOperadores.empty() && pilaOperadores.peek().getType() == LPAREN) {
+            pilaOperadores.pop();
         }
     }
 
-    static void variableDeclarada(Token variable, Token tipoVariable) {
-        try {
-            String nombreVariable = variable.getText();
-            if (variablesDeclaradas.containsKey(nombreVariable))
-                throw new Exception();
-            variablesDeclaradas.put(nombreVariable, tipoVariable);
-        } catch (Exception e) {
-            String text = variable.getText();
-            Token token = variablesDeclaradas.get(variable.getText());
-            String msg = "la variable: '" + text + "' ya ha sido declarada en linea: " + token.getLine();
-            semanticError(variable, msg);
-        }
+    /**
+     * La función comprueba si una variable ya ha sido declarada y arroja un error
+     * semántico si es así.
+     * 
+     * @param variable     Un token que representa la variable que se declara.
+     * @param tipoVariable El parámetro tipoVariable representa el tipo de variable
+     *                     que se declara. Es
+     *                     un objeto Token que contiene información sobre el tipo,
+     *                     como su representación de texto y número
+     *                     de línea.
+     */
+    public static void variableDeclarada(Token variable, Token tipoVariable) {
+        if (!variablesDeclaradas.containsKey(variable.getText()))
+            variablesDeclaradas.put(variable.getText(), tipoVariable);
+        String text = variable.getText();
+        Token declarada = variablesDeclaradas.get(variable.getText());
+        semanticError(variable, "la variable: '" + text + "' ya ha sido declarada en linea: " + declarada.getLine());
     }
 
+    /**
+     * La función comprueba si se ha declarado una variable y arroja un error
+     * semántico si no es así.
+     * 
+     * @param variable El parámetro "variable" es de tipo "Token".
+     */
     public static void usarVariable(Token variable) {
-        try {
-            if (!variablesDeclaradas.containsKey(variable.getText()))
-                throw new Exception();
-        } catch (Exception e) {
+        if (!variablesDeclaradas.containsKey(variable.getText()))
             semanticError(variable, "la variable " + variable.getText() + " no ha sido declarada");
-        }
     }
 }

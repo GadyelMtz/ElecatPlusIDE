@@ -1,5 +1,6 @@
 //antlr4-parse SimpleParser.g4 SimpleLexer.g4 programa -tokens C:\Users\angel\OneDrive\Documentos\ElecatPlusIDE\ElecatPlusIDE\src\Prueba.ecp
-//
+//antlr4 SimpleLexer.g4 -no-listener -no-visitor
+//antlr4 SimpleParser.g4 -no-listener -no-visitor
 parser grammar SimpleParser;
 options {
 	tokenVocab = SimpleLexer;
@@ -9,7 +10,7 @@ options {
 	import java.util.HashMap;
 }
 
-programa: {variablesDeclaradas = new HashMap<>(); funcionesDeclaradas = new HashMap<>();} 'programa' 'remoto'? ID cuerpoPrograma EOF;
+programa: {new SimpleSemantic();} 'programa' 'remoto'? ID cuerpoPrograma EOF;
 cuerpoPrograma: '{' miembros '}';
 miembros: (setup | ejecucion | declaracionAtributo ';' | funcion)*;
 setup: ID '(' ')' bloque;
@@ -34,56 +35,56 @@ sentencia:
 	| ';'
 	| 'continuar' ';'
 	| 'romper' ';'
-	| 'devolver' expresion ';'
-	| 'elegir' parExpresion '{' sentenciaSwitch* '}'
-	| 'repetir' 'mientras' parExpresion sentencia
+	| 'devolver' {nuevaExpresion();} expresion {resolverPila(1);} ';'
+	| 'elegir' {nuevaExpresion();} parExpresion {resolverPila(1);} '{' sentenciaSwitch* '}'
+	| 'repetir' 'mientras' {nuevaExpresion();} parExpresion {resolverPila(1);} sentencia
 	| 'repetir' 'para' '(' controlFor ')' sentencia
-	| 'si' parExpresion sentencia ('sino' sentencia)*
+	| 'si' {nuevaExpresion();} parExpresion {resolverPila(1);} sentencia ('sino' sentencia)*
 	| bloqueDeSentencias = bloque
 	| llamadaAFuncion ';'
 	| accion ';'
 	| esperar ';';
-llamadaAFuncion: ID argumentos;
-argumentos: '(' listaExpresiones? ')';
-controlFor: iniciadorFor ';' expresion? ';' listaExpresiones;
+llamadaAFuncion: ID {nuevaExpresion();} argumentos {resolverPila(1);};
+argumentos: '(' listaExpresiones? ')' ;
+controlFor: iniciadorFor ';' ({nuevaExpresion();} expresion {resolverPila(1);})? ';' listaExpresiones;
 iniciadorFor: declaracionLocal | listaExpresiones;
 listaExpresiones: expresion (',' expresion)*;
-parExpresion: '(' expresion ')';
+parExpresion: OP='(' { añadirAPila($OP);} expresion OP=')'{ añadirAPila($OP);};
 sentenciaSwitch: etiquetaSwitch+ sentencia+;
 etiquetaSwitch:
 	'caso' (
-		expresionConstante = expresion
+		{nuevaExpresion();} expresionConstante = expresion {resolverPila(1);}
 	) ':'
 	| 'predeterminado' ':';
 declaracionLocal: tipo declaracionDeVariable;
 declaracionDeVariable:
-	ID ('=' expresion)? { variableDeclarada($ID,t); };
+	ID { variableDeclarada($ID,t); } ({nuevaExpresion();} '=' expresion {resolverPila(1);})?;
 accion:
 	'accion' '(' ID ',' (
-		'sonar' argumentos
-		| 'escribir' parExpresion
-		| 'girar' parExpresion
-		| 'avanzar' parExpresion
-		| 'detectar' parExpresion
+		'sonar' {nuevaExpresion();} argumentos {resolverPila(1);}
+		| 'escribir' {nuevaExpresion();} parExpresion {resolverPila(1);}
+		| 'girar' {nuevaExpresion();} parExpresion {resolverPila(1);}
+		| 'avanzar' {nuevaExpresion();} parExpresion {resolverPila(1);}
+		| 'detectar' {nuevaExpresion();} parExpresion {resolverPila(1);}
+		| 'detener' {nuevaExpresion();} parExpresion {resolverPila(1);}
 		| 'encender' '(' ')'
 		| 'apagar' '(' ')'
 	) ')' { usarVariable($ID); };
 // // esperar | ACCION PAR_ABRIR ID COMA (girar | escribir) PAR_CERRAR FIN_LINEA;
-esperar: 'esperar' parExpresion;
+esperar: 'esperar' {nuevaExpresion();} parExpresion {resolverPila(1);};
 expresion:
 	primaria
-	| expresion ('*' | '/') expresion
-	| expresion ('+' | '-') expresion
-	| expresion ('<=' | '>=' | '>' | '<') expresion
-	| expresion ('==' | '!=') expresion
-	| expresion 'and' expresion
-	| expresion 'or' expresion
-	| ID '=' expresion {usarVariable($ID);};
+	| expresion OP=('*' | '/') { añadirAPila($OP);} expresion
+	| expresion OP=('+' | '-') { añadirAPila($OP);}expresion
+	| expresion OP=('<=' | '>=' | '>' | '<') { añadirAPila($OP);}expresion
+	| expresion OP=('==' | '!=') { añadirAPila($OP);} expresion
+	| expresion OP='and' { añadirAPila($OP);} expresion
+	| expresion OP='or' { añadirAPila($OP);} expresion
+	| <assoc=right> ID '=' {nuevaExpresion();} expresion {usarVariable($ID);} {resolverPila(1);};
 primaria: 
 	literal 
-	| parExpresion 
-	| ID {usarVariable($ID);};
-literal: DECIMAL | CADENA | BOOLEANO | ENTERO;
-numero: (DECIMAL | ENTERO);
+	| parExpresion
+	| ID {usarVariable($ID);} { añadirAPila($ID);};
+literal: t=(DECIMAL | CADENA | BOOLEANO | ENTERO) {añadirAPila($t);};
 tipo_dato:
 	t = (TD_DECIMAL | TD_ENTERO | TD_CADENA | TD_BOOLEANO) {t=$t;};
