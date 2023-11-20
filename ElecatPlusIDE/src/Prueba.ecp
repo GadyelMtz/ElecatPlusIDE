@@ -41,6 +41,9 @@ programa #P1# {
 
         motor #M1#;
         servo #Ser1#;
+        servo #gatito#;
+        servo #patito#;
+
         sensor_ultrasonico #Sens1#;
         buzzer #Buzz1#;
         led #L1#;
@@ -58,6 +61,7 @@ programa #P1# {
     }
     
     funcion #F1#();
+ 
     funcion entero #F1#(entero #awd#, booleano #ad#);
     funcion entero #F1#(booleano #ad#);
     funcion #F2#(entero #PP1#){
@@ -79,4 +83,7 @@ programa #P1# {
     funcion booleano #F2#(){
         devolver f;
     }
+
+   funcion decimal  #funcionprueba#(){
+   }
 }
