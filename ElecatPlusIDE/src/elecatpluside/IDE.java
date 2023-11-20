@@ -7,15 +7,11 @@ package elecatpluside;
 
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
-import Analizadores.SimpleSemantic;
 import Analizadores.SimpleParser.ProgramaContext;
 import codigoObjeto.codigoObjeto;
 
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Font;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
@@ -28,11 +24,8 @@ import java.io.PrintWriter;
 import javax.swing.JTextPane;
 
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -51,7 +44,6 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
  *
@@ -644,9 +636,8 @@ public class IDE extends javax.swing.JFrame {
     private void lblCodigoObjetoMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCodigoObjetoMouseClicked
         if (compilado) {
             txtOutput.setText("Generando codigo objeto...");
-            codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText(), rutaDocumento);
-            codigo.crearCodigoObjeto(this.getTitle());
-            txtOutput.setText("Codigo objeto cargado...");
+            codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText(), this.getTitle());
+            codigo.crearCodigoObjeto();
         }
     }// GEN-LAST:event_lblCodigoObjetoMouseClicked
 
@@ -780,7 +771,6 @@ public class IDE extends javax.swing.JFrame {
                 new Color(255, 222, 89));
         final AttributeSet attorange = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground,
                 new Color(255, 165, 59));
-        final AttributeSet attmagenta = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.MAGENTA);
 
         
 

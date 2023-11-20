@@ -1,70 +1,65 @@
 package codigoObjeto;
 
 import java.awt.Desktop;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
-import elecatpluside.IDE;
 
 public class codigoObjeto {
     String nombre;
     String codigo;
-    String ruta;
+    String nombreArchivo;
+    String rutaArchivo;
+    String rutaDirectorio;
     // Definir la estructura de datos
     Map<String, String> componentes = new HashMap<>();
     Map<String, String> cadenas = new HashMap<>();
     Map<String, String> enteros = new HashMap<>();
 
-    public codigoObjeto(String codigo, String ruta) {
+    public codigoObjeto(String codigo, String nombre) {
         this.codigo = codigo;
-        this.ruta = ruta;
+        this.nombreArchivo = nombre.split(".ecp - ElecatPlus IDE 1.0")[0];
+        this.rutaArchivo = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\" + nombreArchivo
+                + "\\" + nombreArchivo + ".ino";
+        this.rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\"
+        + nombreArchivo;
     }
 
-    public void crearCodigoObjeto(String nombre) {
+    public void crearCodigoObjeto() {
         eliminarEspacios();
         transformarArduino();
-        crearArchivo(nombre);
-        cargarArduino(nombre);
+        crearArchivo();
+        cargarArduino();
     }
 
-    public void cargarArduino(String nombre) {
-        // Nombre del archivo .ino
-        String nombreArchivo = nombre.split(".ecp - ElecatPlus IDE 1.0")[0];
-        String rutaArchivo = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\" + nombreArchivo
-                + "\\" + nombreArchivo + ".ino";
-
+    public void cargarArduino() {
         File archivo = new File(rutaArchivo);
         Desktop d = Desktop.getDesktop();
         try {
-                        int respuesta = JOptionPane.showConfirmDialog(null, "El codigo máquina ha sido generado correctamente", "¿Deseas abrir el código para anlizarlo?", JOptionPane.YES_NO_OPTION);
-                        if(respuesta == 0){
-                            d.open(archivo);
-                        }
-                        
-                        
-                        // Compilar
-                        ProcessBuilder compiladoBuilder = new ProcessBuilder("arduino-cli", "compile", "-b", "arduino:avr:uno", rutaArchivo);
-                        compiladoBuilder.redirectErrorStream(true);
-                        Process procesoCompilado = compiladoBuilder.start();
-                        int exitCodeCompilado = procesoCompilado.waitFor();
-                        // Subir
-                        ProcessBuilder subidoBuilder = new ProcessBuilder("arduino-cli", "upload", "-p", "COM6", "--fqbn", "arduino:avr:uno", rutaArchivo);
-                        subidoBuilder.redirectErrorStream(true);
-                        Process procesoSubido = subidoBuilder.start();
-                        procesoSubido.waitFor();
-                        // Continuar con el resto del código después de que ambos procesos hayan terminado
-
+                int respuesta = JOptionPane.showConfirmDialog(null, "El codigo máquina ha sido generado correctamente", "¿Deseas abrir el código para anlizarlo?", JOptionPane.YES_NO_OPTION);
+                // Si la respuesta es sí, verifica el archivo más no ejecuta automaticamente
+                if(respuesta == 0){
+                    d.open(archivo);
+                }
+                else{                        
+                    // Compilar
+                    ProcessBuilder compiladoBuilder = new ProcessBuilder("arduino-cli", "compile", "-b", "arduino:avr:uno", rutaArchivo);
+                    compiladoBuilder.redirectErrorStream(true);
+                    compiladoBuilder.start();
+                    // Subir
+                    ProcessBuilder subidoBuilder = new ProcessBuilder("arduino-cli", "upload", "-p", "COM6", "--fqbn", "arduino:avr:uno", rutaArchivo);
+                    subidoBuilder.redirectErrorStream(true);
+                    Process procesoSubido = subidoBuilder.start();
+                    procesoSubido.waitFor();
+                    // Continuar con el resto del código después de que ambos procesos hayan terminado
+                    System.out.println("\nSe ha cargado el codigo al arduino...");
+                }
         } catch (IOException | InterruptedException ioe) {
             System.out.println(ioe);
         }
@@ -228,7 +223,6 @@ public class codigoObjeto {
             }
             codigoNuevo += lineasCodigo[i] + "\n";
         }
-
         codigo = codigoNuevo;
     }
 
@@ -437,16 +431,10 @@ public class codigoObjeto {
         codigo = resultado.toString();
     }
 
-    private void crearArchivo(String nombre) {
-        // Nombre del archivo .ino
-        String nombreArchivo = nombre.split(".ecp - ElecatPlus IDE 1.0")[0];
-        String rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\"
-                + nombreArchivo;
-        String rutaArchivo = System.getProperty("user.dir") + "\\ElecatPlusIDE\\" + "CodigoObjeto\\" + nombreArchivo
-                + "\\" + nombreArchivo + ".ino";
-
+    private void crearArchivo() {
         File archivo = new File(rutaArchivo);
         File directorio = new File(rutaDirectorio);
+
         try {
             if (!archivo.exists() && !directorio.exists()) {
                 // Si no existe, intentar crear el archivo
@@ -459,7 +447,7 @@ public class codigoObjeto {
             bw.write(codigo);
             bw.close();
         } catch (Exception ex) {
-            System.out.println("\n Hubo un error al generar el codigo objeto " + ex);
+            System.out.println("\nHubo un error al generar el codigo objeto " + ex);
         }
     }
 
