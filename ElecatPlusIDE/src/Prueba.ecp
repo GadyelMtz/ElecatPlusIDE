@@ -9,19 +9,80 @@ programa #luces#{
 		boton #botonera# = 3;
 	}
 
-	ejecutar(){
-		accion(#ledIzquierda#, encender());
-		accion(#ledDerecha#, apagar());
-		esperar(500);
-		accion(#ledIzquierda#, apagar());
-		accion(#ledDerecha#, encender());
-		esperar(500);
-		accion(#claxon#, sonar(900, 200));
-		esperar(500);
-		accion(#claxon#, sonar(1000, 200));
-		esperar(500);
-		accion(#claxon#, sonar(1100, 200));
-		esperar(500);
-	}
+    ejecutar(){ 
+        ;
+        decimal #D1#=3.42;
+        cadena #CASO1#=3.42;
+        elegir(#D1#){
+            caso 34.12:
+                booleano #DE# = falso;
+                si (#DE# == v)
+                    #D1# = #D1#*34;
+                sino
+                    ;
+                continuar;
+            caso #CASO1#:
+                si (#DE# == v)
+                    #D1# = #D1#*34;
+                sino
+                    ;
+                continuar;
+            predeterminado:
+                romper;
+        }
 
+        repetir mientras (f and v or (35<31 or (32+2) == 34 )){
+            accion(#SS1#,escribir(3));
+            #F1#(#E1#,34.1);
+        }
+
+        esperar(1000);
+
+        motor #M1#;
+        servo #Ser1#;
+        servo #gatito#;
+        servo #patito#;
+
+        sensor_ultrasonico #Sens1#;
+        buzzer #Buzz1#;
+        led #L1#;
+        //entero #Contador#;
+        repetir para (entero #Contador# = 0; #Contador# <= 3; #Contador# = #Contador# + 1){
+            accion(#SS1#,escribir(#Contador#));
+            accion(#M1#,avanzar(325));
+            accion(#Sens1#,detectar(#E2#));
+            accion(#Buzz1#,sonar(325));
+            accion(#L1#,encender());
+            esperar(2000/1*2-2000+1000);
+            accion(#L1#,apagar());
+            accion(#Ser1#,girar(313));
+        }
+    }
+    
+    funcion #F1#();
+ 
+    funcion entero #F1#(entero #awd#, booleano #ad#);
+    funcion entero #F1#(booleano #ad#);
+    funcion #F2#(entero #PP1#){
+        
+    }
+
+    funcion booleano #F2#(entero #PP1#){
+        
+    }
+
+    funcion booleano #F2#(entero #PP1#, booleano #UWU#){
+        
+    }
+
+    funcion booleano #F2#(booleano #UWUk#, booleano #UWU# , entero #PP1#){
+        
+    }
+
+    funcion booleano #F2#(){
+        devolver f;
+    }
+
+   funcion decimal  #funcionprueba#(){
+   }
 }

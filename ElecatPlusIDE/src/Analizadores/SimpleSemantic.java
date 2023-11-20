@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CommonToken;
@@ -301,4 +302,6 @@ public class SimpleSemantic {
             semanticError(variable, "la variable " + variable.getText() + " no ha sido declarada");
         }
     }
+    
+
 }
