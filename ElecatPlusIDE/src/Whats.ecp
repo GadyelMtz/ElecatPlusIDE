@@ -1,0 +1,45 @@
+programa #Whats#{
+	entero #variable1#=0;
+	#Whats#(){
+		display_lcd #display#;
+		led #ledIzquierda# = 8;
+		led #ledDerecha# = 9;
+		buzzer #claxon# = 12;
+		sensor_ultrasonico #sensor# = 10;
+		boton #botonera# = 3;
+	}
+
+	ejecutar(){
+
+		entero #variable#;
+		accion(#sensor#, detectar(#variable#));
+		entero #lecturaBoton#;
+		accion(#botonera#, detectar(#lecturaBoton#));
+		esperar(500);
+		
+		entero #boton1# = 203;
+		entero #boton2# = 254;
+		entero #boton3# = 340;
+		entero #boton4# = 511;
+		si(#lecturaBoton# == #boton1#){
+			accion(#display#, escribir("Has presionado el boton1"));
+			esperar(2500);
+			accion(#display#, escribir(""));
+		} sino si(#lecturaBoton# == #boton2#){
+			accion(#display#, escribir("Has presionado el boton2"));
+			esperar(2500);
+			accion(#display#, escribir(""));
+		} sino si(#lecturaBoton# == #boton3#){
+			accion(#ledIzquierda#, encender());
+			esperar(500);
+			accion(#ledIzquierda#, apagar());
+		} sino si(#lecturaBoton# == #boton4#){
+			accion(#ledDerecha#, encender());
+			esperar(500);
+			accion(#ledDerecha#, apagar());
+		}
+	
+	}
+
+
+}

@@ -58,8 +58,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * @author zapat
  */
 public class IDE extends javax.swing.JFrame {
-    String rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\ElecatPlusIDE\\src"; 
-    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\ElecatPlusIDE\\src\\Prueba.ecp";
+    String rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src"; 
+    String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src\\Prueba.ecp";
     private boolean guardado = false;
     File f;
     int tamañoFuente = 18;
@@ -646,6 +646,7 @@ public class IDE extends javax.swing.JFrame {
             txtOutput.setText("Generando codigo objeto...");
             codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText(), rutaDocumento);
             codigo.crearCodigoObjeto(this.getTitle());
+            txtOutput.setText("Codigo objeto cargado...");
         }
     }// GEN-LAST:event_lblCodigoObjetoMouseClicked
 

@@ -18,13 +18,15 @@ pinMode(botonera,INPUT);
 
 void loop(){
 digitalWrite(ledIzquierda,HIGH);
-delay(1500);
-digitalWrite(ledDerecha,HIGH);
-delay(1500);
-digitalWrite(ledIzquierda,LOW);
-delay(1500);
 digitalWrite(ledDerecha,LOW);
-delay(1500);
-
-
+delay(500);
+digitalWrite(ledIzquierda,LOW);
+digitalWrite(ledDerecha,HIGH);
+delay(500);
+tone(claxon,900,200);
+delay(500);
+tone(claxon,1000,200);
+delay(500);
+tone(claxon,1100,200);
+delay(500);
 }

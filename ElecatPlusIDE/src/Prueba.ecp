@@ -11,17 +11,17 @@ programa #luces#{
 
 	ejecutar(){
 		accion(#ledIzquierda#, encender());
-		esperar(1500);
-		accion(#ledDerecha#, encender());
-		esperar(1500);
-		accion(#ledIzquierda#, apagar());
-		esperar(1500);
 		accion(#ledDerecha#, apagar());
-		esperar(1500);
-
-
+		esperar(500);
+		accion(#ledIzquierda#, apagar());
+		accion(#ledDerecha#, encender());
+		esperar(500);
+		accion(#claxon#, sonar(900, 200));
+		esperar(500);
+		accion(#claxon#, sonar(1000, 200));
+		esperar(500);
+		accion(#claxon#, sonar(1100, 200));
+		esperar(500);
 	}
-		
-
 
 }

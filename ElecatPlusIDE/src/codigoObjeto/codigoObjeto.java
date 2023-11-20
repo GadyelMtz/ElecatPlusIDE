@@ -35,6 +35,7 @@ public class codigoObjeto {
         eliminarEspacios();
         transformarArduino();
         crearArchivo(nombre);
+        cargarArduino(nombre);
     }
 
     public void cargarArduino(String nombre) {
@@ -46,14 +47,25 @@ public class codigoObjeto {
         File archivo = new File(rutaArchivo);
         Desktop d = Desktop.getDesktop();
         try {
-            d.open(archivo);
-            String compilado = "arduino-cli compile -b arduino:avr:uno " + rutaArchivo;
-            Runtime.getRuntime().exec(compilado);
+                        int respuesta = JOptionPane.showConfirmDialog(null, "El codigo máquina ha sido generado correctamente", "¿Deseas abrir el código para anlizarlo?", JOptionPane.YES_NO_OPTION);
+                        if(respuesta == 0){
+                            d.open(archivo);
+                        }
+                        
+                        
+                        // Compilar
+                        ProcessBuilder compiladoBuilder = new ProcessBuilder("arduino-cli", "compile", "-b", "arduino:avr:uno", rutaArchivo);
+                        compiladoBuilder.redirectErrorStream(true);
+                        Process procesoCompilado = compiladoBuilder.start();
+                        int exitCodeCompilado = procesoCompilado.waitFor();
+                        // Subir
+                        ProcessBuilder subidoBuilder = new ProcessBuilder("arduino-cli", "upload", "-p", "COM6", "--fqbn", "arduino:avr:uno", rutaArchivo);
+                        subidoBuilder.redirectErrorStream(true);
+                        Process procesoSubido = subidoBuilder.start();
+                        procesoSubido.waitFor();
+                        // Continuar con el resto del código después de que ambos procesos hayan terminado
 
-            String subido = "arduino-cli upload -p COM6 --fqbn arduino:avr:uno " + rutaArchivo;
-            Runtime.getRuntime().exec(subido);
-
-        } catch (IOException ioe) {
+        } catch (IOException | InterruptedException ioe) {
             System.out.println(ioe);
         }
     }
@@ -82,7 +94,6 @@ public class codigoObjeto {
         cambiarSetup();
         cambiarLoop();
         almacenarTiposDeDato();
-
         cambiarPalabras();
         cambiarComponentes();
         cambiarAcciones();
@@ -447,7 +458,6 @@ public class codigoObjeto {
             // Lectura del fichero
             bw.write(codigo);
             bw.close();
-            cargarArduino(nombre);
         } catch (Exception ex) {
             System.out.println("\n Hubo un error al generar el codigo objeto " + ex);
         }
