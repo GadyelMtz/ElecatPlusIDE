@@ -222,7 +222,7 @@ public class IDE extends javax.swing.JFrame {
 
         lblCompilar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/compilar.png"))); // NOI18N
         lblCompilar.setToolTipText("Compilar");
-        lblCompilar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblCompilar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblCompilar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblCompilarMouseClicked(evt);
@@ -231,7 +231,7 @@ public class IDE extends javax.swing.JFrame {
 
         lblGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/guardar.png"))); // NOI18N
         lblGuardar.setToolTipText("Guardar");
-        lblGuardar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblGuardar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblGuardar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblGuardarMouseClicked(evt);
@@ -240,7 +240,7 @@ public class IDE extends javax.swing.JFrame {
 
         lblGuardarComo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/guardarcomo.png"))); // NOI18N
         lblGuardarComo.setToolTipText("Guardar como");
-        lblGuardarComo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblGuardarComo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblGuardarComo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblGuardarComoMouseClicked(evt);
@@ -249,7 +249,7 @@ public class IDE extends javax.swing.JFrame {
 
         lblAbrir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/abrir.png"))); // NOI18N
         lblAbrir.setToolTipText("Abrir");
-        lblAbrir.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblAbrir.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblAbrir.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAbrirMouseClicked(evt);
@@ -260,7 +260,7 @@ public class IDE extends javax.swing.JFrame {
         lblAcercar.setForeground(new java.awt.Color(255, 255, 255));
         lblAcercar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblAcercar.setText("+");
-        lblAcercar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblAcercar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblAcercar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAcercarMouseClicked(evt);
@@ -271,7 +271,7 @@ public class IDE extends javax.swing.JFrame {
         lblAlejar.setForeground(new java.awt.Color(255, 255, 255));
         lblAlejar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblAlejar.setText("-");
-        lblAlejar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblAlejar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblAlejar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAlejarMouseClicked(evt);
@@ -279,8 +279,8 @@ public class IDE extends javax.swing.JFrame {
         });
 
         lblToken.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/token.png"))); // NOI18N
-        lblToken.setToolTipText("Tokens");
-        lblToken.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblToken.setToolTipText("Ver tabla de tokens");
+        lblToken.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblToken.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblTokenMouseClicked(evt);
@@ -288,8 +288,8 @@ public class IDE extends javax.swing.JFrame {
         });
 
         lblPila.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/stack.png"))); // NOI18N
-        lblPila.setToolTipText("Pila");
-        lblPila.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblPila.setToolTipText("Ver pila de operadores");
+        lblPila.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblPila.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblPilaMouseClicked(evt);
@@ -297,8 +297,8 @@ public class IDE extends javax.swing.JFrame {
         });
 
         lblAutomata.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/transicion.png"))); // NOI18N
-        lblAutomata.setToolTipText("Diagrama de transicion");
-        lblAutomata.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblAutomata.setToolTipText("Ver los diagramas de transición");
+        lblAutomata.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblAutomata.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAutomataMouseClicked(evt);
@@ -306,7 +306,8 @@ public class IDE extends javax.swing.JFrame {
         });
 
         lblArbol.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/arboles.png"))); // NOI18N
-        lblArbol.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblArbol.setToolTipText("Ver la estructura del árbol sintáctico");
+        lblArbol.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblArbol.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblArbolMouseClicked(evt);
@@ -341,8 +342,8 @@ public class IDE extends javax.swing.JFrame {
         jLabel13.setText("Código objeto");
 
         lblCodigoObjeto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ensamblador.png"))); // NOI18N
-        lblCodigoObjeto.setToolTipText("Pila");
-        lblCodigoObjeto.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        lblCodigoObjeto.setToolTipText("Ver y/o generar el codigo objeto");
+        lblCodigoObjeto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblCodigoObjeto.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblCodigoObjetoMouseClicked(evt);
@@ -352,7 +353,9 @@ public class IDE extends javax.swing.JFrame {
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("Ver Semántica");
 
-        tblSemantica.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/icono.png"))); // NOI18N
+        tblSemantica.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/semantico.png"))); // NOI18N
+        tblSemantica.setToolTipText("Analizar la estructura semántica");
+        tblSemantica.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         tblSemantica.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblSemanticaMouseClicked(evt);
