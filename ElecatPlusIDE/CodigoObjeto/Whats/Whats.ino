@@ -18,40 +18,6 @@ pinMode(botonera,INPUT);
 
 void loop(){
 
-int variable;
-variable=digitalRead(sensor);
-int lecturaBoton;
-lecturaBoton=analogRead(botonera);
-delay(500);
-
-int boton1 = 203;
-int boton2 = 254;
-int boton3 = 340;
-int boton4 = 511;
-if(lecturaBoton == boton1){
-display.clear(); 
-display.print("Has presionado e");
-display.setCursor(0, 1);
-display.print("l boton1");
-delay(2500);
-display.clear(); 
-display.print("");
-} else if(lecturaBoton == boton2){
-display.clear(); 
-display.print("Has presionado e");
-display.setCursor(0, 1);
-display.print("l boton2");
-delay(2500);
-display.clear(); 
-display.print("");
-} else if(lecturaBoton == boton3){
-digitalWrite(ledIzquierda,HIGH);
-delay(500);
-digitalWrite(ledIzquierda,LOW);
-} else if(lecturaBoton == boton4){
-digitalWrite(ledDerecha,HIGH);
-delay(500);
-digitalWrite(ledDerecha,LOW);
-}
+delay(2000);
 
 }

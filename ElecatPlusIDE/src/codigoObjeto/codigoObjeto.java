@@ -51,12 +51,13 @@ public class codigoObjeto {
                     // Compilar
                     ProcessBuilder compiladoBuilder = new ProcessBuilder("arduino-cli", "compile", "-b", "arduino:avr:uno", rutaArchivo);
                     compiladoBuilder.redirectErrorStream(true);
-                    compiladoBuilder.start();
+                    Process procesoCompilado = compiladoBuilder.start();
+                    procesoCompilado.waitFor();
                     // Subir
                     ProcessBuilder subidoBuilder = new ProcessBuilder("arduino-cli", "upload", "-p", "COM6", "--fqbn", "arduino:avr:uno", rutaArchivo);
                     subidoBuilder.redirectErrorStream(true);
                     Process procesoSubido = subidoBuilder.start();
-                    procesoSubido.waitFor();
+                    int exitCodeSubido = procesoSubido.waitFor();
                     // Continuar con el resto del código después de que ambos procesos hayan terminado
                     System.out.println("\nSe ha cargado el codigo al arduino...");
                 }
