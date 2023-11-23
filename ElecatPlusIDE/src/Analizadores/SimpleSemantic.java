@@ -11,14 +11,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.atn.SemanticContext.PrecedencePredicate;
 
 class Funcion {
     String nombre;
@@ -41,6 +45,22 @@ public class SimpleSemantic {
         pilas = new ArrayList<>();
     }
 
+    public static final ArrayList<Predicate<Integer>> retornoExpresion = new ArrayList<>();
+    static {
+        retornoExpresion.add(t -> t == BOOLEANO | t == TD_BOOLEANO);
+        retornoExpresion.add(t -> t == CADENA | t == TD_CADENA);
+        retornoExpresion.add(t -> t == ENTERO | t == TD_ENTERO);
+        retornoExpresion.add(t -> t == DECIMAL | t == TD_DECIMAL);
+    }
+
+    public static Predicate<Integer> retorno(int tipo) {
+        for (Predicate<Integer> p : retornoExpresion) {
+            if (p.test(tipo))
+                return p;
+        }
+        return null;
+    }
+
     public static Map<String, Token> variablesDeclaradas = new HashMap<>();
     public static ArrayList<Funcion> funcionesDeclaradas = new ArrayList<>();
     public static ArrayList<Token> listaParametros = new ArrayList<>();
@@ -48,7 +68,8 @@ public class SimpleSemantic {
     public static Set<String> nombreParametros = new HashSet<>();
     public static Stack<Token> salida = new Stack<>();
     public static Stack<Token> pilaOperadores = new Stack<>();
-    boolean isDeclaration = false;
+    public static boolean banderaRetorno = false;
+    public static boolean banderaSwitch = false;
 
     public static Token t;
     private static ANTLRErrorListener listener = new ConsoleErrorListener() {
@@ -63,6 +84,24 @@ public class SimpleSemantic {
     static final Set<String> operadores = new HashSet<>(
             Arrays.asList("and", "or", "==", "!=", "<", "<=", ">", ">=", "/", "*", "-", "+"));
     static final Set<Integer> literales = new HashSet<>(Arrays.asList(DECIMAL, CADENA, BOOLEANO, ENTERO));
+    static final Set<Integer> tdVariables = new HashSet<>(Arrays.asList(TD_DECIMAL, TD_ENTERO, TD_CADENA, TD_BOOLEANO));
+    static Integer retornoFuncion = -1;
+    static Integer regresarTipoDato;
+    static Integer td_switch;
+    static Integer td_variable;
+
+    static void resolverDetectar(Token t){
+        if(cantidadEnPila()!=1){
+            semanticError(t, "se esperaba sólo un identificador ENTERO.");
+        }
+        if (salida.peek().getType()!=TD_ENTERO){
+            semanticError(t, "se esperaba un identificador TD_ENTERO y no " + SimpleParser.VOCABULARY.getSymbolicName(t.getType()) +".");
+        }
+    }
+
+    private static int cantidadEnPila() {
+        return salida.size() + operadores.size();
+    }
 
     public static void usarFuncion(Token funcion, ArrayList<Token> lista) {
         // try {
@@ -83,29 +122,101 @@ public class SimpleSemantic {
         salida = new Stack<>();
     };
 
-    private static void invertirSalida() {
-        while (!pilaOperadores.empty()) {
-            salida.push(pilaOperadores.pop());
-        }
-        // Sacar el resto de operadores de la pila
-        // Stack<Token> invertido = new Stack<>();
-        // while (!salida.empty()) {
-        //     invertido.push(salida.pop());
-        // }
-        // salida = invertido;
-    }
-
-    static void imprimirPila(Stack<Token> xdd,Token inicial) {
+    static void imprimirPila(Stack<Token> xdd, Token inicial) {
         StringBuilder xd = new StringBuilder();
-        xd.append("Linea "+inicial.getLine()+":"+inicial.getCharPositionInLine()+"[");
-        xdd.forEach(t -> xd.append("["+t.getText()+"]"));
+        xd.append("Linea " + inicial.getLine() + ":" + inicial.getCharPositionInLine() + "[");
+        xdd.forEach(t -> xd.append("[" + t.getText() + "]"));
         xd.append("]");
         pilas.add(xd.toString());
     }
 
-    static void resolverPila(Integer tipo) {
-        invertirSalida();
-        imprimirPila(salida,salida.peek());
+    /**
+     * La función "nuevaFuncion" restablece los parámetros, el valor de retorno y el
+     * indicador de
+     * retorno de una función.
+     */
+    public static void nuevaFuncion() {
+        listaParametros = new ArrayList<>();
+        nombreParametros.clear();
+        retornoFuncion = -1;
+        banderaRetorno = false;
+    }
+
+    public static void nuevoSwitch() {
+        nuevaExpresion();
+        banderaSwitch = false;
+    }
+
+    /**
+     * La función comprueba si hay una devolución inesperada de datos.
+     * 
+     * @param t El parámetro "t" es de tipo Token.
+     */
+    public static void comprobarRetorno(Token t) {
+        if (retornoFuncion == -1)
+            semanticError(t, "no se esperaba retorno de datos.");
+        banderaRetorno = true;
+    }
+
+    /**
+     * La función comprueba si un token determinado está dentro de una función o no.
+     * 
+     * @param t El token t es el token que activó la verificación.
+     * @param c El parámetro "c" es de tipo ParserRuleContext, que es una clase que
+     *          representa un
+     *          contexto de regla en un analizador. Se utiliza para representar el
+     *          contexto de una regla
+     *          específica en la gramática.
+     */
+    public static void comprobarPadre(Token t, ParserRuleContext c) {
+        ParserRuleContext p = null;
+        while ((p = c.getParent()) != null) {
+            if (p.getRuleIndex() == RULE_funcion)
+                return;
+        }
+        semanticError(t, "devolver no se encuentra en una función.");
+    }
+
+    int obtenerResultadoPila() {
+        return salida.peek().getType();
+    }
+
+    // TODO: Ponerle la bandera de switch en true si se resuelve con éxito.
+    static boolean resolverPila(Predicate<Integer> esperado) {
+        // 1 devolver,Igual al que devuelve la función. V V
+        resolverPila(t -> t == retornoFuncion);
+        // 2 elegir ,Un tipo de dato, es decir, una variable. V V
+        resolverPila(t -> tdVariables.contains(t));
+        // 3 repetir mientras ,Booleano. V V
+        resolverPila(t -> t == BOOLEANO | t == TD_BOOLEANO);
+        // 4 si Booleano o TD_Booleano. V V
+        resolverPila(t -> t == BOOLEANO | t == TD_BOOLEANO);
+        // 5 controlFor Booleano o TD_Booleano. V V
+        resolverPila(t -> t == BOOLEANO | t == TD_BOOLEANO);
+        // 6 etiquetaSwitch El mismo tipo de dato que 'elegir'. V V
+        resolverPila(t -> retorno(td_switch).test(t));
+        // 7 declaracionDeVariable El mismo tipo de dato de la variable. V V
+        resolverPila(t -> retorno(td_variable).test(t));
+        // 8 escribir Cadena o TD_CADENA. V V
+        resolverPila(t -> t == TD_CADENA | t == CADENA);
+        // 9 girar ENTERO o TD_ENTERO. V V
+        resolverPila(t -> t == TD_ENTERO | t == ENTERO);
+        // 10 avanzar ENTERO o TD_ENTERO. V V
+        resolverPila(t -> t == TD_ENTERO | t == ENTERO);
+        // 11 detectar TD_ENTERO. V V
+        resolverPila(t -> t == TD_ENTERO);
+        // 12 detener TD_ENTERO o ENTERO. V V
+        resolverPila(t -> t == TD_ENTERO | t == ENTERO);
+        // 13 esperar TD_ENTERO o ENTERO. V V
+        resolverPila(t -> t == ENTERO | t == TD_ENTERO);
+        // 14 expresión El mismo tipo de dato de la variable
+        resolverPila(t -> retorno(td_variable).test(t));
+
+        // 0. Sacar el resto de operadores de la pila
+        while (!pilaOperadores.empty()) {
+            salida.push(pilaOperadores.pop());
+        }
+        imprimirPila(salida, salida.peek());
         // if (salida.size() == 1) {
         // Token t = salida.pop();
         // return tipos.contains(t.getType());
@@ -139,43 +250,50 @@ public class SimpleSemantic {
 
     private Token validarOperacion(Token operando1, Token operando2, Token operador) throws Exception {
         // try {
-        //     if (operador.getType() == OP_LOGICO) {
-        //         if (!booleanos.contains(operando1.getType()) || !booleanos.contains(operando2.getType())) {
-        //             throw new Exception();
-        //         }
-        //         return new CommonToken(BOOLEANO, "booleano");
-        //     } else if (operador.getType() == OP_ARITMETICO || operador.getType() == OP_COMPARADOR) {
-        //         byte d = 0;
-        //         d += decimales.contains(operando1.getType()) ? 1 : 0;
-        //         d += decimales.contains(operando2.getType()) ? 2 : 0;
-        //         switch (d) {
-        //             case 0:
-        //                 if (!enteros.contains(operando1.getType()) && !enteros.contains(operando2.getType()))
-        //                     throw new Exception();
-        //                 return new CommonToken(operador.getType() == OP_ARITMETICO
-        //                         ? (operador.getText().equals("/")) ? DECIMAL : ENTERO
-        //                         : BOOLEANO, "valor");
-        //             case 1:
-        //                 if (!enteros.contains(operando2.getType()))
-        //                     throw new Exception();
-        //                 break;
-        //             case 2:
-        //                 if (!enteros.contains(operando1.getType()))
-        //                     throw new Exception();
-        //                 break;
-        //             default:
-        //                 break;
-        //         }
-        //         return new CommonToken(operador.getType() == OP_ARITMETICO ? DECIMAL : BOOLEANO, "valor");
-        //     }
+        // if (operador.getType() == OP_LOGICO) {
+        // if (!booleanos.contains(operando1.getType()) ||
+        // !booleanos.contains(operando2.getType())) {
+        // throw new Exception();
+        // }
+        // return new CommonToken(BOOLEANO, "booleano");
+        // } else if (operador.getType() == OP_ARITMETICO || operador.getType() ==
+        // OP_COMPARADOR) {
+        // byte d = 0;
+        // d += decimales.contains(operando1.getType()) ? 1 : 0;
+        // d += decimales.contains(operando2.getType()) ? 2 : 0;
+        // switch (d) {
+        // case 0:
+        // if (!enteros.contains(operando1.getType()) &&
+        // !enteros.contains(operando2.getType()))
+        // throw new Exception();
+        // return new CommonToken(operador.getType() == OP_ARITMETICO
+        // ? (operador.getText().equals("/")) ? DECIMAL : ENTERO
+        // : BOOLEANO, "valor");
+        // case 1:
+        // if (!enteros.contains(operando2.getType()))
+        // throw new Exception();
+        // break;
+        // case 2:
+        // if (!enteros.contains(operando1.getType()))
+        // throw new Exception();
+        // break;
+        // default:
+        // break;
+        // }
+        // return new CommonToken(operador.getType() == OP_ARITMETICO ? DECIMAL :
+        // BOOLEANO, "valor");
+        // }
         // } catch (Exception e) {
-        //     String err = "Operación inválida: '" + operando1.getText() + " " + operador.getText() + " "
-        //             + operando2.getText() + "'";
-        //     err += "\nTipos de dato incompatibles: '" + operando1.getType() + " " + operador.getText() + " "
-        //             + operando2.getType() + "'";
-        //     err += "\nLínea: " + operador.getLine() + ", " + operador.getCharPositionInLine();
-        //     System.out.println(err);
-        //     throw e;
+        // String err = "Operación inválida: '" + operando1.getText() + " " +
+        // operador.getText() + " "
+        // + operando2.getText() + "'";
+        // err += "\nTipos de dato incompatibles: '" + operando1.getType() + " " +
+        // operador.getText() + " "
+        // + operando2.getType() + "'";
+        // err += "\nLínea: " + operador.getLine() + ", " +
+        // operador.getCharPositionInLine();
+        // System.out.println(err);
+        // throw e;
         // }
         return null;
     }
@@ -315,7 +433,6 @@ public class SimpleSemantic {
             if (token == null)
                 return;
             int tipoToken = token.getType();
-
             // Agregar a la pila según el tipo del token
             if (tipoToken == ID) {
                 salida.push(variablesDeclaradas.get(token.getText()));
@@ -431,8 +548,10 @@ public class SimpleSemantic {
      *                     de línea.
      */
     public static void variableDeclarada(Token variable, Token tipoVariable) {
-        if (!variablesDeclaradas.containsKey(variable.getText()))
+        if (!variablesDeclaradas.containsKey(variable.getText())) {
             variablesDeclaradas.put(variable.getText(), tipoVariable);
+            return;
+        }
         String text = variable.getText();
         Token declarada = variablesDeclaradas.get(variable.getText());
         semanticError(variable, "la variable: '" + text + "' ya ha sido declarada en linea: " + declarada.getLine());
