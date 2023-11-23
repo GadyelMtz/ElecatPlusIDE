@@ -2,8 +2,6 @@ package Analizadores;
 
 import static Analizadores.SimpleParser.*;
 
-import java.awt.Component;
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
-
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ConsoleErrorListener;
@@ -22,7 +18,6 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.atn.SemanticContext.PrecedencePredicate;
 
 class Funcion {
     String nombre;
@@ -109,7 +104,7 @@ public class SimpleSemantic {
     }
 
     public static void errorPila(String esperado,Token t) {
-        semanticError(t, String.format("se esperaba que la expresión retorne %s, no %s.",SimpleParser.VOCABULARY.getSymbolicName(t.getType())));
+        semanticError(t, String.format("se esperaba que la expresión retorne %s, no %s.",esperado,SimpleParser.VOCABULARY.getSymbolicName(t.getType())));
     }
 
     static void resolverDetectar(Token t) {
@@ -173,7 +168,7 @@ public class SimpleSemantic {
 
     /**
      * La función comprueba si hay una devolución inesperada de datos.
-     * 
+     *
      * @param t El parámetro "t" es de tipo Token.
      */
     public static void comprobarRetorno(Token t) {
@@ -184,7 +179,7 @@ public class SimpleSemantic {
 
     /**
      * La función comprueba si un token determinado está dentro de una función o no.
-     * 
+     *
      * @param t El token t es el token que activó la verificación.
      * @param c El parámetro "c" es de tipo ParserRuleContext, que es una clase que
      *          representa un
@@ -193,61 +188,30 @@ public class SimpleSemantic {
      *          específica en la gramática.
      */
     public static void comprobarPadre(Token t, ParserRuleContext c) {
-        ParserRuleContext p = null;
-        while ((p = c.getParent()) != null) {
+        RuleContext p = c;
+        while ((p = p.parent) != null) {
             if (p.getRuleIndex() == RULE_funcion)
                 return;
         }
         semanticError(t, "devolver no se encuentra en una función.");
     }
 
-    int obtenerResultadoPila() {
+    public static int obtenerResultadoPila() {
         return salida.peek().getType();
     }
 
-    // TODO: Ponerle la bandera de switch en true si se resuelve con éxito.
     static boolean resolverPila(Predicate<Integer> esperado) {
-        // // 1 devolver,Igual al que devuelve la función. V V V
-        // resolverPila(t -> t == retornoFuncion);
-        // // 2 elegir ,Un tipo de dato, es decir, una variable. V V V
-        // resolverPila(t -> tdVariables.contains(t));
-        // // 3 repetir mientras ,Booleano. V V V
-        // resolverPila(t -> t == BOOLEANO | t == TD_BOOLEANO);
-        // // 4 si Booleano o TD_Booleano. V V V
-        // resolverPila(t -> t == BOOLEANO | t == TD_BOOLEANO);
-        // // 5 controlFor Booleano o TD_Booleano. V V V
-        // resolverPila(t -> t == BOOLEANO | t == TD_BOOLEANO);
-        // // 6 etiquetaSwitch El mismo tipo de dato que se evalúa 'elegir'. V V V
-        // resolverPila(t -> retorno(td_switch).test(t));
-        // // 7 declaracionDeVariable el mismo tipo de dato de la variable. V V V
-        // resolverPila(t -> retorno(td_variable).test(t));
-        // // 8 escribir Cadena o TD_CADENA. V V V
-        // resolverPila(t -> t == TD_CADENA | t == CADENA);
-        // // 9 girar ENTERO o TD_ENTERO. V V V
-        // resolverPila(t -> t == TD_ENTERO | t == ENTERO);
-        // // 10 avanzar ENTERO o TD_ENTERO. V V V
-        // resolverPila(t -> t == TD_ENTERO | t == ENTERO);
-        // // 11 detectar TD_ENTERO. V V V
-        // resolverPila(t -> t == TD_ENTERO);
-        // // 12 detener TD_ENTERO o ENTERO. V V
-        // resolverPila(t -> t == TD_ENTERO | t == ENTERO);
-        // // 13 esperar TD_ENTERO o ENTERO. V V V
-        // resolverPila(t -> t == ENTERO | t == TD_ENTERO);
-        // // 14 expresión El mismo tipo de dato de la variable
-        // resolverPila(t ->
-        // retorno(variablesDeclaradas.get($ID.getText()).getType()).test(t));
-
-        // 0. Sacar el resto de operadores de la pila
         while (!pilaOperadores.empty()) {
             salida.push(pilaOperadores.pop());
         }
         imprimirPila(salida, salida.peek());
+        invertirPila();
         if (salida.size() == 1) {
             return esperado.test(salida.peek().getType());
         }
         Stack<Token> t = new Stack<>();
         while (!salida.empty()) {
-            if (!(!operadores.contains(salida.peek().getText()))) {
+            if ((!operadores.contains(salida.peek().getText()))) {
                 t.push(salida.pop());
             } else {
                 try {
@@ -261,7 +225,15 @@ public class SimpleSemantic {
         return esperado.test(salida.peek().getType());
     }
 
-    private static Token validarOperacion(Token operando1, Token operando2, Token operador) throws Exception {
+    private static void invertirPila() {
+        Stack<Token> aux = new Stack<>();
+        while (!salida.empty()) {
+            aux.push(salida.pop());
+        }
+        salida = aux;
+    }
+
+    private static Token validarOperacion(Token operando2, Token operando1, Token operador) throws Exception {
         if (operadoresBooleanos.contains(operador.getText())) {
             Predicate<Integer> booleanos = retornoExpresion.get(0);
             if (!evaluarOperandos(operando1, operando2, booleanos))
@@ -326,7 +298,7 @@ public class SimpleSemantic {
      * La función comprueba si un parámetro ya ha sido declarado y arroja un error
      * semántico si es un
      * duplicado.
-     * 
+     *
      * @param parametro El parámetro "parametro" es de tipo "Token".
      */
     public static void parametrosDeclarados(Token parametro) {
@@ -343,7 +315,7 @@ public class SimpleSemantic {
      * La función "parametrosIguales" comprueba si dos ArrayLists de Tokens tienen
      * los mismos elementos
      * en el mismo orden.
-     * 
+     *
      * @param lista1 Un ArrayList de objetos Token llamado lista1.
      * @param lista2 El parámetro "lista2" es un ArrayList de objetos Token.
      * @return El método devuelve un valor booleano.
@@ -361,7 +333,7 @@ public class SimpleSemantic {
      * La función comprueba si ya se ha declarado una función con el mismo nombre y
      * parámetros y, en
      * caso contrario, declara la función.
-     * 
+     *
      * @param funcion El parámetro "funcion" es de tipo Token, que representa un
      *                token en el código. Se
      *                utiliza para representar el nombre de la función que se
@@ -391,7 +363,7 @@ public class SimpleSemantic {
      * lista de tokens y un predicado, y luego llama a la función `semanticError`
      * con el mensaje de
      * error generado.
-     * 
+     *
      * @param funcion   Un Token que representa el nombre de la función.
      * @param lista     Una ArrayList de objetos Token que representan los
      *                  parámetros de la función.
@@ -428,7 +400,7 @@ public class SimpleSemantic {
      * La función `semanticError` se utiliza para informar un error semántico con un
      * mensaje y una
      * ubicación específicos.
-     * 
+     *
      * @param variable El parámetro variable es de tipo Token y representa el token
      *                 que provocó el
      *                 error semántico.
@@ -445,7 +417,7 @@ public class SimpleSemantic {
      * La función "añadirAPila" agrega un token a una pila según su tipo y maneja
      * operadores y
      * paréntesis en consecuencia.
-     * 
+     *
      * @param token El parámetro "token" es de tipo Token, que representa un token
      *              en un lenguaje de
      *              programación. Contiene información como el tipo de token y el
@@ -478,7 +450,7 @@ public class SimpleSemantic {
 
     /**
      * La función comprueba si un tipo de Token determinado es literal.
-     * 
+     *
      * @param tipo El parámetro "tipo" es un número entero que representa un tipo.
      * @return El método devuelve un valor booleano.
      */
@@ -488,7 +460,7 @@ public class SimpleSemantic {
 
     /**
      * La función comprueba si un texto determinado es un operador.
-     * 
+     *
      * @param text El parámetro "texto" es una cadena que representa un operador.
      * @return El método devuelve un valor booleano.
      */
@@ -500,7 +472,7 @@ public class SimpleSemantic {
      * La función "manejarOperadores" maneja operadores comparando su precedencia y
      * empujándolos a la
      * pila apropiada.
-     * 
+     *
      * @param token El parámetro "token" es un objeto de tipo "Token" que representa
      *              el operador.
      */
@@ -516,7 +488,7 @@ public class SimpleSemantic {
      * La función "precedencia" devuelve el nivel de precedencia de un operador u
      * operador lógico
      * determinado.
-     * 
+     *
      * @param text El parámetro "texto" es una cadena que representa un operador en
      *             una expresión.
      * @return El método devuelve un valor entero que representa la precedencia del
@@ -563,7 +535,7 @@ public class SimpleSemantic {
     /**
      * La función comprueba si una variable ya ha sido declarada y arroja un error
      * semántico si es así.
-     * 
+     *
      * @param variable     Un token que representa la variable que se declara.
      * @param tipoVariable El parámetro tipoVariable representa el tipo de variable
      *                     que se declara. Es
@@ -584,7 +556,7 @@ public class SimpleSemantic {
     /**
      * La función comprueba si se ha declarado una variable y arroja un error
      * semántico si no es así.
-     * 
+     *
      * @param variable El parámetro "variable" es de tipo "Token".
      */
     public static void usarVariable(Token variable) {

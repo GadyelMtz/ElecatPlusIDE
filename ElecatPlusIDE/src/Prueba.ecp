@@ -1,6 +1,6 @@
 programa #P1# {
     siete_segmentos #SS1#,#SS2#,#SS3#;
-    booleano #B1#,#B2#=falso,#B3#;
+    booleano #B1#,#B2#=12,#B3#;
     entero #E1# = 3, #E2#;
    
     #P1#(){
