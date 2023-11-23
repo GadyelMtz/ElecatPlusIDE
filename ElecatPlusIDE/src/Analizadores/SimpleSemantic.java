@@ -109,7 +109,7 @@ public class SimpleSemantic {
     }
 
     public static void errorPila(String esperado,Token t) {
-        semanticError(t, String.format("se esperaba que la expresión retorne %s, no %s.",,SimpleParser.VOCABULARY.getSymbolicName(t.getType())));
+        semanticError(t, String.format("se esperaba que la expresión retorne %s, no %s.",SimpleParser.VOCABULARY.getSymbolicName(t.getType())));
     }
 
     static void resolverDetectar(Token t) {
@@ -261,7 +261,7 @@ public class SimpleSemantic {
         return esperado.test(salida.peek().getType());
     }
 
-    private Token validarOperacion(Token operando1, Token operando2, Token operador) throws Exception {
+    private static Token validarOperacion(Token operando1, Token operando2, Token operador) throws Exception {
         if (operadoresBooleanos.contains(operador.getText())) {
             Predicate<Integer> booleanos = retornoExpresion.get(0);
             if (!evaluarOperandos(operando1, operando2, booleanos))
@@ -318,7 +318,7 @@ public class SimpleSemantic {
         return null;
     }
 
-    private boolean evaluarOperandos(Token operando1, Token operando2, Predicate<Integer> predicado) {
+    private static boolean evaluarOperandos(Token operando1, Token operando2, Predicate<Integer> predicado) {
         return predicado.test(operando1.getType()) && predicado.test(operando2.getType());
     }
 
