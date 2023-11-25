@@ -119,7 +119,7 @@ public class SimpleSemantic {
     }
 
     private static int cantidadEnPila() {
-        return salida.size() + operadores.size();
+        return salida.size() + pilaOperadores.size();
     }
 
     public static void usarFuncion(Token funcion, ArrayList<Token> lista) {
@@ -221,7 +221,7 @@ public class SimpleSemantic {
                 }
             }
         }
-        salida.push(t.pop());
+        salida.push(SimpleSemantic.t=t.pop());
         return esperado.test(salida.peek().getType());
     }
 
@@ -241,7 +241,7 @@ public class SimpleSemantic {
                 semanticError(operador, "las expresiones izquierda y derecha no son de tipo Booleano.");
                 throw new Exception();
             }
-            return new CommonToken(BOOLEANO);
+            return new CommonToken(BOOLEANO,"BOOLEANO");
         } else if (operadoresBooleanoNumericos.contains(operador.getText())) {
             Predicate<Integer> booleanos = retornoExpresion.get(0);
             byte x = 0;
@@ -249,7 +249,7 @@ public class SimpleSemantic {
             x += booleanos.test(operando2.getType()) ? 0b01 : 0;
             switch (x) {
                 case 0b11:
-                    return new CommonToken(BOOLEANO);
+                    return new CommonToken(BOOLEANO,"BOOLEANO");
                 case 0b10:
                 case 0b01:
                     semanticError(operador, "se esperaba que ambas expresiones (izq y der) fueran de tipo booleano.");
@@ -269,21 +269,21 @@ public class SimpleSemantic {
                     semanticError(operador, "las expresiones izquierda y derecha no son de tipo numérico.");
                     throw new Exception();
                 }
-                return new CommonToken(DECIMAL);
+                return new CommonToken(DECIMAL,"DECIMAL");
             case 0b11:
-                return new CommonToken(ENTERO);
+                return new CommonToken(ENTERO,"ENTERO");
             case 0b10:
                 if (!decimales.test(operando1.getType())) {
                     semanticError(operador, "las expresión izquierda no es de tipo numérico.");
                     throw new Exception();
                 }
-                return new CommonToken(DECIMAL);
+                return new CommonToken(DECIMAL,"DECIMAL");
             case 0b01:
                 if (!decimales.test(operando2.getType())) {
                     semanticError(operador, "las expresión derecha no es de tipo numérico.");
                     throw new Exception();
                 }
-                return new CommonToken(DECIMAL);
+                return new CommonToken(DECIMAL,"DECIMAL");
             default:
                 break;
         }

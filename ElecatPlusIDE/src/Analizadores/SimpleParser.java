@@ -950,7 +950,8 @@ public class SimpleParser extends Parser {
 				nuevoSwitch();
 				setState(175);
 				parExpresion();
-				resolverSwitch(t); if(banderaSwitch)td_switch = obtenerResultadoPila();
+				//TODO:
+				resolverSwitch(salida.peek()); if(banderaSwitch)td_switch = obtenerResultadoPila();
 						
 				setState(177);
 				match(LBRACE);
