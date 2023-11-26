@@ -1,3 +1,7 @@
+// antlr4-parse SimpleParser.g4 SimpleLexer.g4 programa -tokens
+// C:\Users\angel\OneDrive\Documentos\ElecatPlusIDE\ElecatPlusIDE\src\Prueba.ecp 
+// antlr4 SimpleLexer.g4 -no-listener -no-visitor antlr4 SimpleParser.g4 -no-listener -no-visitor
+
 package consola;
 
 import java.io.File;
@@ -5,7 +9,6 @@ import java.io.IOException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
 import Analizadores.SimpleSemantic;
@@ -19,7 +22,7 @@ public class Main {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SimpleParser parser = new SimpleParser(tokens);
             System.out.println("");
-            ParseTree tree = parser.programa(); // Comienza el análisis desde la regla expr
+            parser.programa(); // Comienza el análisis desde la regla expr
             System.out.println("PILAS");
             SimpleSemantic.pilas.forEach(t -> System.out.println(t));
             // Prueba de PINES = FUNCIONÓ

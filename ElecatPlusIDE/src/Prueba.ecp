@@ -1,6 +1,6 @@
 programa #P1# {
     siete_segmentos #SS1#,#SS2#,#SS3#;
-    booleano #B1#,#B2#=12,#B3#;
+    booleano #B1#,#B2#=f or v,#B3#;
     entero #E1# = 3, #E2#;
    
     #P1#(){
@@ -13,7 +13,7 @@ programa #P1# {
     ejecutar(){
         ;
         decimal #D1#=3.42;
-        cadena #CASO1#=3.42;
+        cadena #CASO1#="A la bestia";
         elegir(#D1#){
             caso 34.12:
                 booleano #DE# = falso;
@@ -22,7 +22,7 @@ programa #P1# {
                 sino
                     ;
                 continuar;
-            caso #CASO1#:
+            caso .2:
                 si (#DE# == v)
                     #D1# = #D1#*34;
                 sino
@@ -33,7 +33,7 @@ programa #P1# {
         }
 
         repetir mientras (f and v or (35<31 or (32+2) == 34 )){
-            accion(#SS1#,escribir(3));
+            accion(#SS1#,mostrar(2));
             #F1#(#E1#,34.1);
         }
 
@@ -41,12 +41,12 @@ programa #P1# {
 
         motor #M1#;
         servo #Ser1#;
-        sensor_ultrasonico #Sens1#;
+        sensor_distancia #Sens1#;
         buzzer #Buzz1#;
         led #L1#;
         //entero #Contador#;
         repetir para (entero #Contador# = 0; #Contador# <= 3; #Contador# = #Contador# + 1){
-            accion(#SS1#,escribir(#Contador#));
+            accion(#SS1#,mostrar(#Contador#));
             accion(#M1#,avanzar(325));
             accion(#Sens1#,detectar(#E2#));
             accion(#Buzz1#,sonar(325));
@@ -58,7 +58,7 @@ programa #P1# {
     }
     
     funcion #F1#();
-    funcion entero #F1#(entero #ad#, booleano #ad#);
+    funcion entero #F1#(entero #ad0#, booleano #ad#);
     funcion entero #F1#(booleano #ad#);
     funcion #F2#(entero #PP1#){
         
@@ -72,7 +72,7 @@ programa #P1# {
         
     }
 
-    funcion booleano #F2#(booleano #UWU#, booleano #UWU# , entero #PP1#){
+    funcion booleano #F2#(booleano #UWU1#, booleano #UWU2# , entero #PP1#){
         
     }
 

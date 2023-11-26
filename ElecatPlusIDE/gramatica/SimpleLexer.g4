@@ -28,6 +28,7 @@ SONAR: 'sonar';
 GIRAR: 'girar';
 AVANZAR: 'avanzar';
 DETECTAR: 'detectar';
+MOSTRAR: 'mostrar';
 ENCENDER: 'encender';
 DETENER: 'detener';
 APAGAR: 'apagar';
@@ -35,7 +36,7 @@ CADENA: '"' .*? '"';
 COMPONENTE:
 	'display_lcd'
 	| 'servo'
-	| 'sensor_ultrasonico'
+	| 'sensor_distancia'
 	| 'motor'
 	| 'led'
 	| 'buzzer'
