@@ -1,7 +1,6 @@
 package Analizadores;
 
 import static Analizadores.SimpleParser.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,27 +20,24 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 
+@FunctionalInterface
+interface SymbolicName {
+    String getSymbolicName(int tokenType);
+}
+
 class Funcion {
     String nombre;
+    int retorno;
     ArrayList<Token> parametros;
 
-    public Funcion(String nombre, ArrayList<Token> parametros) {
+    public Funcion(String nombre, int retorno, ArrayList<Token> parametros) {
         this.nombre = nombre;
         this.parametros = parametros;
+        this.retorno = retorno;
     }
 }
 
 public class SimpleSemantic {
-    public SimpleSemantic() {
-        variablesDeclaradas = new HashMap<>();
-        funcionesDeclaradas = new ArrayList<>();
-        listaParametros = new ArrayList<>();
-        nombreParametros = new HashSet<>();
-        salida = new Stack<>();
-        pilaOperadores = new Stack<>();
-        pilas = new ArrayList<>();
-    }
-
     public static final ArrayList<Predicate<Integer>> retornoExpresion = new ArrayList<>();
     static {
         retornoExpresion.add(t -> t == BOOLEANO | t == TD_BOOLEANO);
@@ -49,15 +45,6 @@ public class SimpleSemantic {
         retornoExpresion.add(t -> t == ENTERO | t == TD_ENTERO);
         retornoExpresion.add(t -> t == DECIMAL | t == TD_DECIMAL);
     }
-
-    public static Predicate<Integer> retorno(int tipo) {
-        for (Predicate<Integer> p : retornoExpresion) {
-            if (p.test(tipo))
-                return p;
-        }
-        return null;
-    }
-
     public static Map<String, Token> variablesDeclaradas = new HashMap<>();
     public static ArrayList<Funcion> funcionesDeclaradas = new ArrayList<>();
     public static ArrayList<Token> listaParametros = new ArrayList<>();
@@ -67,7 +54,7 @@ public class SimpleSemantic {
     public static Stack<Token> pilaOperadores = new Stack<>();
     public static boolean banderaRetorno = false;
     public static boolean banderaSwitch = false;
-
+    private static boolean puedeResolverPila = true;
     public static Token t;
     private static ANTLRErrorListener listener = new ConsoleErrorListener() {
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
@@ -75,13 +62,11 @@ public class SimpleSemantic {
             System.err.println("Linea " + line + ":" + charPositionInLine + "; Error semantico: " + msg + ";");
         }
     };
-    final Set<Integer> booleanos = new HashSet<Integer>(Arrays.asList(TD_BOOLEANO, BOOLEANO));
-    final Set<Integer> enteros = new HashSet<>(Arrays.asList(TD_ENTERO, ENTERO));
-    static final Set<Integer> decimales = new HashSet<>(Arrays.asList(DECIMAL, TD_DECIMAL));
+    public static SymbolicName s = SimpleParser.VOCABULARY::getSymbolicName;
     static final Set<String> operadores = new HashSet<>(
             Arrays.asList("and", "or", "==", "!=", "<", "<=", ">", ">=", "/", "*", "-", "+"));
-    static final Set<String> operadoresNumericos = new HashSet<>(
-            Arrays.asList("<", "<=", ">", ">=", "/", "*", "-", "+"));
+    static final Set<String> operadoresAritmeticos = new HashSet<>(Arrays.asList("+", "-", "*", "/"));
+    static final Set<String> operadoresComparadores = new HashSet<>(Arrays.asList("<", ">", "<=", ">="));
     static final Set<String> operadoresBooleanoNumericos = new HashSet<>(
             Arrays.asList("==", "!="));
     static final Set<String> operadoresBooleanos = new HashSet<>(
@@ -93,6 +78,102 @@ public class SimpleSemantic {
     static Integer td_switch;
     static Integer td_variable;
 
+    public SimpleSemantic() {
+        variablesDeclaradas = new HashMap<>();
+        funcionesDeclaradas = new ArrayList<>();
+        listaParametros = new ArrayList<>();
+        nombreParametros = new HashSet<>();
+        salida = new Stack<>();
+        pilaOperadores = new Stack<>();
+        pilas = new ArrayList<>();
+    }
+
+    public static void comprobarComponente(Token ID, String componentName) {
+        String tipo;
+        if (!(tipo = variablesDeclaradas.get(ID.getText()).getText()).equals(componentName)){
+            puedeResolverPila = false;
+            semanticError(ID, "acción no válida para variables de tipo "+tipo+"; se esperaba: "+componentName);
+        }
+    }
+    
+    public static void iniciarAccion(Token ID) {
+        if (usarVariable(ID)) {
+            nuevaExpresion();
+            añadirAPila(ID);
+            if (resolverExpresion(t -> COMPONENTE == t, "COMPONENTE")) {
+                nuevaExpresion();
+                puedeResolverPila = true;
+            } else {
+                puedeResolverPila = false;
+            }
+        }
+    }
+
+    /**
+     * La función "retorno" devuelve un Predicado<Integer> basado en el tipo dado.
+     * 
+     * @param tipo El parámetro "tipo" es un valor entero que representa un tipo.
+     * @return El método `retorno` devuelve un objeto `Predicado<Integer>`.
+     */
+    public static Predicate<Integer> retorno(int tipo) {
+        for (Predicate<Integer> p : retornoExpresion) {
+            if (p.test(tipo))
+                return p;
+        }
+        return null;
+    }
+
+    /**
+     * La función "resolverExpresion" toma un predicado y un mensaje como parámetros
+     * e intenta resolver
+     * una expresión basada en el predicado, mientras maneja las excepciones que
+     * puedan ocurrir.
+     * 
+     * @param predicate El predicado es una interfaz funcional que toma un número
+     *                  entero como entrada y
+     *                  devuelve un valor booleano. Se utiliza para verificar una
+     *                  condición en el número entero de
+     *                  entrada.
+     * @param message   El parámetro "mensaje" es una cadena que representa un
+     *                  mensaje de error.
+     */
+    public static boolean resolverExpresion(Predicate<Integer> predicate, String message) {
+        try {
+            if (!resolverPila(predicate)) {
+                errorPila(message, salida.peek());
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * La función `resolverAsignacion` comprueba si se puede asignar un valor a una
+     * variable y arroja
+     * un error semántico si los tipos no coinciden.
+     * 
+     * @param _localctx El parámetro `_localctx` es de tipo `ExpresionContext`.
+     */
+    public static void resolverAsignacion(Token ID) {
+        try {
+            if (!resolverPila(
+                    t -> retorno(variablesDeclaradas.get(ID.getText()).getType()).test(t)))
+                semanticError(salida.peek(), String.format("no se puede asignar %s a la variable %s; se esperaba %s",
+                        s.getSymbolicName(salida.peek().getType()), ID.getText(),
+                        s.getSymbolicName(td_variable)));
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * La función comprueba si solo hay un identificador en la pila y si es de un
+     * tipo válido, y
+     * establece una bandera si se cumplen las condiciones.
+     * 
+     * @param t El parámetro "t" es de tipo Token.
+     */
     static void resolverSwitch(Token t) {
         if (cantidadEnPila() != 1) {
             semanticError(t, "se esperaba sólo un identificador.");
@@ -105,18 +186,29 @@ public class SimpleSemantic {
         banderaSwitch = true;
     }
 
-    public static void errorPila(String esperado,Token t) {
-        semanticError(t, String.format("se esperaba que la expresión retorne %s, no %s.",esperado,SimpleParser.VOCABULARY.getSymbolicName(t.getType())));
+    /**
+     * La función "errorPila" se utiliza para generar un mensaje de error semántico
+     * indicando que una
+     * expresión debería ser de un determinado tipo, pero no lo es.
+     * 
+     * @param esperado El parámetro "esperado" es una cadena que representa el tipo
+     *                 de expresión esperada.
+     * @param t        El parámetro "t" representa el token que almacena el tipo de
+     *                 expresión que es.
+     */
+    public static void errorPila(String esperado, Token t) {
+        semanticError(t, String.format("la expresión debe ser %s, no %s.", esperado,
+                s.getSymbolicName(t.getType())));
     }
 
-    static void resolverDetectar(Token t) {
+    public static void resolverDetectar(Token t) {
         if (cantidadEnPila() != 1) {
             semanticError(t, "se esperaba sólo un identificador ENTERO.");
             return;
         }
         if (salida.peek().getType() != TD_ENTERO) {
             semanticError(t, "se esperaba un identificador TD_ENTERO y no "
-                    + SimpleParser.VOCABULARY.getSymbolicName(t.getType()) + ".");
+                    + s.getSymbolicName(t.getType()) + ".");
         }
     }
 
@@ -138,19 +230,6 @@ public class SimpleSemantic {
         // }
     }
 
-    static void nuevaExpresion() {
-        pilaOperadores = new Stack<>();
-        salida = new Stack<>();
-    };
-
-    static void imprimirPila(Stack<Token> xdd, Token inicial) {
-        StringBuilder xd = new StringBuilder();
-        xd.append("Linea " + inicial.getLine() + ":" + inicial.getCharPositionInLine() + "[");
-        xdd.forEach(t -> xd.append("[" + t.getText() + "]"));
-        xd.append("]");
-        pilas.add(xd.toString());
-    }
-
     /**
      * La función "nuevaFuncion" restablece los parámetros, el valor de retorno y el
      * indicador de
@@ -167,6 +246,12 @@ public class SimpleSemantic {
         nuevaExpresion();
         banderaSwitch = false;
     }
+
+    static void nuevaExpresion() {
+        pilaOperadores = new Stack<>();
+        salida = new Stack<>();
+        puedeResolverPila = true;
+    };
 
     /**
      * La función comprueba si hay una devolución inesperada de datos.
@@ -198,11 +283,17 @@ public class SimpleSemantic {
         semanticError(t, "devolver no se encuentra en una función.");
     }
 
-    public static int obtenerResultadoPila() {
-        return salida.peek().getType();
+    static void imprimirPila(Stack<Token> xdd, Token inicial) {
+        StringBuilder xd = new StringBuilder();
+        xd.append("Linea " + inicial.getLine() + ":" + inicial.getCharPositionInLine() + "[");
+        xdd.forEach(t -> xd.append("[" + t.getText() + "]"));
+        xd.append("]");
+        pilas.add(xd.toString());
     }
 
-    static boolean resolverPila(Predicate<Integer> esperado) {
+    static boolean resolverPila(Predicate<Integer> esperado) throws Exception {
+        if (!puedeResolverPila)
+            throw new Exception();
         while (!pilaOperadores.empty()) {
             salida.push(pilaOperadores.pop());
         }
@@ -218,12 +309,17 @@ public class SimpleSemantic {
             } else {
                 try {
                     t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
+                    try {
+                        imprimirPila(t, t.peek());
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                    }
                 } catch (Exception e) {
-                    return false;
+                    throw e;
                 }
             }
         }
-        salida.push(SimpleSemantic.t=t.pop());
+        salida.push(SimpleSemantic.t = t.pop());
         return esperado.test(salida.peek().getType());
     }
 
@@ -233,67 +329,74 @@ public class SimpleSemantic {
             aux.push(salida.pop());
         }
         salida = aux;
+        t.getText().equals("");
+    }
+
+    private static Token resultadoPila(int tipo_dato, String texto, Token operador) {
+        CommonToken x = new CommonToken(tipo_dato, texto);
+        x.setLine(operador.getLine());
+        x.setCharPositionInLine(operador.getCharPositionInLine());
+        return x;
     }
 
     private static Token validarOperacion(Token operando2, Token operando1, Token operador) throws Exception {
-        if (operadoresBooleanos.contains(operador.getText())) {
-            Predicate<Integer> booleanos = retornoExpresion.get(0);
-            if (!evaluarOperandos(operando1, operando2, booleanos))
-            {
-                semanticError(operador, "las expresiones izquierda y derecha no son de tipo Booleano.");
-                throw new Exception();
-            }
-            return new CommonToken(BOOLEANO,"BOOLEANO");
-        } else if (operadoresBooleanoNumericos.contains(operador.getText())) {
-            Predicate<Integer> booleanos = retornoExpresion.get(0);
-            byte x = 0;
-            x += booleanos.test(operando1.getType()) ? 0b10 : 0;
-            x += booleanos.test(operando2.getType()) ? 0b01 : 0;
-            switch (x) {
-                case 0b11:
-                    return new CommonToken(BOOLEANO,"BOOLEANO");
-                case 0b10:
-                case 0b01:
-                    semanticError(operador, "se esperaba que ambas expresiones (izq y der) fueran de tipo booleano.");
-                    throw new Exception();
-                default:
-                    break;
-            }
+        // 1. No hay operaciones con cadenas
+        Predicate<Integer> cadenas = retornoExpresion.get(1);
+        if (cadenas.test(operando1.getType()) || cadenas.test(operando2.getType())) {
+            semanticError(operador, "el operador " + operador.getText() + " no admite cadenas");
+            throw new Exception();
         }
-        Predicate<Integer> enteros = retornoExpresion.get(2);
-        Predicate<Integer> decimales = retornoExpresion.get(3);
-        byte x = 0;
-        x += enteros.test(operando1.getType()) ? 0b01 : 0;
-        x += enteros.test(operando2.getType()) ? 0b10 : 0;
-        switch (x) {
-            case 0b00:
-                if (!evaluarOperandos(operando1, operando2, decimales)) {
-                    semanticError(operador, "las expresiones izquierda y derecha no son de tipo numérico.");
-                    throw new Exception();
-                }
-                return new CommonToken(DECIMAL,"DECIMAL");
+        // 2. Operandos Booleanos
+        Predicate<Integer> booleanos = retornoExpresion.get(0);
+        byte regOperandos = 0;
+        byte regOperador = 0;
+        regOperandos += booleanos.test(operando1.getType()) ? 0b01 : 0;
+        regOperandos += booleanos.test(operando2.getType()) ? 0b10 : 0;
+        regOperador += operadoresBooleanos.contains(operador.getText()) ? 0b01 : 0;
+        regOperador += operadoresBooleanoNumericos.contains(operador.getText()) ? 0b10 : 0;
+        switch (regOperandos) {
             case 0b11:
-                return new CommonToken(ENTERO,"ENTERO");
+                if (regOperador != 0)
+                    return resultadoPila(BOOLEANO, "BOOLEANO", operador);
+                else {
+                    semanticError(operador, "operador: '" + operador.getText()
+                            + "'; las expresiones izquierda y derecha deben ser de tipo Booleano.");
+                    throw new Exception();
+                }
             case 0b10:
-                if (!decimales.test(operando1.getType())) {
-                    semanticError(operador, "las expresión izquierda no es de tipo numérico.");
-                    throw new Exception();
-                }
-                return new CommonToken(DECIMAL,"DECIMAL");
             case 0b01:
-                if (!decimales.test(operando2.getType())) {
-                    semanticError(operador, "las expresión derecha no es de tipo numérico.");
-                    throw new Exception();
-                }
-                return new CommonToken(DECIMAL,"DECIMAL");
+                semanticError(operador,
+                        "operador: '" + operador.getText() + "'; se esperaba que ambos operandos fueran booleanos");
             default:
                 break;
         }
+        // 3. Operandos numéricos
+        Predicate<Integer> enteros = retornoExpresion.get(2);
+        regOperandos = 0;
+        regOperandos += enteros.test(operando1.getType()) ? 0b01 : 0;
+        regOperandos += enteros.test(operando2.getType()) ? 0b10 : 0;
+        regOperador = 0;
+        regOperador += operadoresBooleanoNumericos.contains(operador.getText()) ? 0b001 : 0;
+        regOperador += operadoresComparadores.contains(operador.getText()) ? 0b010 : 0;
+        regOperador += operadoresAritmeticos.contains(operador.getText()) ? 0b100 : 0;
+        switch (regOperador) {
+            case 0:
+                semanticError(operador, "operador: '" + operador.getText()
+                        + "'; se esperaba que ambos operandos fueran booleanos");
+                throw new Exception();
+            case 0b001:
+            case 0b010:
+                return resultadoPila(BOOLEANO, "BOOLEANO", operador);
+        }
+        switch (regOperandos) {
+            case 0b11:
+                return resultadoPila(ENTERO, "ENTERO", operador);
+            case 0b10:
+            case 0b01:
+            case 0b00:
+                return resultadoPila(DECIMAL, "DECIMAL", operador);
+        }
         return null;
-    }
-
-    private static boolean evaluarOperandos(Token operando1, Token operando2, Predicate<Integer> predicado) {
-        return predicado.test(operando1.getType()) && predicado.test(operando2.getType());
     }
 
     /**
@@ -355,7 +458,7 @@ public class SimpleSemantic {
             errorFuncion(funcion, lista, " ya ha sido declarada");
         } else {
             // 3. Si no existe, declarar la función
-            funcionesDeclaradas.add(new Funcion(funcion.getText(), lista));
+            funcionesDeclaradas.add(new Funcion(funcion.getText(), retornoFuncion, lista));
         }
     }
 
@@ -433,7 +536,10 @@ public class SimpleSemantic {
             int tipoToken = token.getType();
             // Agregar a la pila según el tipo del token
             if (tipoToken == ID) {
-                salida.push(variablesDeclaradas.get(token.getText()));
+                CommonToken x = (CommonToken) variablesDeclaradas.get(token.getText());
+                x.setLine(token.getLine());
+                x.setCharPositionInLine(token.getCharPositionInLine());
+                salida.push(x);
             } else if (literal(tipoToken)) {
                 salida.push(token);
             } else if (operador(token.getText())) {
@@ -447,6 +553,20 @@ public class SimpleSemantic {
         } catch (Exception e) {
             // Manejo de excepciones
             System.err.println("Error en añadirAPila: " + e.getMessage());
+        }
+    }
+
+    /**
+     * La función "manejarParentesis" extrae operadores de una pila hasta que
+     * encuentra un paréntesis
+     * izquierdo y luego extrae el paréntesis izquierdo de la pila.
+     */
+    private static void manejarParentesis() {
+        while (!pilaOperadores.empty() && pilaOperadores.peek().getType() != LPAREN) {
+            salida.push(pilaOperadores.pop());
+        }
+        if (!pilaOperadores.empty() && pilaOperadores.peek().getType() == LPAREN) {
+            pilaOperadores.pop();
         }
     }
 
@@ -521,20 +641,6 @@ public class SimpleSemantic {
     }
 
     /**
-     * La función "manejarParentesis" extrae operadores de una pila hasta que
-     * encuentra un paréntesis
-     * izquierdo y luego extrae el paréntesis izquierdo de la pila.
-     */
-    private static void manejarParentesis() {
-        while (!pilaOperadores.empty() && pilaOperadores.peek().getType() != LPAREN) {
-            salida.push(pilaOperadores.pop());
-        }
-        if (!pilaOperadores.empty() && pilaOperadores.peek().getType() == LPAREN) {
-            pilaOperadores.pop();
-        }
-    }
-
-    /**
      * La función comprueba si una variable ya ha sido declarada y arroja un error
      * semántico si es así.
      *
@@ -545,14 +651,15 @@ public class SimpleSemantic {
      *                     como su representación de texto y número
      *                     de línea.
      */
-    public static void variableDeclarada(Token variable, Token tipoVariable) {
+    public static boolean declararVariable(Token variable, Token tipoVariable) {
         if (!variablesDeclaradas.containsKey(variable.getText())) {
             variablesDeclaradas.put(variable.getText(), tipoVariable);
-            return;
+            return true;
         }
         String text = variable.getText();
         Token declarada = variablesDeclaradas.get(variable.getText());
         semanticError(variable, "la variable: '" + text + "' ya ha sido declarada en linea: " + declarada.getLine());
+        return puedeResolverPila = false;
     }
 
     /**
@@ -561,9 +668,12 @@ public class SimpleSemantic {
      *
      * @param variable El parámetro "variable" es de tipo "Token".
      */
-    public static void usarVariable(Token variable) {
-        if (!variablesDeclaradas.containsKey(variable.getText()))
+    public static boolean usarVariable(Token variable) {
+        if (!variablesDeclaradas.containsKey(variable.getText())) {
             semanticError(variable, "la variable " + variable.getText() + " no ha sido declarada");
+            return puedeResolverPila = false;
+        }
+        return true;
     }
     
 
