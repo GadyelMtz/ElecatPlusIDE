@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
 import Analizadores.SimpleSemantic;
+import static Analizadores.SimpleCode.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -24,7 +25,9 @@ public class Main {
             System.out.println("");
             parser.programa(); // Comienza el análisis desde la regla expr
             System.out.println("PILAS");
-            // SimpleSemantic.pilas.forEach(t -> System.out.println(t));
+            SimpleSemantic.pilas.forEach(t -> System.out.println(t));
+            quintuplas.forEach(t -> System.out.println(t.toString()));
+            
             // Prueba de PINES = FUNCIONÓ
         } catch (Exception e) {
             if (e instanceof IOException)

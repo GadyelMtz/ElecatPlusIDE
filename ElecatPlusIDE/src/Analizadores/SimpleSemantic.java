@@ -17,6 +17,8 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
+import static Analizadores.SimpleCode.Quintupla;
+import static Analizadores.SimpleCode.quintuplas;
 
 @FunctionalInterface
 interface SymbolicName {
@@ -36,6 +38,7 @@ class Funcion {
 }
 
 public class SimpleSemantic {
+    public static String nombrePrograma;
     public static final ArrayList<Predicate<Integer>> retornoExpresion = new ArrayList<>();
     static {
         retornoExpresion.add(t -> t == BOOLEANO | t == TD_BOOLEANO);
@@ -63,7 +66,7 @@ public class SimpleSemantic {
     };
     public static SymbolicName s = SimpleParser.VOCABULARY::getSymbolicName;
     static final Set<String> operadores = new HashSet<>(
-            Arrays.asList("and", "or", "==", "!=", "<", "<=", ">", ">=", "/", "*", "-", "+"));
+            Arrays.asList("=","and", "or", "==", "!=", "<", "<=", ">", ">=", "/", "*", "-", "+"));
     static final Set<String> operadoresAritmeticos = new HashSet<>(Arrays.asList("+", "-", "*", "/"));
     static final Set<String> operadoresComparadores = new HashSet<>(Arrays.asList("<", ">", "<=", ">="));
     static final Set<String> operadoresBooleanoNumericos = new HashSet<>(
@@ -76,8 +79,10 @@ public class SimpleSemantic {
     static Integer regresarTipoDato;
     static Integer td_switch;
     static Integer td_variable;
+    
 
     public SimpleSemantic() {
+        // TODO:new Quintupla($G,$ID,salida.peek(),null);
         variablesDeclaradas = new HashMap<>();
         funcionesDeclaradas = new ArrayList<>();
         listaParametros = new ArrayList<>();
@@ -85,6 +90,8 @@ public class SimpleSemantic {
         salida = new Stack<>();
         pilaOperadores = new Stack<>();
         pilas = new ArrayList<>();
+        quintuplas = new ArrayList<>();
+        Quintupla.linea=0;
     }
 
     public static void comprobarComponente(Token ID, String componentName) {
@@ -300,6 +307,7 @@ public class SimpleSemantic {
         pilaOperadores = new Stack<>();
         salida = new Stack<>();
         puedeResolverPila = true;
+        varTemp=0;
     };
 
     /**
@@ -367,17 +375,16 @@ public class SimpleSemantic {
                 t.push(salida.pop());
             } else {
                 try {
+                    t.push(salida.peek());
+                    imprimirPila(t,t.peek());
+                    t.pop();
                     t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
-                    try {
-                        imprimirPila(t, t.peek());
-                    } catch (Exception e) {
-                        // TODO: handle exception
-                    }
                 } catch (Exception e) {
                     throw e;
                 }
             }
         }
+        imprimirPila(t, t.peek());
         salida.push(SimpleSemantic.t = t.pop());
         return esperado.test(salida.peek().getType());
     }
@@ -398,7 +405,16 @@ public class SimpleSemantic {
         return x;
     }
 
+    static int varTemp=0; 
+    public static String variableTemporal() {
+        return "t"+(++varTemp);
+    }
+ 
     private static Token validarOperacion(Token operando2, Token operando1, Token operador) throws Exception {
+        if (operador.getText().equals("=")){
+            new Quintupla(operador,operando1,operando2,null);
+            return resultadoPila(operando2.getType(), operando2.getText(), operador);
+        }
         // 1. No hay operaciones con cadenas
         Predicate<Integer> cadenas = retornoExpresion.get(1);
         if (cadenas.test(operando1.getType()) || cadenas.test(operando2.getType())) {
@@ -415,8 +431,11 @@ public class SimpleSemantic {
         regOperador += operadoresBooleanoNumericos.contains(operador.getText()) ? 0b10 : 0;
         switch (regOperandos) {
             case 0b11:
-                if (regOperador != 0)
-                    return resultadoPila(BOOLEANO, "BOOLEANO", operador);
+                if (regOperador != 0){
+                    Token resultadoPila = resultadoPila(BOOLEANO, variableTemporal(), operador);
+                    new Quintupla(operador,operando1,operando2,resultadoPila);
+                    return resultadoPila;
+                }
                 else {
                     semanticError(operador, "operador: '" + operador.getText()
                             + "'; las expresiones izquierda y derecha deben ser de tipo Booleano");
@@ -445,15 +464,21 @@ public class SimpleSemantic {
                 throw new Exception();
             case 0b001:
             case 0b010:
-                return resultadoPila(BOOLEANO, "BOOLEANO", operador);
+                Token resultadoPila = resultadoPila(BOOLEANO, variableTemporal(), operador);
+                new Quintupla(operador,operando1,operando2,resultadoPila);
+                return resultadoPila;
         }
         switch (regOperandos) {
             case 0b11:
-                return resultadoPila(ENTERO, "ENTERO", operador);
+                Token resultadoPila = resultadoPila(ENTERO, variableTemporal(), operador);
+                new Quintupla(operador,operando1,operando2,resultadoPila);
+                return resultadoPila;
             case 0b10:
             case 0b01:
             case 0b00:
-                return resultadoPila(DECIMAL, "DECIMAL", operador);
+                Token resultadoPila2 = resultadoPila(DECIMAL, variableTemporal(), operador);
+                new Quintupla(operador,operando1,operando2,resultadoPila2);
+                return resultadoPila2;
         }
         return null;
     }
@@ -556,6 +581,7 @@ public class SimpleSemantic {
                 String params = paramsBuilder.toString().substring(0, paramsBuilder.length() - 1);
                 message += String.format("%s %s(%s) %s", funcion.getText(), lista.get(0).getText(), params, predicado);
                 break;
+                
         }
         semanticError(funcion, message);
     }
@@ -595,9 +621,10 @@ public class SimpleSemantic {
             int tipoToken = token.getType();
             // Agregar a la pila según el tipo del token
             if (tipoToken == ID) {
-                CommonToken x = (CommonToken) variablesDeclaradas.get(token.getText());
+                CommonToken x = (CommonToken) new CommonToken(variablesDeclaradas.get(token.getText()));
                 x.setLine(token.getLine());
                 x.setCharPositionInLine(token.getCharPositionInLine());
+                x.setText(token.getText());
                 salida.push(x);
             } else if (literal(tipoToken)) {
                 salida.push(token);
@@ -677,6 +704,8 @@ public class SimpleSemantic {
      */
     private static int precedencia(String text) {
         switch (text) {
+            case "=":
+                return 0;
             case "or":
                 return 1;
             case "and":

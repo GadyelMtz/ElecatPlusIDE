@@ -20,6 +20,6 @@ programa #servos#{
         esperar(1000);
         accion(#servomotor#, girar(90));
              esperar(1000);
-        accion(#claxon#, sonar(1200+24));
+        accion(#claxon#, sonar(1200+24*31/(12-2),13));
     }
 }
