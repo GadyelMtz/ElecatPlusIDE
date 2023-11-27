@@ -36,16 +36,6 @@ class Funcion {
 }
 
 public class SimpleSemantic {
-    public SimpleSemantic() {
-        variablesDeclaradas = new HashMap<>();
-        funcionesDeclaradas = new ArrayList<>();
-        listaParametros = new ArrayList<>();
-        nombreParametros = new HashSet<>();
-        salida = new Stack<>();
-        pilaOperadores = new Stack<>();
-        pilas = new ArrayList<>();
-    }
-
     public static final ArrayList<Predicate<Integer>> retornoExpresion = new ArrayList<>();
     static {
         retornoExpresion.add(t -> t == BOOLEANO | t == TD_BOOLEANO);
@@ -53,7 +43,6 @@ public class SimpleSemantic {
         retornoExpresion.add(t -> t == ENTERO | t == TD_ENTERO);
         retornoExpresion.add(t -> t == DECIMAL | t == TD_DECIMAL);
     }
-
     public static Map<String, Token> variablesDeclaradas = new HashMap<>();
     public static ArrayList<Funcion> funcionesDeclaradas = new ArrayList<>();
     public static ArrayList<Token> listaParametros = new ArrayList<>();
@@ -64,7 +53,6 @@ public class SimpleSemantic {
     public static boolean banderaRetorno = false;
     public static boolean banderaSwitch = false;
     private static boolean puedeResolverPila = true;
-
     public static Token t;
     private static ANTLRErrorListener listener = new ConsoleErrorListener() {
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
@@ -87,6 +75,16 @@ public class SimpleSemantic {
     static Integer regresarTipoDato;
     static Integer td_switch;
     static Integer td_variable;
+
+    public SimpleSemantic() {
+        variablesDeclaradas = new HashMap<>();
+        funcionesDeclaradas = new ArrayList<>();
+        listaParametros = new ArrayList<>();
+        nombreParametros = new HashSet<>();
+        salida = new Stack<>();
+        pilaOperadores = new Stack<>();
+        pilas = new ArrayList<>();
+    }
 
     public static void comprobarComponente(Token ID, String componentName) {
         String tipo;
