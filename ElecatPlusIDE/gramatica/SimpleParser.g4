@@ -32,7 +32,7 @@ sentencia:
 	| ';'
 	| 'continuar' ';'
 	| 'romper' ';'
-	| t = 'devolver' {comprobarPadre($t, _ctx);} (
+	| t = 'devolver' {comprobarRetorno($t, _ctx);} (
 		{comprobarRetorno($t);} {nuevaExpresion();} expresion {resolverExpresion(t -> retorno(retornoFuncion).test(t), s.getSymbolicName(retornoFuncion));}
 	)? ';'
 	| 'elegir' {nuevoSwitch();} parExpresion {resolverSwitch(t);} {if(banderaSwitch)td_switch = salida.peek().getType();} '{' sentenciaSwitch* '}'
@@ -45,13 +45,13 @@ sentencia:
 	| esperar ';';
 llamadaAFuncion:
 	ID {nuevaExpresion();} argumentos {/*TODO:*/};
-argumentos: '(' listaExpresiones? ')';
+argumentos: '(' ({pilasArgumento = new ArrayList<>();} listaExpresiones )? T=')' {validarListaExpresiones(_ctx, $T);};
 controlFor:
 	iniciadorFor ';' (
 		{nuevaExpresion();} expresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");}
 	)? ';' listaExpresiones;
 iniciadorFor: declaracionLocal | listaExpresiones;
-listaExpresiones: expresion (',' expresion)*;
+listaExpresiones: {nuevaExpresion();} expresion {validarArgumento(_ctx);} ({nuevaExpresion();}',' expresion {validarArgumento(_ctx);})*;
 parExpresion:
 	OP = '(' { añadirAPila($OP);} expresion OP = ')' { añadirAPila($OP);};
 sentenciaSwitch: etiquetaSwitch+ sentencia+;
@@ -61,10 +61,10 @@ etiquetaSwitch:
 	) ':'
 	| 'predeterminado' ':';
 declaracionLocal:
-	tipo {td_variable = t.getType();} declaracionDeVariable;
+	tipo {td_variable = t.getType();} declaracionDeVariable (',' declaracionDeVariable)*;
 declaracionDeVariable:
 	ID { if(declararVariable($ID,t))nuevaExpresion(); } (
-		'=' expresion {resolverAsignacion($ID);}
+		'=' expresion {resolverAsignacion($ID,_ctx);}
 	)?;
 accion:
 	'accion' '(' ID {iniciarAccion($ID);} ',' (
@@ -90,7 +90,7 @@ expresion:
 		| OP = 'and'
 		| OP = 'or'
 	) {añadirAPila($OP);} expresion
-	| <assoc = right> ID '=' {nuevaExpresion();} expresion {if(usarVariable($ID))resolverAsignacion($ID);};
+	| <assoc = right> ID '=' {nuevaExpresion();} expresion {if(usarVariable($ID))resolverAsignacion($ID,_ctx);};
 primaria:
 	literal
 	| parExpresion

@@ -24,7 +24,7 @@ public class Main {
             System.out.println("");
             parser.programa(); // Comienza el análisis desde la regla expr
             System.out.println("PILAS");
-            SimpleSemantic.pilas.forEach(t -> System.out.println(t));
+            // SimpleSemantic.pilas.forEach(t -> System.out.println(t));
             // Prueba de PINES = FUNCIONÓ
         } catch (Exception e) {
             if (e instanceof IOException)
