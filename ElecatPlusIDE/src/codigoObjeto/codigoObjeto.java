@@ -254,6 +254,8 @@ public class codigoObjeto {
                 codigoNuevo += codigoAuxiliar;
                 lineasCodigo[i] = id + ".attach("+pin+");";
             }
+
+           
             codigoNuevo += lineasCodigo[i] + "\n";
         }
         codigo = codigoNuevo;

@@ -1,0 +1,8 @@
+programa #P1#{	
+	#P1#(){
+		servo #m1# = 3;
+	}
+	ejecutar(){
+
+	}
+}
