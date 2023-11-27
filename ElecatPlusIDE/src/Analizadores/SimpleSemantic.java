@@ -49,6 +49,7 @@ public class SimpleSemantic {
     public static ArrayList<Funcion> funcionesDeclaradas = new ArrayList<>();
     public static ArrayList<Token> listaParametros = new ArrayList<>();
     public static ArrayList<String> pilas = new ArrayList<>();
+    public static ArrayList<Token> pilasArgumento = new ArrayList<>();
     public static Set<String> nombreParametros = new HashSet<>();
     public static Stack<Token> salida = new Stack<>();
     public static Stack<Token> pilaOperadores = new Stack<>();
@@ -90,12 +91,12 @@ public class SimpleSemantic {
 
     public static void comprobarComponente(Token ID, String componentName) {
         String tipo;
-        if (!(tipo = variablesDeclaradas.get(ID.getText()).getText()).equals(componentName)){
+        if (!(tipo = variablesDeclaradas.get(ID.getText()).getText()).equals(componentName)) {
             puedeResolverPila = false;
-            semanticError(ID, "acción no válida para variables de tipo "+tipo+"; se esperaba: "+componentName);
+            semanticError(ID, "acción no válida para variables de tipo " + tipo + "; se esperaba: " + componentName);
         }
     }
-    
+
     public static void iniciarAccion(Token ID) {
         if (usarVariable(ID)) {
             nuevaExpresion();
@@ -156,10 +157,39 @@ public class SimpleSemantic {
      * 
      * @param _localctx El parámetro `_localctx` es de tipo `ExpresionContext`.
      */
-    public static void resolverAsignacion(Token ID) {
+    public static void resolverAsignacion(Token ID, ParserRuleContext c) {
         try {
+            int tipo_dato = variablesDeclaradas.get(ID.getText()).getType();
+            byte reg = 0;
+            reg += tipo_dato == COMPONENTE ? 0b01 : 0;
+            reg += c.getRuleIndex() == RULE_declaracionDeVariable ? 0b10 : 0;
+            switch (reg) {
+                case 0b11:
+                    switch (variablesDeclaradas.get(ID.getText()).getText()) {
+                        case "display_lcd":
+                            semanticError(ID, "al display_lcd no se le pueden asignar pines");
+                            return;
+                        case "motor":
+                            semanticError(ID, "al motor no se le pueden asignar pines");
+                            return;
+                        case "siete_segmentos":
+                            semanticError(ID, "al siete_segmentos no se le pueden asignar pines");
+                        default:
+                            break;
+                    }
+                    if (!resolverPila(t -> t == ENTERO)) {
+                        semanticError(ID, "los componentes deben ser inicializados con el número de PIN en ENTERO, no "
+                                + s.getSymbolicName(salida.peek().getType()));
+                    }
+                    return;
+                case 0b01:
+                    semanticError(ID, "los pines asignados al componente no deben cambiar");
+                    return;
+            }
             if (!resolverPila(
-                    t -> retorno(variablesDeclaradas.get(ID.getText()).getType()).test(t)))
+                    t -> {
+                        return retorno(tipo_dato).test(t);
+                    }))
                 semanticError(salida.peek(), String.format("no se puede asignar %s a la variable %s; se esperaba %s",
                         s.getSymbolicName(salida.peek().getType()), ID.getText(),
                         s.getSymbolicName(td_variable)));
@@ -176,7 +206,7 @@ public class SimpleSemantic {
      */
     static void resolverSwitch(Token t) {
         if (cantidadEnPila() != 1) {
-            semanticError(t, "se esperaba sólo un identificador.");
+            semanticError(t, "se esperaba sólo un identificador");
             return;
         }
         if (!tdVariables.contains(salida.peek().getType())) {
@@ -197,18 +227,39 @@ public class SimpleSemantic {
      *                 expresión que es.
      */
     public static void errorPila(String esperado, Token t) {
-        semanticError(t, String.format("la expresión debe ser %s, no %s.", esperado,
+        semanticError(t, String.format("la expresión debe ser %s, no %s", esperado,
                 s.getSymbolicName(t.getType())));
     }
 
     public static void resolverDetectar(Token t) {
         if (cantidadEnPila() != 1) {
-            semanticError(t, "se esperaba sólo un identificador ENTERO.");
+            semanticError(t, "se esperaba sólo un identificador TD_ENTERO");
             return;
         }
         if (salida.peek().getType() != TD_ENTERO) {
             semanticError(t, "se esperaba un identificador TD_ENTERO y no "
-                    + s.getSymbolicName(t.getType()) + ".");
+                    + s.getSymbolicName(t.getType()) + "");
+        }
+    }
+
+    public static void validarListaExpresiones(ParserRuleContext c, Token t) {
+        if (c.parent.getRuleIndex() == RULE_accion) {
+            if (pilasArgumento.size() != 2) {
+                semanticError(t, "la acción 'sonar' requiere 2 parámetros (ENTERO o TD_ENTERO,ENTERO o TD_ENTERO)");
+                return;
+            }
+            if (!pilasArgumento.stream().allMatch(t2 -> t2.getType() == ENTERO || t2.getType() == TD_ENTERO))
+                semanticError(t, "la acción 'sonar' requiere 2 parámetros (ENTERO o TD_ENTERO,ENTERO o TD_ENTERO)");
+        }
+    }
+
+    public static void validarArgumento(ParserRuleContext c) {
+        if (c.parent.getRuleIndex() == RULE_argumentos) {
+            try {
+                resolverPila(t -> true);
+            } catch (Exception e) {
+            }
+            pilasArgumento.add(salida.peek());
         }
     }
 
@@ -260,7 +311,7 @@ public class SimpleSemantic {
      */
     public static void comprobarRetorno(Token t) {
         if (retornoFuncion == -1)
-            semanticError(t, "no se esperaba retorno de datos.");
+            semanticError(t, "no se esperaba retorno de datos");
         banderaRetorno = true;
     }
 
@@ -274,13 +325,23 @@ public class SimpleSemantic {
      *          contexto de una regla
      *          específica en la gramática.
      */
-    public static void comprobarPadre(Token t, ParserRuleContext c) {
+    public static void comprobarRetorno(Token t, ParserRuleContext c) {
+        if (!comprobarPadre(c, RULE_funcion, t))
+            semanticError(t, "devolver no se encuentra en una función");
         RuleContext p = c;
         while ((p = p.parent) != null) {
             if (p.getRuleIndex() == RULE_funcion)
                 return;
         }
-        semanticError(t, "devolver no se encuentra en una función.");
+    }
+
+    public static boolean comprobarPadre(ParserRuleContext c, int rule, Token t) {
+        RuleContext p = c;
+        while ((p = p.parent) != null) {
+            if (p.getRuleIndex() == rule)
+                return true;
+        }
+        return false;
     }
 
     static void imprimirPila(Stack<Token> xdd, Token inicial) {
@@ -360,7 +421,7 @@ public class SimpleSemantic {
                     return resultadoPila(BOOLEANO, "BOOLEANO", operador);
                 else {
                     semanticError(operador, "operador: '" + operador.getText()
-                            + "'; las expresiones izquierda y derecha deben ser de tipo Booleano.");
+                            + "'; las expresiones izquierda y derecha deben ser de tipo Booleano");
                     throw new Exception();
                 }
             case 0b10:
