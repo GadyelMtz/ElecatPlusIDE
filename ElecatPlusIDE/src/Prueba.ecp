@@ -4,6 +4,7 @@ programa #luces#{
 		led #ledIzquierda# = 8;	
 		led #ledDerecha# = 9;
 		buzzer #claxon# = 12;
+        booleano #M# = f and v or (32>34);
 	}
 
 	ejecutar(){
