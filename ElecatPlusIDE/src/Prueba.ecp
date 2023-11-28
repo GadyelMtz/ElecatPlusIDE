@@ -1,25 +1,33 @@
-programa #servos#{
-    entero #variable1#=0;
-    #servos#(){
-        display_lcd #display#;
-        led #ledIzquierda# = 34;
-        led #ledDerecha# = 9;
-        buzzer #claxon# = 12+2;
-        sensor_distancia #sensor# = 10;
-        boton #botonera# = 3;
-        servo #servomotor# = 11;
-        motor #MM1#;
-    }
+programa #luces#{
+	entero #variable1#=0;
+	#luces#(){
+		led #ledIzquierda# = 8;	
+		led #ledDerecha# = 9;
+		buzzer #claxon# = 12;
+	}
 
-    ejecutar(){
-        accion(#servomotor#, girar(0));
-        esperar(1000);
-        accion(#servomotor#, girar(30));
-        esperar(1000);
-             accion(#servomotor#, girar(60));
-        esperar(1000);
-        accion(#servomotor#, girar(90));
-             esperar(1000);
-        accion(#claxon#, sonar(1200+24*31/(12-2),13));
-    }
+	ejecutar(){
+		#variable1# = 0;
+		repetir mientras(#variable1#<=3){
+			accion(#ledIzquierda#, encender());
+			esperar(250);
+			accion(#ledIzquierda#, apagar());
+			esperar(250);
+			#variable1# = #variable1# + 1;
+		}
+		repetir mientras(#variable1#>3 and #variable1#<6){
+			accion(#ledDerecha#, encender());
+			esperar(500);
+			accion(#ledDerecha#, apagar());
+			esperar(500);
+			#variable1# = #variable1# + 1;
+		}
+		#pitarVeces#(3);
+	}
+	funcion #pitarVeces#(entero #veces#){
+		repetir para(entero #i#=0;#i#<3;#i#=#i#+1){
+			accion(#claxon#, sonar(1000,100));
+			esperar(250);
+		}
+	}
 }

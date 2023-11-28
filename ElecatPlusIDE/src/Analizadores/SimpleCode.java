@@ -26,7 +26,7 @@ public class SimpleCode {
         public String toString() {
             String xd="(";
             for(Token t: tokens){
-                xd+=(t!=null)?t.getText()+",":",";
+                xd+=(t!=null)?t.getText()+",":" ,";
             }
             xd=xd.substring(0,xd.length()-1)+")";
             return xd;

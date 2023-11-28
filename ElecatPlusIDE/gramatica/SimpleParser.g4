@@ -2,8 +2,12 @@ parser grammar SimpleParser;
 options {
 	tokenVocab = SimpleLexer;
 }
-@header { 	import static Analizadores.SimpleSemantic.*; 	import java.util.HashMap; import static Analizadores.SimpleCode.*;
-	}
+@header {
+import static Analizadores.SimpleSemantic.*;
+import java.util.HashMap;
+import static Analizadores.SimpleCode.*;
+import java.util.Stack;
+}
 programa:
 	{new SimpleSemantic();} 'programa' 'remoto'? ID {nombrePrograma=$ID.getText();} cuerpoPrograma
 		EOF;
@@ -11,9 +15,11 @@ cuerpoPrograma: '{' miembros '}';
 miembros: (setup | ejecucion | declaracionAtributo ';' | funcion)*;
 setup:
 	ID {if(!nombrePrograma.equals($ID.getText()))semanticError($ID, "el método principal debe llamarse igual que el programa.");
-		} '(' ')' {new Quintupla(new CommonToken(-1,"setup"),$ID,null,null);} bloque;
+		} '(' ')' {new Quintupla(new CommonToken(-1,"setup"),$ID,new CommonToken(-1,"{"),null);}
+		bloque {new Quintupla(new CommonToken(-1,"}"),$ID,null,null);};
 ejecucion:
-	O = 'ejecutar' '(' ')' {new Quintupla(new CommonToken(-1,"loop"),$O,null,null);} bloque;
+	O = 'ejecutar' '(' ')' {new Quintupla(new CommonToken(-1,"loop"),$O,new CommonToken(-1,"{"),null);
+		} bloque {new Quintupla(new CommonToken(-1,"}"),$O,null,null);};
 funcion:
 	{nuevaFuncion();} 'funcion' (
 		tipo_dato { retornoFuncion = t.getType(); }
@@ -32,29 +38,38 @@ parametroFormal:
 bloque: '{' sentencia* '}';
 sentencia:
 	declaracionLocal ';'
-	| expresion ';'
 	| expresionSentencia = expresion ';'
 	| ';'
-	| 'continuar' ';'
-	| 'romper' ';'
+	| t = 'continuar' ';' {{new Quintupla($t,null,null,null);}}
+	| t = 'romper' ';' {new Quintupla($t,null,null,null);}
 	| t = 'devolver' {comprobarRetorno($t, _ctx);} (
 		{comprobarRetorno($t);} {nuevaExpresion();} expresion {resolverExpresion(t -> retorno(retornoFuncion).test(t), s.getSymbolicName(retornoFuncion));
+			} {new Quintupla(t,salida.peek(),null,null);}
+	)? ';' {new Quintupla(t,null,null,null);}
+	| t = 'elegir' {nuevoSwitch();} parExpresion {resolverSwitch(t);} {if(banderaSwitch)td_switch = salida.peek().getType();
+		} '{' {new Quintupla($t,salida.peek(),new CommonToken(-1,"{"),null);
+		} sentenciaSwitch* {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
+		} '}'
+	| 'repetir' t = 'mientras' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
+		} {new Quintupla($t,salida.peek(),new CommonToken(-1,"{"),null);
+		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
+		}
+	| 'repetir' t = 'para' '(' controlFor ')' {new Quintupla($t,salida.peek(),new CommonToken(-1,"{"),null);
+		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
+		}
+	| t = 'si' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
+		} {new Quintupla(t,salida.peek(),new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
+		} (
+		t = 'sino' {new Quintupla(t,null,new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 			}
-	)? ';'
-	| 'elegir' {nuevoSwitch();} parExpresion {resolverSwitch(t);} {if(banderaSwitch)td_switch = salida.peek().getType();
-		} '{' sentenciaSwitch* '}'
-	| 'repetir' 'mientras' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
-		} sentencia
-	| 'repetir' 'para' '(' controlFor ')' sentencia
-	| 'si' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
-		} sentencia ('sino' sentencia)*
+	)*
 	| bloqueDeSentencias = bloque
 	| llamadaAFuncion ';'
 	| accion ';'
 	| esperar ';';
 llamadaAFuncion: ID {nuevaExpresion();} argumentos {/*TODO:*/};
 argumentos:
-	'(' ({pilasArgumento = new ArrayList<>();} listaExpresiones)? T = ')' {validarListaExpresiones(_ctx, $T);
+	'(' ({pilasArgumento = new Stack<>();} listaExpresiones)? T = ')' {validarListaExpresiones(_ctx, $T);
 		};
 controlFor:
 	iniciadorFor ';' (
@@ -86,25 +101,27 @@ declaracionDeVariable:
 	)?;
 accion:
 	'accion' '(' ID {iniciarAccion($ID);} ',' (
-		'sonar' { comprobarComponente($ID, "buzzer"); } argumentos {/*TODO:*/}
-		| 'escribir' {comprobarComponente($ID, "display_lcd");} parExpresion {resolverExpresion(t -> t==CADENA | t == TD_CADENA, "TD_CADENA o CADENA");
+		G = 'sonar' {comprobarComponente($ID, "buzzer");} argumentos {/*TODO:*/} {new Quintupla($G,$ID,pilasArgumento.pop(),pilasArgumento.pop());
 			}
+		| G = 'escribir' {comprobarComponente($ID, "display_lcd");} parExpresion {resolverExpresion(t -> t==CADENA | t == TD_CADENA, "TD_CADENA o CADENA");
+			} {new Quintupla($G,$ID,salida.peek(),null);}
 		| G = 'girar' {comprobarComponente($ID, "servo");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
 			} {new Quintupla($G,$ID,salida.peek(),null);}
-		| 'avanzar' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
+		| G = 'avanzar' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
+			} {new Quintupla($G,$ID,salida.peek(),null);}
+		| G = 'detectar' {comprobarComponente($ID, "sensor_distancia");} parExpresion {resolverDetectar(t);
+			} {new Quintupla($G,$ID,salida.peek(),null);}
+		| G = 'detener' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
+			} {new Quintupla($G,$ID,salida.peek(),null);}
+		| G = 'encender' {comprobarComponente($ID, "led");} '(' ')' {new Quintupla($G,$ID,null,null);
 			}
-		| 'detectar' {comprobarComponente($ID, "sensor_distancia");} parExpresion {resolverDetectar(t);
-			}
-		| 'detener' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
-			}
-		| 'encender' {comprobarComponente($ID, "led");} '(' ')'
-		| 'apagar' {comprobarComponente($ID, "led");} '(' ')'
-		| 'mostrar' {comprobarComponente($ID, "siete_segmentos");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
-			}
+		| G = 'apagar' {comprobarComponente($ID, "led");} '(' ')' {new Quintupla($G,$ID,null,null);}
+		| G = 'mostrar' {comprobarComponente($ID, "siete_segmentos");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
+			} {new Quintupla($G,$ID,salida.peek(),null);}
 	) ')';
 esperar:
-	'esperar' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t == TD_ENTERO | t == ENTERO, "ENTERO o TD_ENTERO");
-		};
+	E = 'esperar' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t == TD_ENTERO | t == ENTERO,
+	 "ENTERO o TD_ENTERO");} {new Quintupla($E,salida.peek(),null,null);};
 expresion:
 	primaria
 	| expresionBinaria = expresion (

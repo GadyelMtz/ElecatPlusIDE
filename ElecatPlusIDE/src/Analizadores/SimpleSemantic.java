@@ -50,7 +50,7 @@ public class SimpleSemantic {
     public static ArrayList<Funcion> funcionesDeclaradas = new ArrayList<>();
     public static ArrayList<Token> listaParametros = new ArrayList<>();
     public static ArrayList<String> pilas = new ArrayList<>();
-    public static ArrayList<Token> pilasArgumento = new ArrayList<>();
+    public static Stack<Token> pilasArgumento = new Stack<>();
     public static Set<String> nombreParametros = new HashSet<>();
     public static Stack<Token> salida = new Stack<>();
     public static Stack<Token> pilaOperadores = new Stack<>();
@@ -264,7 +264,7 @@ public class SimpleSemantic {
                 resolverPila(t -> true);
             } catch (Exception e) {
             }
-            pilasArgumento.add(salida.peek());
+            pilasArgumento.push(salida.peek());
         }
     }
 
