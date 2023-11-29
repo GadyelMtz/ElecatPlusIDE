@@ -9,6 +9,8 @@ import java.io.IOException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+
+import Analizadores.SimpleCode;
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
 import Analizadores.SimpleSemantic;
@@ -27,7 +29,8 @@ public class Main {
             System.out.println("PILAS");
             SimpleSemantic.pilas.forEach(t -> System.out.println(t));
             quintuplas.forEach(t -> System.out.println(t.toString()));
-            
+            SimpleCode.optimizarExpresiones();
+            quintuplas.forEach(t -> System.out.println(t.toString()));
             // Prueba de PINES = FUNCIONÓ
         } catch (Exception e) {
             if (e instanceof IOException)

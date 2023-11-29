@@ -58,6 +58,7 @@ public class SimpleSemantic {
     public static boolean banderaSwitch = false;
     private static boolean puedeResolverPila = true;
     public static Token t;
+    public static Token td;
     private static ANTLRErrorListener listener = new ConsoleErrorListener() {
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
                 String msg, RecognitionException e) {

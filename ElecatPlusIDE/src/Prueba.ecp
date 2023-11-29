@@ -1,12 +1,12 @@
 programa #luces#{
-	entero #variable1#=0;
+	entero #variable1#=0,#noUsada#,#OtraNoUsada#;
 	#luces#(){
 		led #ledIzquierda# = 8;	
 		led #ledDerecha# = 9;
 		buzzer #claxon# = 12;
         booleano #M# = f and v or (32>34);
 	}
-
+	booleano #XD#=f,#alaburguer#;
 	ejecutar(){
 		#variable1# = 0;
 		repetir mientras(#variable1#<=3){
@@ -27,7 +27,7 @@ programa #luces#{
 	}
 	funcion #pitarVeces#(entero #veces#){
 		repetir para(entero #i#=0;#i#<3;#i#=#i#+1){
-			accion(#claxon#, sonar(1000,100));
+			accion(#claxon#, sonar(1000*(12-1+5/(2+1)),100));
 			esperar(250);
 		}
 	}

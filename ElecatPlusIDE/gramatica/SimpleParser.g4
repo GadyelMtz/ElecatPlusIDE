@@ -28,7 +28,7 @@ funcion:
 		| ';'
 	);
 declaracionAtributo:
-	tipo {td_variable=t.getType();} declaraciones;
+	tipo {td_variable=t.getType();} {td=t;} declaraciones;
 tipo: tipo_dato | t = COMPONENTE { t=$t; };
 declaraciones:
 	declaracionDeVariable (',' declaracionDeVariable)*;
@@ -95,7 +95,7 @@ declaracionLocal:
 		',' declaracionDeVariable
 	)*;
 declaracionDeVariable:
-	ID { if(declararVariable($ID,t))nuevaExpresion(); } {new Quintupla(t,((DeclaracionDeVariableContext)_localctx).ID,null,null);
+	ID { if(declararVariable($ID,t))nuevaExpresion(); } {new Quintupla(td,((DeclaracionDeVariableContext)_localctx).ID,null,null);
 		} (
 		OP = '=' {añadirAPila($ID);añadirAPila($OP);} expresion {resolverAsignacion($ID,_ctx);}
 	)?;
