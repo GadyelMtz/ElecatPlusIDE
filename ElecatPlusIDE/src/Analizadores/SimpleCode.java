@@ -56,18 +56,37 @@ public class SimpleCode {
 
     public static void optimizarExpresiones() {
         ArrayList<Quintupla> aux = new ArrayList<>();
+        Predicate<Integer> tiposDeDato = (td ->td == TD_CADENA || td == TD_ENTERO || td == TD_DECIMAL || td == TD_BOOLEANO);
+        Predicate<String> noOptimizable = (td ->{
+            switch (td) {
+                case "setup":
+                case "}":
+                case "loop":
+                case "encender":
+                case "apagar":
+                return true;
+            }
+            return false;});
         Predicate<Integer> tipoDato = (td -> td == TD_ENTERO || td == TD_DECIMAL || td == TD_BOOLEANO);
         // 1. Filtrar las quintuplas a optimizar
         quintuplas.stream()
-                .filter(qtp -> qtp.tokens[1].getText().equals("=")
-                        || (qtp.tokens[4] != null && operadores.contains(qtp.tokens[1].getText())))
+                .filter(qin -> !tiposDeDato.test(qin.tokens[1].getType()) && !noOptimizable.test(qin.tokens[1].getText()))
                 .forEach(
                         quintupla -> {
                             // 2. Dentro de las quíntuplas, filtrar la optimización
-                            if (quintupla.tokens[1].getText().equals("=")) {
+                            if (!operadores.contains(quintupla.tokens[1].getText())){
+                                for (int index = 2; index < 5; index++) {
+                                    if (quintupla.tokens[index]!=null){
+                                        if (quintupla.tokens[index].getText().startsWith("t")) {
+                                            resolverLiteral(quintupla, quintupla.tokens[index]);
+                                            temp = new HashMap<>();
+                                        }
+                                    }
+                                }
+                            }else if (quintupla.tokens[1].getText().equals("=")) {
                                 // 3. Si es una asignación de temporal, coloar el valor literal de t
                                 if (quintupla.tokens[3].getText().startsWith("t")) {
-                                    resolverLiteral(quintupla);
+                                    resolverLiteral(quintupla,quintupla.tokens[3]);
                                     temp = new HashMap<>();
                                 }
                             } else if (tipoDato.test(quintupla.tokens[2].getType())
@@ -262,21 +281,21 @@ public class SimpleCode {
         return res;
     }
 
-    private static void resolverLiteral(Quintupla quintupla) {
-        Object object = temp.get(quintupla.tokens[3].getText());
+    private static void resolverLiteral(Quintupla quintupla,Token token) {
+        Object object = temp.get(token.getText());
         if (object != null)
-            switch (quintupla.tokens[3].getType()) {
+            switch (token.getType()) {
                 case BOOLEANO:
                     Boolean x = (Boolean) object;
-                    ((CommonToken) quintupla.tokens[3]).setText(x ? "v" : "f");
+                    ((CommonToken) token).setText(x ? "v" : "f");
                     break;
                 case ENTERO:
                     Integer i = (Integer) object;
-                    ((CommonToken) quintupla.tokens[3]).setText(i + "");
+                    ((CommonToken) token).setText(i + "");
                     break;
                 case DECIMAL:
                     Double d = (Double) object;
-                    ((CommonToken) quintupla.tokens[3]).setText(d + "");
+                    ((CommonToken) token).setText(d + "");
                     break;
             }
     };

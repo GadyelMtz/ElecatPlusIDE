@@ -35,6 +35,8 @@ public class Main {
         } catch (Exception e) {
             if (e instanceof IOException)
                 System.out.println("El archivo no fué encontrado" + e);
+            // System.out.println();
+            e.printStackTrace();
         }
     }
 }

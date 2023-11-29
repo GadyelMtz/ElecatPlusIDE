@@ -4,7 +4,7 @@ programa #luces#{
 		led #ledIzquierda# = 8;	
 		led #ledDerecha# = 9;
 		buzzer #claxon# = 12;
-        booleano #M# = f and v or (32>34);
+        booleano #M# = f and v or (32>34 or 1.2>0.3);
 	}
 	booleano #XD#=f,#alaburguer#;
 	ejecutar(){
@@ -17,6 +17,13 @@ programa #luces#{
 			#variable1# = #variable1# + 1;
 		}
 		repetir mientras(#variable1#>3 and #variable1#<6){
+			accion(#ledDerecha#, encender());
+			esperar(500);
+			accion(#ledDerecha#, apagar());
+			esperar(500);
+			#variable1# = #variable1# + 1;
+		}
+		repetir mientras(f and f and f and f or f){
 			accion(#ledDerecha#, encender());
 			esperar(500);
 			accion(#ledDerecha#, apagar());
