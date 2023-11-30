@@ -16,10 +16,10 @@ programa #servos#{
         esperar(1000);
         accion(#servomotor#, girar(30));
         esperar(1000);
-             accion(#servomotor#, girar(60));
+        accion(#servomotor#, girar(60));
         esperar(1000);
         accion(#servomotor#, girar(90));
-             esperar(1000);
-        accion(#claxon#, sonar(1200+24));
+         esperar(1000);
+        accion(#claxon#, sonar(1200+24, 23));
     }
 }

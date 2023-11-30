@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package elecatpluside;
-
 import Analizadores.SimpleSemantic;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class TablaSemantica extends javax.swing.JFrame {
     public TablaSemantica() {
         initComponents();
         llenarTabla();
-        llenarTablaFunciones();
+//        llenarTablaFunciones();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
@@ -185,25 +184,25 @@ public void llenarTabla() {
             modeloTabla.addRow(new Object[]{nombreVariable, tipo});
         }
     }
-  public void llenarTablaFunciones() {
-        
-        DefaultTableModel modeloTablaFunciones = (DefaultTableModel) tblFunciones.getModel();
-        modeloTablaFunciones.setRowCount(0);
-        Set<Map.Entry<String, ArrayList<Token>>> entrySet = SimpleSemantic.funcionesDeclaradas.entrySet();
-        for (Map.Entry<String, ArrayList<Token>> entry : entrySet) {
-            String nombreFuncion = entry.getKey();
-            ArrayList<Token> tokens = entry.getValue();
-
-            StringBuilder tokensStr = new StringBuilder();
-            for (Token token : tokens) {
-                tokensStr.append(token.getText()).append(", ");
-            }
-            if (tokensStr.length() > 0) {
-                tokensStr.delete(tokensStr.length() - 2, tokensStr.length());
-            }
-            modeloTablaFunciones.addRow(new Object[]{nombreFuncion, tokensStr.toString()});
-        }
-    }
+//   public void llenarTablaFunciones() {
+//
+//         DefaultTableModel modeloTablaFunciones = (DefaultTableModel) tblFunciones.getModel();
+//         modeloTablaFunciones.setRowCount(0);
+//         Set<Map.Entry<String, ArrayList<Token>>> entrySet = SimpleSemantic.funcionesDeclaradas.entrySet();
+//         for (Map.Entry<String, ArrayList<Token>> entry : entrySet) {
+//             String nombreFuncion = entry.getKey();
+//             ArrayList<Token> tokens = entry.getValue();
+//
+//             StringBuilder tokensStr = new StringBuilder();
+//             for (Token token : tokens) {
+//                 tokensStr.append(token.getText()).append(", ");
+//             }
+//             if (tokensStr.length() > 0) {
+//                 tokensStr.delete(tokensStr.length() - 2, tokensStr.length());
+//             }
+//             modeloTablaFunciones.addRow(new Object[]{nombreFuncion, tokensStr.toString()});
+//         }
+//     }
 
   
     /**

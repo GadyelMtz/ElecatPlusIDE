@@ -31,6 +31,7 @@ public class Main {
             SimpleSemantic.pilas.forEach(t -> System.out.println(t));
             quintuplas.forEach(t -> System.out.println(t.toString()));
             SimpleCode.optimizarExpresiones();
+            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
             quintuplas.forEach(t -> System.out.println(t.toString()));
             // Prueba de PINES = FUNCIONÓ
         } catch (Exception e) {
