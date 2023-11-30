@@ -21,6 +21,7 @@ public class codigoObjeto {
     Map<String, String> componentes = new HashMap<>();
     Map<String, String> cadenas = new HashMap<>();
     Map<String, String> enteros = new HashMap<>();
+    Map<String, Integer> motores = new HashMap<>();
 
 
     public codigoObjeto(String codigo, String nombre) {
@@ -135,6 +136,7 @@ public class codigoObjeto {
     }
 
     private void cambiarComponentes() {
+        int cantidadMotores = 0;
         String codigoNuevo = "";
         // El codigo auxiliar es una forma de tener una copia del codigo
         // para colocar la asignación de variables globales a los componentes
@@ -219,7 +221,7 @@ public class codigoObjeto {
             // Agergar un display_lcd
             // Declarar el Liquid.Crystal
             if (lineasCodigo[i].contains("display_lcd ")) {
-                String id = lineasCodigo[i].split(" ")[1].trim().replaceAll("[^a-zA-Z]", "");
+                String id = lineasCodigo[i].split(" ")[1].trim().replaceAll("[^a-zA-Z0-9_]", "");
                 String componente = lineasCodigo[i].split(" ")[0].trim();
                 componentes.put(id, componente);
 
@@ -256,9 +258,40 @@ public class codigoObjeto {
             }
 
             //Agregar un motor
-            
+            // Motor ID;
+            if (lineasCodigo[i].contains("motor ")) {
+                String id = lineasCodigo[i].split(" ")[1].trim().replaceAll("[^a-zA-Z0-9_]", "");
+                String componente = lineasCodigo[i].split(" ")[0].trim();
+                componentes.put(id, componente);
+                cantidadMotores++;
+                // Esta parte del codigo pone hasta arriba el nombre del componente
+                // y su respectiva asignacion de los pines;
+                if(cantidadMotores == 1){
+                declaracionPinComponente = "int ENA = 5;\n"+
+                                            "int IN1 = 7;\n"+
+                                            "int IN2 = 6;\n";
+                codigoAuxiliar = codigoNuevo;
+                codigoNuevo = declaracionPinComponente;
+                codigoNuevo += codigoAuxiliar;
+                lineasCodigo[i] = "pinMode(ENA,OUTPUT);\n"+
+                                    "pinMode(IN1,OUTPUT);\n"+
+                                    "pinMode(IN2,OUTPUT);\n";
+                motores.put(id, 1);
+                }
 
-           
+                if(cantidadMotores == 2){
+                declaracionPinComponente = "int ENB = 3;\n"+
+                                            "int IN3 = 2;\n"+
+                                            "int IN4 = 4;\n";
+                codigoAuxiliar = codigoNuevo;
+                codigoNuevo = declaracionPinComponente;
+                codigoNuevo += codigoAuxiliar;
+                lineasCodigo[i] = "pinMode(ENB,OUTPUT);\n"+
+                                    "pinMode(IN3,OUTPUT);\n"+
+                                    "pinMode(IN4,OUTPUT);\n";
+                motores.put(id, 2);
+                }
+            }
             codigoNuevo += lineasCodigo[i] + "\n";
         }
         codigo = codigoNuevo;
@@ -288,7 +321,20 @@ public class codigoObjeto {
                 if (componente.equals("buzzer")) {
                     String tono = lineasCodigo[i].split(",")[1].trim().replaceAll("\\D", "");
                     String tiempo = lineasCodigo[i].split(",")[2].trim().replaceAll("\\D", "");
-                    lineasCodigo[i] = "tone(" + id + "," + tono + "," + tiempo + ");";
+                    if(!tono.equals("") && !tiempo.equals(""))
+                        lineasCodigo[i] = "tone(" + id + "," + tono + "," + tiempo + ");";
+                    else{
+                        String tono2 = lineasCodigo[i].split(",")[1].trim()
+                                .replaceAll("[^a-zA-Z0-9]", "")
+                                .replaceAll("sonar", "");
+                        String tiempo2 = lineasCodigo[i].split(",")[2].trim()
+                                .replaceAll("[^a-zA-Z0-9]", "");
+                        // Ver si es una cadena o un numero
+                        String tonoID = enteros.get(tono2);
+                        String tiempoID = enteros.get(tiempo2);
+                        lineasCodigo[i] = "tone("+id+","+tonoID+","+tiempoID+");";
+                    }
+                
                 }
 
                 // Para los display
@@ -376,11 +422,31 @@ public class codigoObjeto {
 
                 // Para los servo motores
                 // 'accion' '(' ID ',' 'girar' '(' ID | ENTERO ')' ')' ';'
-                // Tono y tiempo deben ser enteros
                 if (componente.equals("servo")) {
                     // Si el girar tiene un entero
                     String cantidadAGirar = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
                     lineasCodigo[i] = id+".write(" + cantidadAGirar + ");";
+                }
+
+                // Para los motores
+                // 'accion' '(' ID ',' 'avanzar' | 'detener' '(' 'ID | ENTERO' ')' ';'
+                if(componente.equals("motor")){
+                    // Recupera el numero del motor con su nombre
+                    // <ID, 1>   1 = Izquierdo    2 = derecho
+                    int IDmotor = motores.get(id);
+                    if(IDmotor == 1){ 
+                    String avanzarString = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
+                    lineasCodigo[i] = "digitalWrite(IN3,HIGH);\n"+
+                                      "digitalWrite(IN4,LOW);\n"+
+                                      "analogWrite(ENB,"+avanzarString+");";
+                    }
+
+                    if(IDmotor == 2){ 
+                    String avanzarString = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
+                    lineasCodigo[i] = "digitalWrite(IN5,HIGH);\n"+
+                                      "digitalWrite(IN7,LOW);\n"+
+                                      "analogWrite(ENA,"+avanzarString+");";
+                    }
                 }
             }
             codigoNuevo += lineasCodigo[i] + "\n";

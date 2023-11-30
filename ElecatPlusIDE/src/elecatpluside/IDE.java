@@ -723,7 +723,7 @@ public class IDE extends javax.swing.JFrame {
     private void lblCodigoObjetoMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCodigoObjetoMouseClicked
         if (compilado) {
             txtOutput.setText("Generando codigo objeto...");
-            codigoObjetoNuevo codigo = new codigoObjetoNuevo(quintuplasOptimizadas, this.getTitle());
+            codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText(), this.getTitle());
             codigo.crearCodigoObjeto();
         }
         else 

@@ -1,59 +1,49 @@
-programa #P1# {
-    siete_segmentos #SS1#,#SS2#,#SS3#;
-    booleano #B1#,#B2#=falso,#B3#;
-    entero #E1# = 3, #E2#;
-    
-    #P1#(){
-        entero #xd# = 0;
-        #xd# = 3;
-        ;
-        1+3;
-    }
-    
-    ejecutar(){
-        ;
-        decimal #D1#=3.42;
-        elegir(#D1#){
-            caso 34.12:
-                booleano #DE# = falso;
-                si (#DE# == v)
-                    #D1# = #D1#*34;
-                sino
-                    ;
-                continuar;
-            predeterminado:
-                romper;
-        }
+programa #luces#{
+	#luces#(){
+		display_lcd #display_silla#;
+		led #ledIzquierda# = 8;
+		led #ledDerecha# = 9;
+		buzzer #claxon# = 12;
+		sensor_distancia #sensor# = 10;
+		boton #botonera# = 3;
+		servo #servomotor# = 11;
+	}
 
-        repetir mientras (f and v or (35<31 or (32+2) == 34 )){
-            accion(#SS1#,mostrar(3));
-            #F1#(#E1#,34.1);
-        }
+	ejecutar(){
+		entero #variable1# = 0;
+		accion(#sensor#, detectar(#variable1#));
+		accion(#servomotor#, girar(30));
+		accion(#display_silla#, escribir("Hola que tal"));
+		repetir mientras(#variable1#<=3){
+			accion(#ledIzquierda#, encender());
+			esperar(250);
+			accion(#ledIzquierda#, apagar());
+			esperar(250);
+			#variable1# = #variable1# + 1;
+		}
+		repetir mientras(#variable1#>3 and #variable1#<6){
+			accion(#ledDerecha#, encender());
+			esperar(500);
+			accion(#ledDerecha#, apagar());
+			esperar(500);
+			#variable1# = #variable1# + 1;
+		}
+		entero #tono# = 500;
+		entero #duracion# = 1000; 
+		accion(#claxon#, sonar(#tono#, #duracion#));
+		#pitarVeces#();
+	}
 
-        esperar(1000);
-
-        motor #M1#;
-        servo #Ser1#;
-        sensor_distancia #Sens1#;
-        buzzer #Buzz1#;
-        led #L1#;
-        repetir para (entero #Contador# = 0; #Contador# <= 3; #Contador# = #Contador# + 1){
-            accion(#SS1#,mostrar(#Contador#));
-            accion(#M1#,avanzar(325));
-            accion(#Sens1#,detectar(#E2#));
-            accion(#Buzz1#,sonar(325,3));
-            accion(#L1#,encender());
-            esperar(2000/1*2-2000+1000);
-            accion(#L1#,apagar());
-        }
-    }
-    
-    funcion #F1#();
-    funcion #F2#(entero #PP1#){
-        
-    }
-
-    funcion booleano #F2#(){
-        devolver f;    
-    }
+	
+	funcion #pitarVeces#(entero #veces#){
+		entero #veces#;
+		repetir para(entero #i#=0;#i#<3;#i#=#i#+1){
+			accion(#claxon#, sonar(1000,100));
+			esperar(250);
+		}
+	
+		si(#veces# > 3){
+			esperar(400);
+		}
+	}
 }
