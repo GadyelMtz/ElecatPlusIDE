@@ -184,7 +184,7 @@ public class codigoObjeto {
 
             // Agregar un sensor_distancia
             // Sensor_ultrasonico ID = 10;
-            if (lineasCodigo[i].contains("sensor_ultrasonico ")) {
+            if (lineasCodigo[i].contains("sensor_distancia ")) {
                 String id = lineasCodigo[i].split("=")[0].split(" ")[1];
                 String pin = lineasCodigo[i].split("=")[1].replaceAll("\\D", "");
                 String componente = lineasCodigo[i].split(" ")[0];
@@ -355,7 +355,7 @@ public class codigoObjeto {
                 // Para los sensor infrarrojo
                 // 'accion' '(' ID ',' 'detectar' '(' ID ')' ')' ';'
                 // Tono y tiempo deben ser enteros
-                if (componente.equals("sensor_ultrasonico")) {
+                if (componente.equals("sensor_distancia")) {
                     String variableLectura = lineasCodigo[i].split(",")[1].trim().split("\\(")[1]
                             .replaceAll("[^a-zA-Z0-9]", "");
                     lineasCodigo[i] = variableLectura + "=digitalRead(" + id + ");";

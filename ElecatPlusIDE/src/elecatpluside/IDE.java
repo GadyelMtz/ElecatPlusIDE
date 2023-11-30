@@ -37,6 +37,8 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Element;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
+
 import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -66,6 +68,9 @@ public class IDE extends javax.swing.JFrame {
 
     public IDE() {
         initComponents();
+        StyledDocument doc = new DefaultStyledDocument();
+        doc.
+        txtOutput.setStyledDocument(doc);
         inicializar();
         colors();
         if ((f = new File(rutaDocumento)).exists()) {
@@ -100,7 +105,7 @@ public class IDE extends javax.swing.JFrame {
 
         OutputStream consoleOutputStream = new OutputStream() {
             JTextPane textArea = txtOutput;
-
+            
             @Override
             public void write(int b) throws IOException {
                 textArea.setText(textArea.getText() + String.valueOf((char) b));
@@ -810,7 +815,7 @@ public class IDE extends javax.swing.JFrame {
                     if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
                         // Componentes
                         if (text.substring(wordL, wordR).matches(
-                                "(\\W)*(led|display_lcd|servo|sensor_ultrasonico|motor|buzzer|"
+                                "(\\W)*(led|display_lcd|servo|sensor_distancia|motor|buzzer|"
                                         + "servo|siete_segmentos|boton|fuente|pin|registro)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attblue, false);
                             // Estructuras de control

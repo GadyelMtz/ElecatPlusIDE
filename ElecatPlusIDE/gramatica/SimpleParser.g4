@@ -72,7 +72,7 @@ accion:
 		| 'escribir' {comprobarComponente($ID, "display_lcd");} parExpresion {resolverExpresion(t -> t==CADENA | t == TD_CADENA, "TD_CADENA o CADENA");}
 		| 'girar' {comprobarComponente($ID, "servo");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");}
 		| 'avanzar' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");}
-		| 'detectar' {comprobarComponente($ID, "sensor_distancia");} parExpresion {resolverDetectar(t);}
+		| 'detectar' {comprobarComponente($ID, "sensor_distancia","boton"); } parExpresion {resolverDetectar(t);}
 		| 'detener' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");}
 		| 'encender' {comprobarComponente($ID, "led");} '(' ')'
 		| 'apagar' {comprobarComponente($ID, "led");} '(' ')'

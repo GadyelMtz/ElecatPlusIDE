@@ -1,5 +1,5 @@
 package Analizadores;
-// Generated from SimpleParser.g4 by ANTLR 4.13.1
+// Generated from c:/Users/zapat/Desktop/Repo_Git/ElecatPlusIDE/ElecatPlusIDE/gramatica/SimpleParser.g4 by ANTLR 4.13.1
  	import static Analizadores.SimpleSemantic.*; 	import java.util.HashMap; 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -1724,7 +1724,7 @@ public class SimpleParser extends Parser {
 				{
 				setState(336);
 				match(DETECTAR);
-				comprobarComponente(((AccionContext)_localctx).ID, "sensor_distancia");
+				comprobarComponente(((AccionContext)_localctx).ID, "sensor_distancia","boton"); 
 				setState(338);
 				parExpresion();
 				resolverDetectar(t);
