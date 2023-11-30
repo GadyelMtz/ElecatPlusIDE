@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CommonToken;
@@ -19,9 +19,6 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
-
-import Analizadores.SimpleCode.Quintupla;
-
 import static Analizadores.SimpleCode.Quintupla;
 import static Analizadores.SimpleCode.quintuplas;
 
@@ -72,7 +69,7 @@ public class SimpleSemantic {
     };
     public static SymbolicName s = SimpleParser.VOCABULARY::getSymbolicName;
     static final Set<String> operadores = new HashSet<>(
-            Arrays.asList("=", "and", "or", "==", "!=", "<", "<=", ">", ">=", "/", "*", "-", "+"));
+            Arrays.asList("=","and", "or", "==", "!=", "<", "<=", ">", ">=", "/", "*", "-", "+"));
     static final Set<String> operadoresAritmeticos = new HashSet<>(Arrays.asList("+", "-", "*", "/"));
     static final Set<String> operadoresComparadores = new HashSet<>(Arrays.asList("<", ">", "<=", ">="));
     static final Set<String> operadoresBooleanoNumericos = new HashSet<>(
@@ -85,6 +82,7 @@ public class SimpleSemantic {
     static Integer regresarTipoDato;
     static Integer td_switch;
     static Integer td_variable;
+    
 
     public SimpleSemantic() {
         // TODO:new Quintupla($G,$ID,salida.peek(),null);
@@ -96,12 +94,12 @@ public class SimpleSemantic {
         pilaOperadores = new Stack<>();
         pilas = new ArrayList<>();
         quintuplas = new ArrayList<>();
-        Quintupla.linea = 0;
+        Quintupla.linea=0;
     }
 
     public static void comprobarComponente(Token ID, String componentName) {
         Token token = variablesDeclaradas.get(ID.getText());
-        if (token == null) {
+        if (token == null){
             puedeResolverPila = false;
             return;
         }
@@ -114,7 +112,7 @@ public class SimpleSemantic {
 
     public static void comprobarComponente(Token ID, String... componentes) {
         Token token = variablesDeclaradas.get(ID.getText());
-        if (token == null) {
+        if (token == null){
             puedeResolverPila = false;
             return;
         }
@@ -125,9 +123,8 @@ public class SimpleSemantic {
             }
         }
         puedeResolverPila = false;
-        semanticError(ID,
-                "accion no valida para variables de tipo " + tipo + "; se esperaba: " + componentes[0].toString()
-                        + " o " + componentes[1].toString());
+        semanticError(ID, "accion no valida para variables de tipo " + tipo + "; se esperaba: " + componentes[0].toString() 
+        + " o " +componentes[1].toString());
     }
 
     public static void iniciarAccion(Token ID) {
@@ -266,7 +263,7 @@ public class SimpleSemantic {
 
     public static void resolverDetectar(Token t) {
         if (!puedeResolverPila) {
-            return;
+           return; 
         }
         if (cantidadEnPila() != 1) {
             semanticError(t, "se esperaba sólo un identificador TD_ENTERO");
@@ -291,12 +288,30 @@ public class SimpleSemantic {
 
     public static void validarArgumento(ParserRuleContext c) {
         if (c.parent.getRuleIndex() == RULE_argumentos) {
+            try {
+                resolverPila(t -> true);
+            } catch (Exception e) {
+            }
             pilasArgumento.push(salida.peek());
         }
     }
 
     private static int cantidadEnPila() {
         return salida.size() + pilaOperadores.size();
+    }
+
+    public static void usarFuncion(Token funcion, ArrayList<Token> lista) {
+        // try {
+        // ArrayList<Token> parametros = funcionesDeclaradas.get(funcion.getText());
+        // if (parametros == null)
+        // throw new Exception();
+        // for (int i = 0; i < parametros.size(); i++) {
+        // if (!parametros.get(i).getText().equals(lista.get(i).getText()))
+        // throw new Exception();
+        // }
+        // } catch (Exception e) {
+        // errorFuncion(funcion, lista, " no ha sido declarada");
+        // }
     }
 
     /**
@@ -320,7 +335,7 @@ public class SimpleSemantic {
         pilaOperadores = new Stack<>();
         salida = new Stack<>();
         puedeResolverPila = true;
-        varTemp = 0;
+        varTemp=0;
     };
 
     /**
@@ -389,7 +404,7 @@ public class SimpleSemantic {
             } else {
                 try {
                     t.push(salida.peek());
-                    imprimirPila(t, t.peek());
+                    imprimirPila(t,t.peek());
                     t.pop();
                     t.push(validarOperacion(t.pop(), t.pop(), salida.pop()));
                 } catch (Exception e) {
@@ -408,6 +423,7 @@ public class SimpleSemantic {
             aux.push(salida.pop());
         }
         salida = aux;
+        t.getText().equals("");
     }
 
     private static Token resultadoPila(int tipo_dato, String texto, Token operador) {
@@ -417,15 +433,14 @@ public class SimpleSemantic {
         return x;
     }
 
-    static int varTemp = 0;
-
+    static int varTemp=0; 
     public static String variableTemporal() {
-        return "t" + (++varTemp);
+        return "t"+(++varTemp);
     }
-
+ 
     private static Token validarOperacion(Token operando2, Token operando1, Token operador) throws Exception {
-        if (operador.getText().equals("=")) {
-            new Quintupla(operador, operando1, operando2, null);
+        if (operador.getText().equals("=")){
+            new Quintupla(operador,operando1,operando2,null);
             return resultadoPila(operando2.getType(), operando2.getText(), operador);
         }
         // 1. No hay operaciones con cadenas
@@ -444,11 +459,12 @@ public class SimpleSemantic {
         regOperador += operadoresBooleanoNumericos.contains(operador.getText()) ? 0b10 : 0;
         switch (regOperandos) {
             case 0b11:
-                if (regOperador != 0) {
+                if (regOperador != 0){
                     Token resultadoPila = resultadoPila(BOOLEANO, variableTemporal(), operador);
-                    new Quintupla(operador, operando1, operando2, resultadoPila);
+                    new Quintupla(operador,operando1,operando2,resultadoPila);
                     return resultadoPila;
-                } else {
+                }
+                else {
                     semanticError(operador, "operador: '" + operador.getText()
                             + "'; las expresiones izquierda y derecha deben ser de tipo Booleano");
                     throw new Exception();
@@ -477,19 +493,19 @@ public class SimpleSemantic {
             case 0b001:
             case 0b010:
                 Token resultadoPila = resultadoPila(BOOLEANO, variableTemporal(), operador);
-                new Quintupla(operador, operando1, operando2, resultadoPila);
+                new Quintupla(operador,operando1,operando2,resultadoPila);
                 return resultadoPila;
         }
         switch (regOperandos) {
             case 0b11:
                 Token resultadoPila = resultadoPila(ENTERO, variableTemporal(), operador);
-                new Quintupla(operador, operando1, operando2, resultadoPila);
+                new Quintupla(operador,operando1,operando2,resultadoPila);
                 return resultadoPila;
             case 0b10:
             case 0b01:
             case 0b00:
                 Token resultadoPila2 = resultadoPila(DECIMAL, variableTemporal(), operador);
-                new Quintupla(operador, operando1, operando2, resultadoPila2);
+                new Quintupla(operador,operando1,operando2,resultadoPila2);
                 return resultadoPila2;
         }
         return null;
@@ -775,36 +791,4 @@ public class SimpleSemantic {
         return true;
     }
 
-    public static void comprobarFuncion(Token ID, ArrayList<Token> listaParametros) {
-        Funcion f;
-        if ((f = usarFuncion(ID, listaParametros))!=null){
-            CommonToken x = new CommonToken(ID);
-            x.setType(f.retorno);
-            añadirAPila(x);
-        }
-        else {
-            puedeResolverPila=false;
-        }
-    }
-
-    public static Funcion usarFuncion(Token ID, ArrayList<Token> listaParametros) {
-        Stream<Funcion> existentesNombre = funcionesDeclaradas.stream().filter(t -> t.nombre.equals(ID.getText()));
-        if (existentesNombre.count() == 0) {
-            StringBuilder sb = new StringBuilder("");
-            listaParametros.forEach(t -> sb.append(t.getText()).append(", "));
-            semanticError(ID, String.format("la funcion %s(%s) no ha sido declarada", ID.getText(),
-                    sb.toString().substring(0, sb.length() == 0 ? 0 : sb.length() - 1)));
-        } else {
-            Stream<Funcion> funcion = existentesNombre.filter(t -> t.parametros.size() == listaParametros.size()
-                    && parametrosIguales(t.parametros, listaParametros));
-            if (funcion.count() == 0) {
-                StringBuilder sb = new StringBuilder("");
-                listaParametros.forEach(t -> sb.append(t.getText()).append(", "));
-                semanticError(ID, String.format("la funcion %s(%s) no ha sido declarada", ID.getText(),
-                        sb.toString().substring(0, sb.length() == 0 ? 0 : sb.length() - 1)));
-            }
-            return (Funcion)funcion.toArray()[0];
-        }
-        return null;
-    }
 }
