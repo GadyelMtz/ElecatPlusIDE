@@ -11,6 +11,19 @@ programa #luces#{
 		motor #derecho#;
 	}
 
+	funcion #pitarVeces#(){
+		entero #veces#;
+		repetir para(entero #i#=0;#i#<3;#i#=#i#+1){
+			accion(#claxon#, sonar(1000,100));
+			accion(#izquierdo#, avanzar(400));
+			accion(#derecho#, avanzar(600));
+			esperar(250);
+		}
+	
+		si(#veces# > 3){
+			esperar(400);
+		}
+	}
 	ejecutar(){
 		entero #variable1# = 0;
 		accion(#sensor#, detectar(#variable1#));
@@ -33,21 +46,7 @@ programa #luces#{
 		entero #tono# = 500;
 		entero #duracion# = 1000; 
 		accion(#claxon#, sonar(#tono#, #duracion#));
-		#pitarVeces#();
-	}
-
-	
-	funcion #pitarVeces#(entero #veces#){
-		repetir para(entero #i#=0;#i#<3;#i#=#i#+1){
-			accion(#claxon#, sonar(1000,100));
-			accion(#izquierdo#, avanzar(400));
-			accion(#derecho#, avanzar(600));
-			esperar(250);
-		}
-	
-		si(#veces# > 3){
-			esperar(400);
-		}
+		#pitarVeces#(3);
 	}
 }
 

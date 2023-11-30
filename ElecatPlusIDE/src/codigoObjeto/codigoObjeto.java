@@ -430,7 +430,7 @@ public class codigoObjeto {
 
                 // Para los motores
                 // 'accion' '(' ID ',' 'avanzar' | 'detener' '(' 'ID | ENTERO' ')' ';'
-                if(componente.equals("motor")){
+                if(componente.equals("motor") && accion.equals("avanzar")){
                     // Recupera el numero del motor con su nombre
                     // <ID, 1>   1 = Izquierdo    2 = derecho
                     int IDmotor = motores.get(id);
@@ -439,6 +439,24 @@ public class codigoObjeto {
                     lineasCodigo[i] = "digitalWrite(IN3,HIGH);\n"+
                                       "digitalWrite(IN4,LOW);\n"+
                                       "analogWrite(ENB,"+avanzarString+");";
+                    }
+
+                    if(IDmotor == 2){ 
+                    String avanzarString = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
+                    lineasCodigo[i] = "digitalWrite(IN5,LOW);\n"+
+                                      "digitalWrite(IN7,LOW);\n"+
+                                      "analogWrite(ENA, 0);";
+                    }
+                }
+                if(componente.equals("motor") && accion.equals("detener")){
+                    // Recupera el numero del motor con su nombre
+                    // <ID, 1>   1 = Izquierdo    2 = derecho
+                    int IDmotor = motores.get(id);
+                    if(IDmotor == 1){ 
+                    String avanzarString = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
+                    lineasCodigo[i] = "digitalWrite(IN3,LOW);\n"+
+                                      "digitalWrite(IN4,LOW);\n"+
+                                      "analogWrite(ENB, 0);";
                     }
 
                     if(IDmotor == 2){ 
