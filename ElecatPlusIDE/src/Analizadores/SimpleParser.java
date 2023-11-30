@@ -147,14 +147,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_programa; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterPrograma(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitPrograma(this);
-		}
 	}
 
 	public final ProgramaContext programa() throws RecognitionException {
@@ -208,14 +200,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_cuerpoPrograma; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterCuerpoPrograma(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitCuerpoPrograma(this);
-		}
 	}
 
 	public final CuerpoProgramaContext cuerpoPrograma() throws RecognitionException {
@@ -277,14 +261,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_miembros; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterMiembros(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitMiembros(this);
-		}
 	}
 
 	public final MiembrosContext miembros() throws RecognitionException {
@@ -366,14 +342,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_setup; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterSetup(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitSetup(this);
-		}
 	}
 
 	public final SetupContext setup() throws RecognitionException {
@@ -420,14 +388,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_ejecucion; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterEjecucion(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitEjecucion(this);
-		}
 	}
 
 	public final EjecucionContext ejecucion() throws RecognitionException {
@@ -482,14 +442,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_funcion; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterFuncion(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitFuncion(this);
-		}
 	}
 
 	public final FuncionContext funcion() throws RecognitionException {
@@ -570,14 +522,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaracionAtributo; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterDeclaracionAtributo(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitDeclaracionAtributo(this);
-		}
 	}
 
 	public final DeclaracionAtributoContext declaracionAtributo() throws RecognitionException {
@@ -616,14 +560,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_tipo; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterTipo(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitTipo(this);
-		}
 	}
 
 	public final TipoContext tipo() throws RecognitionException {
@@ -682,14 +618,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaraciones; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterDeclaraciones(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitDeclaraciones(this);
-		}
 	}
 
 	public final DeclaracionesContext declaraciones() throws RecognitionException {
@@ -746,14 +674,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parametrosFormales; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterParametrosFormales(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitParametrosFormales(this);
-		}
 	}
 
 	public final ParametrosFormalesContext parametrosFormales() throws RecognitionException {
@@ -813,14 +733,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parametroFormal; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterParametroFormal(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitParametroFormal(this);
-		}
 	}
 
 	public final ParametroFormalContext parametroFormal() throws RecognitionException {
@@ -864,14 +776,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_bloque; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterBloque(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitBloque(this);
-		}
 	}
 
 	public final BloqueContext bloque() throws RecognitionException {
@@ -974,14 +878,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_sentencia; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterSentencia(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitSentencia(this);
-		}
 	}
 
 	public final SentenciaContext sentencia() throws RecognitionException {
@@ -1236,14 +1132,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_llamadaAFuncion; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterLlamadaAFuncion(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitLlamadaAFuncion(this);
-		}
 	}
 
 	public final LlamadaAFuncionContext llamadaAFuncion() throws RecognitionException {
@@ -1284,14 +1172,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_argumentos; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterArgumentos(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitArgumentos(this);
-		}
 	}
 
 	public final ArgumentosContext argumentos() throws RecognitionException {
@@ -1350,14 +1230,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_controlFor; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterControlFor(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitControlFor(this);
-		}
 	}
 
 	public final ControlForContext controlFor() throws RecognitionException {
@@ -1371,7 +1243,7 @@ public class SimpleParser extends Parser {
 			iniciadorFor();
 			setState(264);
 			match(SEMI);
-			new Quintupla(new CommonToken(";"),new CommonToken("iniciadorFor"),null,null);
+			new Quintupla(new CommonToken(-1,";"),new CommonToken(-1,"iniciadorFor"),null,null);
 			setState(270);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -1387,7 +1259,7 @@ public class SimpleParser extends Parser {
 
 			setState(272);
 			match(SEMI);
-			new Quintupla(new CommonToken(";"),new CommonToken("expresion"),null,null);
+			new Quintupla(new CommonToken(-1,";"),new CommonToken(-1,"iniciadorFor"),null,null);
 			setState(274);
 			listaExpresiones();
 			}
@@ -1415,14 +1287,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_iniciadorFor; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterIniciadorFor(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitIniciadorFor(this);
-		}
 	}
 
 	public final IniciadorForContext iniciadorFor() throws RecognitionException {
@@ -1486,14 +1350,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_listaExpresiones; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterListaExpresiones(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitListaExpresiones(this);
-		}
 	}
 
 	public final ListaExpresionesContext listaExpresiones() throws RecognitionException {
@@ -1550,14 +1406,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parExpresion; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterParExpresion(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitParExpresion(this);
-		}
 	}
 
 	public final ParExpresionContext parExpresion() throws RecognitionException {
@@ -1605,14 +1453,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_sentenciaSwitch; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterSentenciaSwitch(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitSentenciaSwitch(this);
-		}
 	}
 
 	public final SentenciaSwitchContext sentenciaSwitch() throws RecognitionException {
@@ -1677,14 +1517,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_etiquetaSwitch; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterEtiquetaSwitch(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitEtiquetaSwitch(this);
-		}
 	}
 
 	public final EtiquetaSwitchContext etiquetaSwitch() throws RecognitionException {
@@ -1755,14 +1587,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaracionLocal; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterDeclaracionLocal(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitDeclaracionLocal(this);
-		}
 	}
 
 	public final DeclaracionLocalContext declaracionLocal() throws RecognitionException {
@@ -1820,14 +1644,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_declaracionDeVariable; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterDeclaracionDeVariable(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitDeclaracionDeVariable(this);
-		}
 	}
 
 	public final DeclaracionDeVariableContext declaracionDeVariable() throws RecognitionException {
@@ -1903,14 +1719,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_accion; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterAccion(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitAccion(this);
-		}
 	}
 
 	public final AccionContext accion() throws RecognitionException {
@@ -2069,14 +1877,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_esperar; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterEsperar(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitEsperar(this);
-		}
 	}
 
 	public final EsperarContext esperar() throws RecognitionException {
@@ -2138,14 +1938,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expresion; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterExpresion(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitExpresion(this);
-		}
 	}
 
 	public final ExpresionContext expresion() throws RecognitionException {
@@ -2323,14 +2115,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_primaria; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterPrimaria(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitPrimaria(this);
-		}
 	}
 
 	public final PrimariaContext primaria() throws RecognitionException {
@@ -2391,14 +2175,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_literal; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterLiteral(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitLiteral(this);
-		}
 	}
 
 	public final LiteralContext literal() throws RecognitionException {
@@ -2444,14 +2220,6 @@ public class SimpleParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_tipo_dato; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).enterTipo_dato(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SimpleParserListener ) ((SimpleParserListener)listener).exitTipo_dato(this);
-		}
 	}
 
 	public final Tipo_datoContext tipo_dato() throws RecognitionException {

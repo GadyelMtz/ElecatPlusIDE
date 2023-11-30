@@ -75,10 +75,10 @@ argumentos:
 	'(' ({pilasArgumento = new Stack<>();} listaExpresiones)? T = ')' {validarListaExpresiones(_ctx, $T);
 		};
 controlFor:
-	iniciadorFor ';' {new Quintupla(new CommonToken(";"),new CommonToken("iniciadorFor"),null,null);} (
+	iniciadorFor ';' {new Quintupla(new CommonToken(-1,";"),new CommonToken(-1,"iniciadorFor"),null,null);} (
 		{nuevaExpresion();} expresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
 			}
-	)? ';' {new Quintupla(new CommonToken(";"),new CommonToken("expresion"),null,null);} listaExpresiones;
+	)? ';' {new Quintupla(new CommonToken(-1,";"),new CommonToken(-1,"iniciadorFor"),null,null);} listaExpresiones;
 iniciadorFor: declaracionLocal | listaExpresiones;
 listaExpresiones:
 	{nuevaExpresion();} expresion {validarArgumento(_ctx);} (
