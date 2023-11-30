@@ -70,15 +70,15 @@ sentencia:
 	| llamadaAFuncion ';'
 	| accion ';'
 	| esperar ';';
-llamadaAFuncion: ID {nuevaExpresion();} argumentos {/*TODO:*/};
+llamadaAFuncion: ID {nuevaExpresion();} argumentos {usarFuncion($ID, listaParametros);} {{new Quintupla($ID, new CommonToken(-1,"("),null,null);}};
 argumentos:
 	'(' ({pilasArgumento = new Stack<>();} listaExpresiones)? T = ')' {validarListaExpresiones(_ctx, $T);
 		};
 controlFor:
-	iniciadorFor ';' (
+	iniciadorFor ';' {new Quintupla(new CommonToken(";"),new CommonToken("iniciadorFor"),null,null);} (
 		{nuevaExpresion();} expresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
 			}
-	)? ';' listaExpresiones;
+	)? ';' {new Quintupla(new CommonToken(";"),new CommonToken("expresion"),null,null);} listaExpresiones;
 iniciadorFor: declaracionLocal | listaExpresiones;
 listaExpresiones:
 	{nuevaExpresion();} expresion {validarArgumento(_ctx);} (
