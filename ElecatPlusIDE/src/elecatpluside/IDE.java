@@ -7,9 +7,14 @@ package elecatpluside;
 
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
+import Analizadores.SimpleCode;
 import Analizadores.SimpleCode.Quintupla;
 import Analizadores.SimpleParser.ProgramaContext;
 import codigoObjeto.codigoObjeto;
+import codigoObjeto.codigoObjetoNuevo;
+
+import static Analizadores.SimpleCode.quintuplas;
+import static Analizadores.SimpleCode.quintuplasSinOptimizar;
 
 import java.awt.Color;
 import java.awt.Desktop;
@@ -57,7 +62,7 @@ import org.antlr.v4.runtime.Token;
  * @author zapat
  */
 public class IDE extends javax.swing.JFrame {
-
+    
     String rutaDirectorio = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src"; 
     String rutaDocumento = System.getProperty("user.dir") + "\\ElecatPlusIDE\\src\\Prueba.ecp";
     private boolean guardado = false;
@@ -68,7 +73,7 @@ public class IDE extends javax.swing.JFrame {
     private SimpleParser parser;
     private ProgramaContext arbol;
     public static DefaultTableModel modelo;
-
+    public static String quintuplasOptimizadas;
     public IDE() {
         initComponents();
         inicializar();
@@ -670,7 +675,6 @@ public class IDE extends javax.swing.JFrame {
    }
    }
     private void lblCompilarMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCompilarMouseClicked
-        
         modelo = new DefaultTableModel(new String[] { "Token", "ID" }, 0);
         guardar(f);
         try {
@@ -711,17 +715,27 @@ public class IDE extends javax.swing.JFrame {
         } catch (IOException ex) {
             System.out.println(ex);
         }
+        optimizarCodigo();
     }// GEN-LAST:event_lblCompilarMouseClicked
 
     private void lblCodigoObjetoMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblCodigoObjetoMouseClicked
         if (compilado) {
             txtOutput.setText("Generando codigo objeto...");
-            codigoObjeto codigo = new codigoObjeto(txtPaneIDE.getText(), this.getTitle());
+            codigoObjetoNuevo codigo = new codigoObjetoNuevo(quintuplasOptimizadas, this.getTitle());
             codigo.crearCodigoObjeto();
         }
         else 
             mensajeCompilado();
     }// GEN-LAST:event_lblCodigoObjetoMouseClicked
+
+    private void optimizarCodigo() {
+            SimpleCode.optimizarExpresiones();    
+            StringBuilder q = new StringBuilder();
+            for (SimpleCode.Quintupla quintupla : quintuplas) {
+                q.append(quintupla.toString()).append("\n");
+            }
+            quintuplasOptimizadas = q.toString();
+    }
 
     private void lblPilaMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_lblPilaMouseClicked
         if (compilado)

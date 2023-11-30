@@ -4,8 +4,7 @@
  */
 package elecatpluside;
 
-import static Analizadores.SimpleCode.quintuplas;
-
+import static Analizadores.SimpleCode.quintuplasSinOptimizar;
 import Analizadores.SimpleCode.Quintupla;
 
 /**
@@ -20,6 +19,8 @@ public class CodigoIntermedio extends javax.swing.JFrame {
     public CodigoIntermedio() {
         initComponents();
         cargarQuintuplas();
+        setLocationRelativeTo(null);
+        setResizable(false);
     }
 
     /**
@@ -38,6 +39,7 @@ public class CodigoIntermedio extends javax.swing.JFrame {
         txtCodigoIntermedio = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("CodigoIntermedio");
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 0));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -80,7 +82,7 @@ public class CodigoIntermedio extends javax.swing.JFrame {
 
     private void cargarQuintuplas() {
         StringBuilder q = new StringBuilder();
-        for (Quintupla quintupla : quintuplas) {
+        for (Quintupla quintupla : quintuplasSinOptimizar) {
             q.append(quintupla.toString()).append("\n");
         }
         String resultadoFinal = q.toString();

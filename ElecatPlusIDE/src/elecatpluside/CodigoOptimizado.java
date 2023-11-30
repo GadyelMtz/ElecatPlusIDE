@@ -5,31 +5,26 @@
 package elecatpluside;
 
 import Analizadores.SimpleCode;
-import static Analizadores.SimpleCode.quintuplas;
+import static  elecatpluside.IDE.quintuplasOptimizadas;
+
 
 /**
  *
  * @author zapat
  */
 public class CodigoOptimizado extends javax.swing.JFrame {
-
     /**
      * Creates new form CodigoOptimizado
      */
     public CodigoOptimizado() {
         initComponents();
         cargarQuintuplas();
+        setLocationRelativeTo(null);
     }
 
     
      private void cargarQuintuplas() {
-        SimpleCode.optimizarExpresiones();    
-        StringBuilder q = new StringBuilder();
-        for (SimpleCode.Quintupla quintupla : quintuplas) {
-            q.append(quintupla.toString()).append("\n");
-        }
-        String resultadoFinal = q.toString();
-        txtCodigoOptimizado.setText(resultadoFinal);
+        txtCodigoOptimizado.setText(quintuplasOptimizadas);
      }
      /**
      * This method is called from within the constructor to initialize the form.
@@ -47,6 +42,7 @@ public class CodigoOptimizado extends javax.swing.JFrame {
         txtCodigoOptimizado = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Codigo optimizado");
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 0));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());

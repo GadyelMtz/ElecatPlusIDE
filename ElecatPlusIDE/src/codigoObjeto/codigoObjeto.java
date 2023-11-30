@@ -255,6 +255,9 @@ public class codigoObjeto {
                 lineasCodigo[i] = id + ".attach("+pin+");";
             }
 
+            //Agregar un motor
+            
+
            
             codigoNuevo += lineasCodigo[i] + "\n";
         }

@@ -58,7 +58,8 @@ sentencia:
 		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 		}
 	| t = 'si' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
-		} {new Quintupla(t,salida.peek(),new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
+		} {new Quintupla(t,salida.peek(),new CommonToken(-1,"{"),null);
+		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 		} (
 		t = 'sino' {new Quintupla(t,null,new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 			}
