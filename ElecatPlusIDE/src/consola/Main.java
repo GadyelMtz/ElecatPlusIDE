@@ -9,9 +9,12 @@ import java.io.IOException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+
+import Analizadores.SimpleCode;
 import Analizadores.SimpleLexer;
 import Analizadores.SimpleParser;
 import Analizadores.SimpleSemantic;
+import static Analizadores.SimpleCode.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -25,11 +28,16 @@ public class Main {
             System.out.println("");
             parser.programa(); // Comienza el análisis desde la regla expr
             System.out.println("PILAS");
-            // SimpleSemantic.pilas.forEach(t -> System.out.println(t));
+            SimpleSemantic.pilas.forEach(t -> System.out.println(t));
+            quintuplas.forEach(t -> System.out.println(t.toString()));
+            SimpleCode.optimizarExpresiones();
+            quintuplas.forEach(t -> System.out.println(t.toString()));
             // Prueba de PINES = FUNCIONÓ
         } catch (Exception e) {
             if (e instanceof IOException)
                 System.out.println("El archivo no fué encontrado" + e);
+            // System.out.println();
+            e.printStackTrace();
         }
     }
 }

@@ -8,12 +8,10 @@ programa #servos#{
         sensor_distancia #sensor# = 10;
         boton #botonera# = 3;
         servo #servomotor# = 11;
-        motor #MotorIzquierdo#;
-        motor #MotorDerecho#;
+        motor #MM1#;
     }
 
     ejecutar(){
-	entero #miVariable#;
         accion(#servomotor#, girar(0));
         esperar(1000);
         accion(#servomotor#, girar(30));
@@ -21,8 +19,7 @@ programa #servos#{
              accion(#servomotor#, girar(60));
         esperar(1000);
         accion(#servomotor#, girar(90));
-             esperar(1000,32);
-        accion(#claxon#, sonar(1002+32, 32));
-        accion(#sensor#, detectar(#miVariable#));
+             esperar(1000);
+        accion(#claxon#, sonar(1200+24));
     }
 }
