@@ -582,7 +582,6 @@ public class SimpleSemantic {
                 String params = paramsBuilder.toString().substring(0, paramsBuilder.length() - 1);
                 message += String.format("%s %s(%s) %s", funcion.getText(), lista.get(0).getText(), params, predicado);
                 break;
-                
         }
         semanticError(funcion, message);
     }

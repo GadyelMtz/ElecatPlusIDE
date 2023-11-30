@@ -21,9 +21,10 @@ ejecucion:
 	O = 'ejecutar' '(' ')' {new Quintupla(new CommonToken(-1,"loop"),$O,new CommonToken(-1,"{"),null);
 		} bloque {new Quintupla(new CommonToken(-1,"}"),$O,null,null);};
 funcion:
-	{nuevaFuncion();} 'funcion' (
+	{nuevaFuncion();} F = 'funcion' (
 		tipo_dato { retornoFuncion = t.getType(); }
-	)? ID '(' parametrosFormales ')' { funcionDeclarada($ID, listaParametros); } (
+	)? ID '(' {new Quintupla($F, $ID, new CommonToken(-1,"("),t);} parametrosFormales F = ')' {new Quintupla($F,null,null,null);
+		} { funcionDeclarada($ID, listaParametros); } (
 		bloque
 		| ';'
 	);
@@ -34,7 +35,8 @@ declaraciones:
 	declaracionDeVariable (',' declaracionDeVariable)*;
 parametrosFormales: parametroFormal? (',' parametroFormal)*;
 parametroFormal:
-	tipo_dato ID { listaParametros.add(t); } { parametrosDeclarados($ID); };
+	tipo_dato ID { listaParametros.add(t); } { parametrosDeclarados($ID); } {new Quintupla(t, $ID, null, null);
+		};
 bloque: '{' sentencia* '}';
 sentencia:
 	declaracionLocal ';'
@@ -85,11 +87,11 @@ parExpresion:
 	OP = '(' { añadirAPila($OP);} expresion OP = ')' { añadirAPila($OP);};
 sentenciaSwitch: etiquetaSwitch+ sentencia+;
 etiquetaSwitch:
-	'caso' (
+	t = 'caso' (
 		{nuevaExpresion();} expresion {if (banderaSwitch)resolverExpresion(t -> retorno(td_switch).test(t) , "igual a la evaluación: "+s.getSymbolicName(td_switch));
 			}
-	) ':'
-	| 'predeterminado' ':';
+	) dot = ':' { new Quintupla($t, salida.peek(), $dot, null); }
+	| t = 'predeterminado' dot = ':' { new Quintupla($t, salida.peek(), $dot, null); };
 declaracionLocal:
 	tipo {td_variable = t.getType();} declaracionDeVariable (
 		',' declaracionDeVariable

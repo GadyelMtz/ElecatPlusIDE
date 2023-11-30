@@ -1,3 +1,13 @@
+/**
+ * This class contains the logic to generate and optimize quintuples for the Simple language compiler.
+ * 
+ * It handles:
+ * - Generating quintuples to represent operations, function calls, etc.
+ * - Optimizing expressions by folding constants and eliminating unused temporaries.
+ * 
+ * The quintuples are the intermediate representation used by the compiler before generating code.
+ * This class is part of the analysis phase.
+ */
 package Analizadores;
 
 import java.util.ArrayList;
@@ -56,129 +66,28 @@ public class SimpleCode {
 
     public static void optimizarExpresiones() {
         ArrayList<Quintupla> aux = new ArrayList<>();
-        Predicate<Integer> tiposDeDato = (td ->td == TD_CADENA || td == TD_ENTERO || td == TD_DECIMAL || td == TD_BOOLEANO);
-        Predicate<String> noOptimizable = (td ->{
+        Predicate<Integer> tiposDeDato = (td -> td == TD_CADENA || td == TD_ENTERO || td == TD_DECIMAL
+                || td == TD_BOOLEANO);
+        Predicate<String> noOptimizable = (td -> {
             switch (td) {
                 case "setup":
                 case "}":
                 case "loop":
                 case "encender":
                 case "apagar":
-                return true;
+                    return true;
             }
-            return false;});
+            return false;
+        });
         Predicate<Integer> tipoDato = (td -> td == TD_ENTERO || td == TD_DECIMAL || td == TD_BOOLEANO);
         // 1. Filtrar las quintuplas a optimizar
         quintuplas.stream()
-                .filter(qin -> !tiposDeDato.test(qin.tokens[1].getType()) && !noOptimizable.test(qin.tokens[1].getText()))
+                .filter(qin -> !tiposDeDato.test(qin.tokens[1].getType())
+                        && !noOptimizable.test(qin.tokens[1].getText()))
                 .forEach(
                         quintupla -> {
-                            // 2. Dentro de las quíntuplas, filtrar la optimización
-                            if (!operadores.contains(quintupla.tokens[1].getText())){
-                                for (int index = 2; index < 5; index++) {
-                                    if (quintupla.tokens[index]!=null){
-                                        if (quintupla.tokens[index].getText().startsWith("t")) {
-                                            resolverLiteral(quintupla, quintupla.tokens[index]);
-                                            temp = new HashMap<>();
-                                        }
-                                    }
-                                }
-                            }else if (quintupla.tokens[1].getText().equals("=")) {
-                                // 3. Si es una asignación de temporal, coloar el valor literal de t
-                                if (quintupla.tokens[3].getText().startsWith("t")) {
-                                    resolverLiteral(quintupla,quintupla.tokens[3]);
-                                    temp = new HashMap<>();
-                                }
-                            } else if (tipoDato.test(quintupla.tokens[2].getType())
-                                    || tipoDato.test(quintupla.tokens[3].getType()))
-                                // 4. Si las operaciones son con variables, ignorar.
-                                ;
-                            else
-                                // 5. Verificar el tipo de retorno de la expresión
-                                switch (quintupla.tokens[4].getType()) {
-                                    case BOOLEANO:
-                                        if (quintupla.tokens[2].getType() == BOOLEANO
-                                                && quintupla.tokens[3].getType() == BOOLEANO) {
-                                            // 6. Si es booleano, verificar que los operandos sean Booleanos
-                                            Boolean o1, o2;
-                                            o1 = (o1 = castBooleano.get(quintupla.tokens[2].getText())) != null ? o1
-                                                    : (Boolean) temp.get(quintupla.tokens[2].getText());
-                                            o2 = (o2 = castBooleano.get(quintupla.tokens[3].getText())) != null ? o2
-                                                    : (Boolean) temp.get(quintupla.tokens[3].getText());
-                                            // 7. Si alguno es nulo, se tiene un temporal que depende de una operación
-                                            // con variables
-                                            boolean ban = o1 == null || o2 == null;
-                                            if (!ban) {
-                                                // 8. Resolver
-                                                temp.put(quintupla.tokens[4].getText(),
-                                                        resolverBooleanos(quintupla, o1, o2));
-                                                aux.add(quintupla);
-                                            }
-                                        } else {
-                                            // 9. Si son dos números compararlos como Double (xd)
-                                            Double o1, o2;
-                                            try {
-                                                o1 = Double.parseDouble(quintupla.tokens[2].getText());
-                                            } catch (Exception e) {
-                                                o1 = (Double) temp.get(quintupla.tokens[2].getText());
-                                            }
-                                            try {
-                                                o2 = Double.parseDouble(quintupla.tokens[3].getText());
-                                            } catch (Exception e) {
-                                                o2 = (Double) temp.get(quintupla.tokens[3].getText());
-                                            }
-                                            // 10. Resolver y guardar el resultado
-                                            temp.put(quintupla.tokens[4].getText(),
-                                                    resolverComparacionNumeros(quintupla, o1, o2));
-                                            aux.add(quintupla);
-                                        }
-                                        break;
-                                    case ENTERO:
-                                        // 11. Obtener los datos
-                                        Integer o1, o2;
-                                        try {
-                                            // Literal
-                                            o1 = Integer.parseInt(quintupla.tokens[2].getText());
-                                        } catch (Exception e) {
-                                            o1 = (Integer) temp.get(quintupla.tokens[2].getText());
-                                        }
-                                        try {
-                                            // Literal
-                                            o2 = Integer.parseInt(quintupla.tokens[3].getText());
-                                        } catch (Exception e) {
-                                            o2 = (Integer) temp.get(quintupla.tokens[3].getText());
-                                        }
-                                        // 7.
-                                        boolean banI = o1 == null || o2 == null;
-                                        // 12. Operar y guardar
-                                        if (!banI) {
-                                            temp.put(quintupla.tokens[4].getText(), resolverEnteros(quintupla, o1, o2));
-                                            aux.add(quintupla);
-                                        }
-                                        break;
-                                    case DECIMAL:
-                                        Double o5, o6;
-                                        try {
-                                            // Literal
-                                            o5 = Double.parseDouble(quintupla.tokens[2].getText());
-                                        } catch (Exception e) {
-                                            o5 = (Double) temp.get(quintupla.tokens[2].getText());
-                                        }
-                                        try {
-                                            // Literal
-                                            o6 = Double.parseDouble(quintupla.tokens[3].getText());
-                                        } catch (Exception e) {
-                                            o6 = (Double) temp.get(quintupla.tokens[3].getText());
-                                        }
-                                        boolean banD = o5 == null || o6 == null;
-                                        if (!banD) {
-                                            temp.put(quintupla.tokens[4].getText(), resolverDouble(quintupla, o5, o6));
-                                            aux.add(quintupla);
-                                        }
-                                        break;
-                                }
+                            folding(quintupla, aux);
                         });
-
         aux.forEach(quintupla -> quintuplas.remove(quintupla));
         variablesDeclaradas.forEach((nombre, u) -> {
             // Suponiendo que Quintupla es una clase con un constructor y métodos
@@ -195,10 +104,129 @@ public class SimpleCode {
         });
     }
 
-    static int buscarTexto(String pattern, String texto) {
-        return (int) Pattern.compile(pattern).matcher(texto).results().count();
+    /**
+     * Método para realizar folding o simplificación de expresiones
+     * con valores literales.
+     *
+     * @param quintupla La quíntupla actual que se está procesando.
+     * @param aux       Lista auxiliar para almacenar las quíntuplas simplificadas.
+     */
+    private static void folding(Quintupla quintupla, ArrayList<Quintupla> aux) {
+        Predicate<Integer> tipoDato = (td -> td == TD_ENTERO || td == TD_DECIMAL || td == TD_BOOLEANO);
+        // 2. Dentro de las quíntuplas, filtrar la optimización
+        if (!operadores.contains(quintupla.tokens[1].getText())) {
+            for (int index = 2; index < 5; index++) {
+                if (quintupla.tokens[index] != null) {
+                    if (quintupla.tokens[index].getText().startsWith("t")) {
+                        resolverLiteral(quintupla, quintupla.tokens[index]);
+                        temp = new HashMap<>();
+                    }
+                }
+            }
+        } else if (quintupla.tokens[1].getText().equals("=")) {
+            // 3. Si es una asignación de temporal, coloar el valor literal de t
+            if (quintupla.tokens[3].getText().startsWith("t")) {
+                resolverLiteral(quintupla, quintupla.tokens[3]);
+                temp = new HashMap<>();
+            }
+        } else if (tipoDato.test(quintupla.tokens[2].getType())
+                || tipoDato.test(quintupla.tokens[3].getType()))
+            // 4. Si las operaciones son con variables, ignorar.
+            ;
+        else
+            // 5. Verificar el tipo de retorno de la expresión
+            switch (quintupla.tokens[4].getType()) {
+                case BOOLEANO:
+                    if (quintupla.tokens[2].getType() == BOOLEANO
+                            && quintupla.tokens[3].getType() == BOOLEANO) {
+                        // 6. Si es booleano, verificar que los operandos sean Booleanos
+                        Boolean o1, o2;
+                        o1 = (o1 = castBooleano.get(quintupla.tokens[2].getText())) != null ? o1
+                                : (Boolean) temp.get(quintupla.tokens[2].getText());
+                        o2 = (o2 = castBooleano.get(quintupla.tokens[3].getText())) != null ? o2
+                                : (Boolean) temp.get(quintupla.tokens[3].getText());
+                        // 7. Si alguno es nulo, se tiene un temporal que depende de una operación
+                        // con variables
+                        boolean ban = o1 == null || o2 == null;
+                        if (!ban) {
+                            // 8. Resolver
+                            temp.put(quintupla.tokens[4].getText(),
+                                    resolverBooleanos(quintupla, o1, o2));
+                            aux.add(quintupla);
+                        }
+                    } else {
+                        // 9. Si son dos números compararlos como Double (xd)
+                        Double o1, o2;
+                        try {
+                            o1 = Double.parseDouble(quintupla.tokens[2].getText());
+                        } catch (Exception e) {
+                            o1 = (Double) temp.get(quintupla.tokens[2].getText());
+                        }
+                        try {
+                            o2 = Double.parseDouble(quintupla.tokens[3].getText());
+                        } catch (Exception e) {
+                            o2 = (Double) temp.get(quintupla.tokens[3].getText());
+                        }
+                        // 10. Resolver y guardar el resultado
+                        temp.put(quintupla.tokens[4].getText(),
+                                resolverComparacionNumeros(quintupla, o1, o2));
+                        aux.add(quintupla);
+                    }
+                    break;
+                case ENTERO:
+                    // 11. Obtener los datos
+                    Integer o1, o2;
+                    try {
+                        // Literal
+                        o1 = Integer.parseInt(quintupla.tokens[2].getText());
+                    } catch (Exception e) {
+                        o1 = (Integer) temp.get(quintupla.tokens[2].getText());
+                    }
+                    try {
+                        // Literal
+                        o2 = Integer.parseInt(quintupla.tokens[3].getText());
+                    } catch (Exception e) {
+                        o2 = (Integer) temp.get(quintupla.tokens[3].getText());
+                    }
+                    // 7.
+                    boolean banI = o1 == null || o2 == null;
+                    // 12. Operar y guardar
+                    if (!banI) {
+                        temp.put(quintupla.tokens[4].getText(), resolverEnteros(quintupla, o1, o2));
+                        aux.add(quintupla);
+                    }
+                    break;
+                case DECIMAL:
+                    Double o5, o6;
+                    try {
+                        // Literal
+                        o5 = Double.parseDouble(quintupla.tokens[2].getText());
+                    } catch (Exception e) {
+                        o5 = (Double) temp.get(quintupla.tokens[2].getText());
+                    }
+                    try {
+                        // Literal
+                        o6 = Double.parseDouble(quintupla.tokens[3].getText());
+                    } catch (Exception e) {
+                        o6 = (Double) temp.get(quintupla.tokens[3].getText());
+                    }
+                    boolean banD = o5 == null || o6 == null;
+                    if (!banD) {
+                        temp.put(quintupla.tokens[4].getText(), resolverDouble(quintupla, o5, o6));
+                        aux.add(quintupla);
+                    }
+                    break;
+            }
     }
 
+    /**
+     * Resuelve operaciones aritméticas entre dos valores double
+     * 
+     * @param quintupla - La quintupla que contiene la operación
+     * @param o1        - El primer valor double
+     * @param o2        - El segundo valor double
+     * @return El resultado de aplicar la operación aritmética
+     */
     private static Double resolverDouble(Quintupla quintupla, Double o1, Double o2) {
         Double resD = 0d;
         switch (quintupla.tokens[1].getText()) {
@@ -218,6 +246,14 @@ public class SimpleCode {
         return resD;
     }
 
+    /**
+     * Resuelve operaciones aritméticas entre dos valores enteros
+     * 
+     * @param quintupla - La quintupla que contiene la operación
+     * @param o1        - El primer valor entero
+     * @param o2        - El segundo valor entero
+     * @return El resultado de aplicar la operación aritmética
+     */
     private static Integer resolverEnteros(Quintupla quintupla, Integer o1, Integer o2) {
         int res = 0;
         switch (quintupla.tokens[1].getText()) {
@@ -237,6 +273,14 @@ public class SimpleCode {
         return res;
     }
 
+    /**
+     * Resuelve comparaciones numéricas entre dos valores double
+     * 
+     * @param quintupla - La quintupla que contiene la operación
+     * @param o1        - El primer valor double
+     * @param o2        - El segundo valor double
+     * @return El resultado booleano de la comparación
+     */
     private static Boolean resolverComparacionNumeros(Quintupla quintupla, Double o1, Double o2) {
         Boolean res = false;
         switch (quintupla.tokens[1].getText()) {
@@ -262,6 +306,14 @@ public class SimpleCode {
         return res;
     }
 
+    /**
+     * Resuelve operaciones lógicas entre dos valores booleanos
+     * 
+     * @param quintupla - La quintupla que contiene la operación
+     * @param o1        - El primer valor booleano
+     * @param o2        - El segundo valor booleano
+     * @return El resultado de aplicar la operación lógica
+     */
     private static Boolean resolverBooleanos(Quintupla quintupla, Boolean o1, Boolean o2) {
         Boolean res = false;
         switch (quintupla.tokens[1].getText()) {
@@ -281,7 +333,15 @@ public class SimpleCode {
         return res;
     }
 
-    private static void resolverLiteral(Quintupla quintupla,Token token) {
+    /**
+     * Resuelve el valor de un literal basado en el objeto almacenado
+     * temporalmente en la tabla 'temp'. Escribe en el token el valor literal
+     * conocido en tiempo de compilación
+     * 
+     * @param quintupla - La quintupla que contiene el token literal a resolver
+     * @param token     - El token literal a resolver
+     */
+    private static void resolverLiteral(Quintupla quintupla, Token token) {
         Object object = temp.get(token.getText());
         if (object != null)
             switch (token.getType()) {
