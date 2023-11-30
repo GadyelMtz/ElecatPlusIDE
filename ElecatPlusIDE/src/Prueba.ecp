@@ -1,30 +1,59 @@
-programa #servos# {
-	/*Programa a aaaaaa*/
-    entero #variable1#=0;
-    #servos#(){
-        display_lcd #display#;
-        led #ledIzquierda# = 3;
-        led #ledDerecha# = 9;
-        buzzer #claxon# = 12;
-        sensor_distancia #sensor# = 10;
-        boton #botonera# = 3;
-        servo #servomotor# = 11;
-        motor #MM1#;
+programa #P1# {
+    siete_segmentos #SS1#,#SS2#,#SS3#;
+    booleano #B1#,#B2#=falso,#B3#;
+    entero #E1# = 3, #E2#;
+    
+    #P1#(){
+        entero #xd# = 0;
+        #xd# = 3;
+        ;
+        1+3;
+    }
+    
+    ejecutar(){
+        ;
+        decimal #D1#=3.42;
+        elegir(#D1#){
+            caso 34.12:
+                booleano #DE# = falso;
+                si (#DE# == v)
+                    #D1# = #D1#*34;
+                sino
+                    ;
+                continuar;
+            predeterminado:
+                romper;
+        }
+
+        repetir mientras (f and v or (35<31 or (32+2) == 34 )){
+            accion(#SS1#,mostrar(3));
+            #F1#(#E1#,34.1);
+        }
+
+        esperar(1000);
+
+        motor #M1#;
+        servo #Ser1#;
+        sensor_distancia #Sens1#;
+        buzzer #Buzz1#;
+        led #L1#;
+        repetir para (entero #Contador# = 0; #Contador# <= 3; #Contador# = #Contador# + 1){
+            accion(#SS1#,mostrar(#Contador#));
+            accion(#M1#,avanzar(325));
+            accion(#Sens1#,detectar(#E2#));
+            accion(#Buzz1#,sonar(325,3));
+            accion(#L1#,encender());
+            esperar(2000/1*2-2000+1000);
+            accion(#L1#,apagar());
+        }
+    }
+    
+    funcion #F1#();
+    funcion #F2#(entero #PP1#){
+        
     }
 
-    ejecutar(){
-	entero #tono# = (2000 + 4329) - 10;
-	entero #duracion# = 3000;
-        accion(#servomotor#, girar(0));
-        esperar(1000);
-        accion(#servomotor#, girar(30));
-        esperar(1000);
-        accion(#servomotor#, girar(60));
-        esperar(1000);
-        accion(#servomotor#, girar(90));
-         esperar(1000);
-        accion(#claxon#, sonar(#tono#, #duracion#));
-        accion(#botonera#, detectar(#tono#));
-	}
-
+    funcion booleano #F2#(){
+        devolver f;    
+    }
 }

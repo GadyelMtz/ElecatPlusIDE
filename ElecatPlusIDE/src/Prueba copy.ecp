@@ -1,0 +1,30 @@
+programa #servos# {
+	/*Programa a aaaaaa*/
+    entero #variable1#=0;
+    #servos#(){
+        display_lcd #display#;
+        led #ledIzquierda# = 3;
+        led #ledDerecha# = 9;
+        buzzer #claxon# = 12;
+        sensor_distancia #sensor# = 10;
+        boton #botonera# = 3;
+        servo #servomotor# = 11;
+        motor #MM1#;
+    }
+
+    ejecutar(){
+	entero #tono# = (2000 + 4329) - 10;
+	entero #duracion# = 3000;
+        accion(#servomotor#, girar(0));
+        esperar(1000);
+        accion(#servomotor#, girar(30));
+        esperar(1000);
+        accion(#servomotor#, girar(60));
+        esperar(1000);
+        accion(#servomotor#, girar(90));
+         esperar(1000);
+        accion(#claxon#, sonar(#tono#, #duracion#));
+        accion(#botonera#, detectar(#tono#));
+	}
+
+}

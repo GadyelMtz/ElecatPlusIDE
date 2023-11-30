@@ -11,15 +11,10 @@
 package Analizadores;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 
@@ -163,12 +158,12 @@ public class SimpleCode {
                         try {
                             o1 = Double.parseDouble(quintupla.tokens[2].getText());
                         } catch (Exception e) {
-                            o1 = (Double) temp.get(quintupla.tokens[2].getText());
+                            o1 = Double.parseDouble(temp.get(quintupla.tokens[2].getText())+"");
                         }
                         try {
                             o2 = Double.parseDouble(quintupla.tokens[3].getText());
                         } catch (Exception e) {
-                            o2 = (Double) temp.get(quintupla.tokens[3].getText());
+                            o2 = Double.parseDouble(temp.get(quintupla.tokens[3].getText())+"");
                         }
                         // 10. Resolver y guardar el resultado
                         temp.put(quintupla.tokens[4].getText(),

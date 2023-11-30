@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
-import static javax.swing.JOptionPane.showMessageDialog;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CommonToken;
@@ -288,10 +287,6 @@ public class SimpleSemantic {
 
     public static void validarArgumento(ParserRuleContext c) {
         if (c.parent.getRuleIndex() == RULE_argumentos) {
-            try {
-                resolverPila(t -> true);
-            } catch (Exception e) {
-            }
             pilasArgumento.push(salida.peek());
         }
     }
@@ -423,7 +418,6 @@ public class SimpleSemantic {
             aux.push(salida.pop());
         }
         salida = aux;
-        t.getText().equals("");
     }
 
     private static Token resultadoPila(int tipo_dato, String texto, Token operador) {

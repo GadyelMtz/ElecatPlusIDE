@@ -706,6 +706,8 @@ public class IDE extends javax.swing.JFrame {
                 txtOutput.setText("Compilado exitosamente...");
             for (Token t : tokens.getTokens()) {
                 try {
+                    if (t.getType()==-1)
+                        continue;
                     String arreglo[] = { t.getText(), lexer.getTokenNames()[t.getType()] };
                     modelo.addRow(arreglo);
                     compilado = true;
@@ -953,30 +955,30 @@ public class IDE extends javax.swing.JFrame {
          * For details see
          * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
+        // try {
+        //     for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+        //         if ("Nimbus".equals(info.getName())) {
+        //             javax.swing.UIManager.setLookAndFeel(info.getClassName());
+        //             break;
+        //         }
+        //     }
+        // } catch (ClassNotFoundException ex) {
+        //     java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        // } catch (InstantiationException ex) {
+        //     java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        // } catch (IllegalAccessException ex) {
+        //     java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        // } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        //     java.util.logging.Logger.getLogger(IDE.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        // }
         // </editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new IDE().setVisible(true);
-            }
-        });
+        new IDE().setVisible(true);
+        // java.awt.EventQueue.invokeLater(new Runnable() {
+        //     public void run() {
+        //     }
+        // });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

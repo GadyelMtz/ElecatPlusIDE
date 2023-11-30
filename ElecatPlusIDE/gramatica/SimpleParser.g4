@@ -23,11 +23,11 @@ ejecucion:
 funcion:
 	{nuevaFuncion();} F = 'funcion' (
 		tipo_dato { retornoFuncion = t.getType(); }
-	)? ID '(' {new Quintupla($F, $ID, new CommonToken(-1,"("),t);} parametrosFormales F = ')' {new Quintupla($F,null,null,null);
+	)? {t=null;} ID '(' {new Quintupla($F, $ID, new CommonToken(-1,"("),t);} parametrosFormales F = ')' {new Quintupla($F,new CommonToken(-1,"{"),null,null);
 		} { funcionDeclarada($ID, listaParametros); } (
-		bloque
+		bloque 
 		| ';'
-	);
+	) {new Quintupla(new CommonToken(-1,"}"),$ID,null,null);};
 declaracionAtributo:
 	tipo {td_variable=t.getType();} {td=t;} declaraciones;
 tipo: tipo_dato | t = COMPONENTE { t=$t; };
@@ -46,8 +46,8 @@ sentencia:
 	| t = 'romper' ';' {new Quintupla($t,null,null,null);}
 	| t = 'devolver' {comprobarRetorno($t, _ctx);} (
 		{comprobarRetorno($t);} {nuevaExpresion();} expresion {resolverExpresion(t -> retorno(retornoFuncion).test(t), s.getSymbolicName(retornoFuncion));
-			} {new Quintupla(t,salida.peek(),null,null);}
-	)? ';' {new Quintupla(t,null,null,null);}
+			}
+	)? {new Quintupla($t,salida.peek(),null,null);} ';'
 	| t = 'elegir' {nuevoSwitch();} parExpresion {resolverSwitch(t);} {if(banderaSwitch)td_switch = salida.peek().getType();
 		} '{' {new Quintupla($t,salida.peek(),new CommonToken(-1,"{"),null);
 		} sentenciaSwitch* {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
@@ -60,10 +60,10 @@ sentencia:
 		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 		}
 	| t = 'si' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
-		} {new Quintupla(t,salida.peek(),new CommonToken(-1,"{"),null);
+		} {new Quintupla($t,salida.peek(),new CommonToken(-1,"{"),null);
 		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 		} (
-		t = 'sino' {new Quintupla(t,null,new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
+		t = 'sino' {new Quintupla($t,null,new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 			}
 	)*
 	| bloqueDeSentencias = bloque
@@ -94,11 +94,11 @@ etiquetaSwitch:
 	) dot = ':' { new Quintupla($t, salida.peek(), $dot, null); }
 	| t = 'predeterminado' dot = ':' { new Quintupla($t, salida.peek(), $dot, null); };
 declaracionLocal:
-	tipo {td_variable = t.getType();} declaracionDeVariable (
+	tipo {td_variable = t.getType();} {td=t;} declaracionDeVariable (
 		',' declaracionDeVariable
 	)*;
 declaracionDeVariable:
-	ID { if(declararVariable($ID,t))nuevaExpresion(); } {new Quintupla(td,((DeclaracionDeVariableContext)_localctx).ID,null,null);
+	ID { if(declararVariable($ID,td))nuevaExpresion(); } {new Quintupla(td,((DeclaracionDeVariableContext)_localctx).ID,null,null);
 		} (
 		OP = '=' {añadirAPila($ID);añadirAPila($OP);} expresion {resolverAsignacion($ID,_ctx);}
 	)?;
