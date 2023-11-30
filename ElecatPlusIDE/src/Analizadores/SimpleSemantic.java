@@ -805,6 +805,6 @@ public class SimpleSemantic {
             }
             return (Funcion)funcion.toArray()[0];
         }
-        return null;;
+        return null;
     }
 }
