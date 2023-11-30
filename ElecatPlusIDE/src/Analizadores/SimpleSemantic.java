@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
+import static javax.swing.JOptionPane.showMessageDialog;
+
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ConsoleErrorListener;
@@ -96,11 +98,33 @@ public class SimpleSemantic {
     }
 
     public static void comprobarComponente(Token ID, String componentName) {
-        String tipo;
-        if (!(tipo = variablesDeclaradas.get(ID.getText()).getText()).equals(componentName)) {
+        Token token = variablesDeclaradas.get(ID.getText());
+        if (token == null){
             puedeResolverPila = false;
-            semanticError(ID, "acción no válida para variables de tipo " + tipo + "; se esperaba: " + componentName);
+            return;
         }
+        String tipo = token.getText();
+        if (!tipo.equals(componentName)) {
+            puedeResolverPila = false;
+            semanticError(ID, "accion no valida para variables de tipo " + tipo + "; se esperaba: " + componentName);
+        }
+    }
+
+    public static void comprobarComponente(Token ID, String... componentes) {
+        Token token = variablesDeclaradas.get(ID.getText());
+        if (token == null){
+            puedeResolverPila = false;
+            return;
+        }
+        String tipo = token.getText();
+        for (String nomcomp : componentes) {
+            if (nomcomp.equals(tipo)) {
+                return;
+            }
+        }
+        puedeResolverPila = false;
+        semanticError(ID, "accion no valida para variables de tipo " + tipo + "; se esperaba: " + componentes[0].toString() 
+        + " o " +componentes[1].toString());
     }
 
     public static void iniciarAccion(Token ID) {
@@ -238,6 +262,9 @@ public class SimpleSemantic {
     }
 
     public static void resolverDetectar(Token t) {
+        if (!puedeResolverPila) {
+           return; 
+        }
         if (cantidadEnPila() != 1) {
             semanticError(t, "se esperaba sólo un identificador TD_ENTERO");
             return;
@@ -763,4 +790,5 @@ public class SimpleSemantic {
         }
         return true;
     }
+
 }

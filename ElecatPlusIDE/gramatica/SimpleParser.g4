@@ -60,7 +60,8 @@ sentencia:
 		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 		}
 	| t = 'si' {nuevaExpresion();} parExpresion {resolverExpresion(t -> t==BOOLEANO | t==TD_BOOLEANO , "TD_BOOLEANO o BOOLEANO");
-		} {new Quintupla(t,salida.peek(),new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
+		} {new Quintupla(t,salida.peek(),new CommonToken(-1,"{"),null);
+		} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 		} (
 		t = 'sino' {new Quintupla(t,null,new CommonToken(-1,"{"),null);} sentencia {new Quintupla(new CommonToken(-1,"}"),$t,null,null);
 			}
@@ -111,7 +112,7 @@ accion:
 			} {new Quintupla($G,$ID,salida.peek(),null);}
 		| G = 'avanzar' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
 			} {new Quintupla($G,$ID,salida.peek(),null);}
-		| G = 'detectar' {comprobarComponente($ID, "sensor_distancia");} parExpresion {resolverDetectar(t);
+		| G = 'detectar' {comprobarComponente($ID, "sensor_distancia","boton"); } parExpresion {resolverDetectar(t);
 			} {new Quintupla($G,$ID,salida.peek(),null);}
 		| G = 'detener' {comprobarComponente($ID, "motor");} parExpresion {resolverExpresion(t -> t==ENTERO | t == TD_ENTERO, "TD_ENTERO o ENTERO");
 			} {new Quintupla($G,$ID,salida.peek(),null);}

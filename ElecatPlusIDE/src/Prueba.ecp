@@ -1,41 +1,30 @@
-programa #luces#{
-	entero #variable1#=0,#noUsada#,#OtraNoUsada#;
-	#luces#(){
-		led #ledIzquierda# = 8;	
-		led #ledDerecha# = 9;
-		buzzer #claxon# = 12;
-        booleano #M# = f and v or (32>34 or 1.2>0.3);
+programa #servos# {
+	/*Programa a aaaaaa*/
+    entero #variable1#=0;
+    #servos#(){
+        display_lcd #display#;
+        led #ledIzquierda# = 3;
+        led #ledDerecha# = 9;
+        buzzer #claxon# = 12;
+        sensor_distancia #sensor# = 10;
+        boton #botonera# = 3;
+        servo #servomotor# = 11;
+        motor #MM1#;
+    }
+
+    ejecutar(){
+	entero #tono# = (2000 + 4329) - 10;
+	entero #duracion# = 3000;
+        accion(#servomotor#, girar(0));
+        esperar(1000);
+        accion(#servomotor#, girar(30));
+        esperar(1000);
+        accion(#servomotor#, girar(60));
+        esperar(1000);
+        accion(#servomotor#, girar(90));
+         esperar(1000);
+        accion(#claxon#, sonar(#tono#, #duracion#));
+        accion(#botonera#, detectar(#tono#));
 	}
-	booleano #XD#=f,#alaburguer#;
-	ejecutar(){
-		#variable1# = 0;
-		repetir mientras(#variable1#<=3){
-			accion(#ledIzquierda#, encender());
-			esperar(250);
-			accion(#ledIzquierda#, apagar());
-			esperar(250);
-			#variable1# = #variable1# + 1;
-		}
-		repetir mientras(#variable1#>3 and #variable1#<6){
-			accion(#ledDerecha#, encender());
-			esperar(500);
-			accion(#ledDerecha#, apagar());
-			esperar(500);
-			#variable1# = #variable1# + 1;
-		}
-		repetir mientras(f and f and f and f or f){
-			accion(#ledDerecha#, encender());
-			esperar(500);
-			accion(#ledDerecha#, apagar());
-			esperar(500);
-			#variable1# = #variable1# + 1;
-		}
-		#pitarVeces#(3);
-	}
-	funcion #pitarVeces#(entero #veces#){
-		repetir para(entero #i#=0;#i#<3;#i#=#i#+1){
-			accion(#claxon#, sonar(1000*(12-1+5/(2+1)),100));
-			esperar(250);
-		}
-	}
+
 }

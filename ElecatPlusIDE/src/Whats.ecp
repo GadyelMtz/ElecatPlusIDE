@@ -1,0 +1,17 @@
+programa #Whats#{
+	entero #variable1#=0;
+	#Whats#(){
+		display_lcd #display#;
+		led #ledIzquierda# = 8;
+		led #ledDerecha# = 9;
+		buzzer #claxon# = 12;
+		sensor_ultrasonico #sensor# = 10;
+		boton #botonera# = 3;
+	}
+
+	ejecutar(){
+
+		esperar(2000);
+			
+	}
+}

@@ -41,6 +41,7 @@ public class SimpleCode {
             tokens[3] = t[2];
             tokens[4] = t[3];
             quintuplas.add(this);
+            quintuplasSinOptimizar.add(this);
         }
 
         @Override
@@ -55,6 +56,8 @@ public class SimpleCode {
     }
 
     public static ArrayList<Quintupla> quintuplas = new ArrayList<>();
+    public static ArrayList<Quintupla> quintuplasSinOptimizar = new ArrayList<>();
+
     static HashMap<String, Object> temp = new HashMap<>();
     static HashMap<String, Boolean> castBooleano = new HashMap<>();
     static {

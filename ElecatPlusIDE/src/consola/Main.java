@@ -21,6 +21,7 @@ public class Main {
         try {
             CharStream input = CharStreams.fromFileName(new File("ElecatPlusIDE/src/Prueba.ecp").getAbsolutePath());
             // Leer código fuente
+            int x=0;
             SimpleLexer lexer = new SimpleLexer(input);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SimpleParser parser = new SimpleParser(tokens);
@@ -30,6 +31,7 @@ public class Main {
             SimpleSemantic.pilas.forEach(t -> System.out.println(t));
             quintuplas.forEach(t -> System.out.println(t.toString()));
             SimpleCode.optimizarExpresiones();
+            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
             quintuplas.forEach(t -> System.out.println(t.toString()));
             // Prueba de PINES = FUNCIONÓ
         } catch (Exception e) {

@@ -1774,7 +1774,7 @@ public class SimpleParser extends Parser {
 				{
 				setState(361);
 				((AccionContext)_localctx).G = match(DETECTAR);
-				comprobarComponente(((AccionContext)_localctx).ID, "sensor_distancia");
+				comprobarComponente(((AccionContext)_localctx).ID, "sensor_distancia","boton"); 
 				setState(363);
 				parExpresion();
 				resolverDetectar(t);

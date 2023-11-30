@@ -98,11 +98,11 @@ public class TablaTokens extends javax.swing.JFrame {
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/compilar.png"))); // NOI18N
         jLabel1.setToolTipText("Compilar");
-        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         lblGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/guardar.png"))); // NOI18N
         lblGuardar.setToolTipText("Guardar");
-        lblGuardar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblGuardar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblGuardar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblGuardarMouseClicked(evt);
@@ -111,7 +111,7 @@ public class TablaTokens extends javax.swing.JFrame {
 
         lblGuardarComo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/guardarcomo.png"))); // NOI18N
         lblGuardarComo.setToolTipText("Guardar como");
-        lblGuardarComo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblGuardarComo.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblGuardarComo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblGuardarComoMouseClicked(evt);
@@ -120,7 +120,7 @@ public class TablaTokens extends javax.swing.JFrame {
 
         lblAbrir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/abrir.png"))); // NOI18N
         lblAbrir.setToolTipText("Abrir");
-        lblAbrir.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblAbrir.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblAbrir.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAbrirMouseClicked(evt);
@@ -131,7 +131,7 @@ public class TablaTokens extends javax.swing.JFrame {
         lblAcercar.setForeground(new java.awt.Color(255, 255, 255));
         lblAcercar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblAcercar.setText("+");
-        lblAcercar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblAcercar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblAcercar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAcercarMouseClicked(evt);
@@ -142,7 +142,7 @@ public class TablaTokens extends javax.swing.JFrame {
         lblAlejar.setForeground(new java.awt.Color(255, 255, 255));
         lblAlejar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblAlejar.setText("-");
-        lblAlejar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblAlejar.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblAlejar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAlejarMouseClicked(evt);
@@ -151,7 +151,7 @@ public class TablaTokens extends javax.swing.JFrame {
 
         lblToken.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/token.png"))); // NOI18N
         lblToken.setToolTipText("Tokens");
-        lblToken.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblToken.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblToken.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblTokenMouseClicked(evt);
@@ -160,11 +160,11 @@ public class TablaTokens extends javax.swing.JFrame {
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/stack.png"))); // NOI18N
         jLabel5.setToolTipText("Pila");
-        jLabel5.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel5.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         lblAutomata.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/transicion.png"))); // NOI18N
         lblAutomata.setToolTipText("Diagrama de transicion");
-        lblAutomata.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblAutomata.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblAutomata.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAutomataMouseClicked(evt);
@@ -172,7 +172,7 @@ public class TablaTokens extends javax.swing.JFrame {
         });
 
         lblArbol.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/arboles.png"))); // NOI18N
-        lblArbol.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        lblArbol.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblArbol.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblArbolMouseClicked(evt);
@@ -342,7 +342,7 @@ public class TablaTokens extends javax.swing.JFrame {
 
         lblLogo1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/ELECAT.png"))); // NOI18N
 
-        tablaTokens.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
+        tablaTokens.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         tablaTokens.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -351,6 +351,10 @@ public class TablaTokens extends javax.swing.JFrame {
                 "Token", "Descripcion"
             }
         ));
+        tablaTokens.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tablaTokens.setFocusable(false);
+        tablaTokens.setGridColor(new java.awt.Color(51, 153, 255));
+        tablaTokens.setSelectionBackground(new java.awt.Color(255, 255, 0));
         jScrollPane3.setViewportView(tablaTokens);
 
         jLabel14.setFont(new java.awt.Font("Arial", 1, 36)); // NOI18N
