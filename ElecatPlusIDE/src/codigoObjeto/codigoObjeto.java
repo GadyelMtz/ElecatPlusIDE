@@ -430,7 +430,7 @@ public class codigoObjeto {
 
                 // Para los motores
                 // 'accion' '(' ID ',' 'avanzar' | 'detener' '(' 'ID | ENTERO' ')' ';'
-                if(componente.equals("motor") && accion.equals("avanzar")){
+                if(componente.equals("motor") && accion.contains("avanzar")){
                     // Recupera el numero del motor con su nombre
                     // <ID, 1>   1 = Izquierdo    2 = derecho
                     int IDmotor = motores.get(id);
@@ -443,27 +443,33 @@ public class codigoObjeto {
 
                     if(IDmotor == 2){ 
                     String avanzarString = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
-                    lineasCodigo[i] = "digitalWrite(IN5,LOW);\n"+
-                                      "digitalWrite(IN7,LOW);\n"+
-                                      "analogWrite(ENA, 0);";
+                    lineasCodigo[i] = "digitalWrite(IN1,HIGH);\n"+
+                                      "digitalWrite(IN2,LOW);\n"+
+                                      "analogWrite(ENA,"+avanzarString+");";
+                  
                     }
                 }
-                if(componente.equals("motor") && accion.equals("detener")){
+
+                if(componente.equals("motor") && accion.contains("detener")){
                     // Recupera el numero del motor con su nombre
                     // <ID, 1>   1 = Izquierdo    2 = derecho
                     int IDmotor = motores.get(id);
+
                     if(IDmotor == 1){ 
-                    String avanzarString = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
+                    String tiempo = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
                     lineasCodigo[i] = "digitalWrite(IN3,LOW);\n"+
                                       "digitalWrite(IN4,LOW);\n"+
-                                      "analogWrite(ENB, 0);";
+                                      "analogWrite(ENB, 0);\n"+
+                                      "delay("+tiempo+");";
                     }
 
                     if(IDmotor == 2){ 
+                    String tiempo = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
                     String avanzarString = lineasCodigo[i].split("\\(")[2].trim().replaceAll("[^0-9]", "");
-                    lineasCodigo[i] = "digitalWrite(IN5,HIGH);\n"+
-                                      "digitalWrite(IN7,LOW);\n"+
-                                      "analogWrite(ENA,"+avanzarString+");";
+                    lineasCodigo[i] = "digitalWrite(IN1,LOW);\n"+
+                                      "digitalWrite(IN2,LOW);\n"+
+                                      "analogWrite(ENA, 0);"+
+                                      "delay("+tiempo+");";
                     }
                 }
             }

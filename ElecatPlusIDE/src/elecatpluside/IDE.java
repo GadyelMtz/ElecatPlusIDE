@@ -904,7 +904,7 @@ public class IDE extends javax.swing.JFrame {
                             setCharacterAttributes(wordL, wordR - wordL, attorange, false);
                             // Acciones
                         } else if (text.substring(wordL, wordR)
-                                .matches("(\\W)*(sonar|girar|avanzar|detectar|encender|apagar|accion|escribir)")) {
+                                .matches("(\\W)*(sonar|girar|avanzar|detectar|encender|apagar|accion|escribir|detener)")) {
                             setCharacterAttributes(wordL, wordR - wordL, attred, false);
                             // Variables
                         } else if (text.substring(wordL, wordR)
